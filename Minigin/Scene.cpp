@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "Scene.h"
+#include <cassert>
 
 using namespace dae;
 
@@ -32,6 +33,12 @@ void Scene::Update()
 	{
 		object->Update();
 	}
+}
+
+void dae::Scene::FixedUpdate()
+{
+	for (auto& object : m_objects)
+		object->FixedUpdate();
 }
 
 void Scene::Render() const

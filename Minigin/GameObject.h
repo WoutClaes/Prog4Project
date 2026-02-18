@@ -1,27 +1,79 @@
 #pragma once
-#include <string>
+#include <vector>
 #include <memory>
-#include "Transform.h"
+#include <type_traits>
+#include "GameComponent.h"
+#include <algorithm>
 
 namespace dae
 {
-	class Texture2D;
 	class GameObject 
 	{
-		Transform m_transform{};
-		std::shared_ptr<Texture2D> m_texture{};
 	public:
 		virtual void Update();
+		virtual void FixedUpdate();
 		virtual void Render() const;
 
-		void SetTexture(const std::string& filename);
-		void SetPosition(float x, float y);
+		template<typename T, typename... Args>
+		T* AddGameComponent(Args&&... args)
+		{
+			static_assert(std::is_base_of_v<GameComponent, T>,
+				"T must derive from GameComponent");
+
+			auto gameComponent = std::make_unique<T>(this, std::forward<Args>(args)...);
+			T* gameComponentPtr = gameComponent.get();
+			m_GameComponents.push_back(std::move(gameComponent));
+			return gameComponentPtr;
+		}
+
+		template<typename T>
+		void RemoveGameComponent()
+		{
+			static_assert(std::is_base_of_v<GameComponent, T>,
+				"T must derive from GameComponent");
+
+			auto it = std::find_if(m_GameComponents.begin(), m_GameComponents.end(),
+				[](const std::unique_ptr<GameComponent>& c)
+				{
+					return dynamic_cast<T*>(c.get()) != nullptr;
+				});
+
+			if (it != m_GameComponents.end())
+				m_GameComponentsToRemove.push_back(it->get());
+		}
+
+		template<typename T>
+		T* GetGameComponent() const
+		{
+			static_assert(std::is_base_of_v<GameComponent, T>,
+				"T must derive from GameComponent");
+
+			for (auto& c : m_GameComponents)
+			{
+				if (auto* casted = dynamic_cast<T*>(c.get()))
+					return casted;
+			}
+			return nullptr;
+		}
+
+		template<typename T>
+		bool HasGameComponent() const
+		{
+			return GetGameComponent<T>() != nullptr;
+		}
 
 		GameObject() = default;
 		virtual ~GameObject();
+
 		GameObject(const GameObject& other) = delete;
 		GameObject(GameObject&& other) = delete;
 		GameObject& operator=(const GameObject& other) = delete;
 		GameObject& operator=(GameObject&& other) = delete;
+
+	private:
+		void CleanupRemovedGameComponents();
+
+		std::vector<std::unique_ptr<GameComponent>> m_GameComponents;
+		std::vector<GameComponent*> m_GameComponentsToRemove;
 	};
 }

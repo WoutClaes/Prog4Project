@@ -5,20 +5,38 @@
 
 dae::GameObject::~GameObject() = default;
 
-void dae::GameObject::Update(){}
+void dae::GameObject::Update()
+{
+	for (auto& component : m_GameComponents)
+		component->Update();
+
+	CleanupRemovedGameComponents();
+}
+
+void dae::GameObject::FixedUpdate()
+{
+	for (auto& component : m_GameComponents)
+		component->FixedUpdate();
+}
 
 void dae::GameObject::Render() const
 {
-	const auto& pos = m_transform.GetPosition();
-	Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
+	for (auto& component : m_GameComponents)
+		component->Render();
 }
 
-void dae::GameObject::SetTexture(const std::string& filename)
+void dae::GameObject::CleanupRemovedGameComponents()
 {
-	m_texture = ResourceManager::GetInstance().LoadTexture(filename);
-}
-
-void dae::GameObject::SetPosition(float x, float y)
-{
-	m_transform.SetPosition(x, y, 0.0f);
+	for (GameComponent* toRemove : m_GameComponentsToRemove)
+	{
+		m_GameComponents.erase(
+			std::remove_if(m_GameComponents.begin(), m_GameComponents.end(),
+				[toRemove](const std::unique_ptr<GameComponent>& c)
+				{
+					return c.get() == toRemove;
+				}),
+			m_GameComponents.end()
+		);
+	}
+	m_GameComponentsToRemove.clear();
 }

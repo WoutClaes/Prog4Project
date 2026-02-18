@@ -15,6 +15,7 @@
 #include "SceneManager.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
+#include "GameTime.h"
 
 SDL_Window* g_window{};
 
@@ -90,6 +91,8 @@ dae::Minigin::~Minigin()
 void dae::Minigin::Run(const std::function<void()>& load)
 {
 	load();
+	GameTime::GetInstance();
+
 #ifndef __EMSCRIPTEN__
 	while (!m_quit)
 		RunOneFrame();
@@ -100,6 +103,15 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
+	//Game Time
+	GameTime::GetInstance().Update();
+
+	while (GameTime::GetInstance().NeedsFixedUpdate())
+	{
+		SceneManager::GetInstance().FixedUpdate();
+		GameTime::GetInstance().ConsumeFixedStep();
+	}
+
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
