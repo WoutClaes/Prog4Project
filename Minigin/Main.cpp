@@ -8,11 +8,11 @@
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "ResourceManager.h"
-#include "TextComponent.h"
+#include "Components/TextComponent.h"
 #include "Scene.h"
-#include "TransformComponent.h"
-#include "RenderComponent.h"
-#include "FPSComponent.h"
+#include "Components/TransformComponent.h"
+#include "Components/RenderComponent.h"
+#include "Components/FPSComponent.h"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -34,13 +34,13 @@ static void load()
     auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
     go = std::make_unique<dae::GameObject>();
     go->AddGameComponent<dae::TransformComponent>()->SetPosition(292.f, 20.f);
-    go->AddGameComponent<dae::TextComponent>("Programming 4 Assignment", font, SDL_Color{ 255, 255, 0, 255 });
+    go->AddGameComponent<dae::TextComponent>("Programming 4 Assignment", font, SDL_Color{ 255, 255, 255, 255 });
     scene.Add(std::move(go));
 
     auto fpsFont = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 20);
     go = std::make_unique<dae::GameObject>();
     go->AddGameComponent<dae::TransformComponent>()->SetPosition(5.f, 5.f);
-    go->AddGameComponent<dae::TextComponent>("", fpsFont, SDL_Color{ 255, 255, 0, 255 });
+    go->AddGameComponent<dae::TextComponent>("", fpsFont, SDL_Color{ 255, 255, 255, 255 });
     go->AddGameComponent<dae::FPSComponent>();
     scene.Add(std::move(go));
 }

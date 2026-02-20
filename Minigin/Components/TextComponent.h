@@ -2,7 +2,7 @@
 #include <string>
 #include <memory>
 #include <SDL3/SDL.h>
-#include <GameComponent.h>
+#include <Components/GameComponent.h>
 
 namespace dae
 {

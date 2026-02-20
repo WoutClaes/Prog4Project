@@ -2,17 +2,17 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
-#include "GameComponent.h"
+#include "Components/GameComponent.h"
 #include <algorithm>
 
 namespace dae
 {
-	class GameObject 
+	class GameObject final
 	{
 	public:
-		virtual void Update();
-		virtual void FixedUpdate();
-		virtual void Render() const;
+		void Update();
+		void FixedUpdate();
+		void Render() const;
 
 		template<typename T, typename... Args>
 		T* AddGameComponent(Args&&... args)
@@ -63,7 +63,7 @@ namespace dae
 		}
 
 		GameObject() = default;
-		virtual ~GameObject();
+		~GameObject();
 
 		GameObject(const GameObject& other) = delete;
 		GameObject(GameObject&& other) = delete;

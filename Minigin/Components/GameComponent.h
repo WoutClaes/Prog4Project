@@ -20,6 +20,7 @@ namespace dae
 		GameComponent& operator=(const GameComponent&) = delete;
 		GameComponent(GameComponent&&) = delete;
 		GameComponent& operator=(GameComponent&&) = delete;
+
 	protected:
 		GameObject* GetOwner() const { return m_pOwner; };
 
