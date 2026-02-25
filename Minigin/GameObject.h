@@ -62,6 +62,17 @@ namespace dae
 			return GetGameComponent<T>() != nullptr;
 		}
 
+		void SetParent(GameObject* parent, bool keepWorldPosition = true);
+
+		GameObject* GetParent() const { return m_parent; }
+
+		size_t GetChildCount() const { return m_children.size(); }
+		GameObject* GetChildAt(size_t index) const;
+
+		const std::vector<GameObject*>& GetChildren() const { return m_children; }
+
+		void SetPositionDirty();
+
 		GameObject() = default;
 		~GameObject();
 
@@ -73,7 +84,13 @@ namespace dae
 	private:
 		void CleanupRemovedGameComponents();
 
+		void AddChild(GameObject* child);
+		void RemoveChild(GameObject* child);
+
 		std::vector<std::unique_ptr<GameComponent>> m_GameComponents;
 		std::vector<GameComponent*> m_GameComponentsToRemove;
+
+		GameObject* m_parent{ nullptr };
+		std::vector<GameObject*> m_children{};
 	};
 }

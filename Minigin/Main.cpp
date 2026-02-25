@@ -13,6 +13,7 @@
 #include "Components/TransformComponent.h"
 #include "Components/RenderComponent.h"
 #include "Components/FPSComponent.h"
+#include "Components/OrbitComponent.h"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -43,17 +44,42 @@ static void load()
     go->AddGameComponent<dae::TextComponent>("", fpsFont, SDL_Color{ 255, 255, 255, 255 });
     go->AddGameComponent<dae::FPSComponent>();
     scene.Add(std::move(go));
+
+    constexpr float cx = 400.f;
+    constexpr float cy = 200.f;
+
+    auto anchor = std::make_unique<dae::GameObject>();
+    auto* anchorTransform = anchor->AddGameComponent<dae::TransformComponent>();
+    anchorTransform->SetPosition(cx, cy);
+    dae::GameObject* anchorPtr = anchor.get();
+    scene.Add(std::move(anchor));
+
+    auto parent = std::make_unique<dae::GameObject>();
+    parent->AddGameComponent<dae::TransformComponent>();
+    parent->AddGameComponent<dae::RenderComponent>()->SetTexture("qBert.png");
+    parent->AddGameComponent<dae::OrbitComponent>(80.f, 2.f);
+    dae::GameObject* parentPtr = parent.get();
+    scene.Add(std::move(parent));
+    parentPtr->SetParent(anchorPtr, false);
+
+    auto child = std::make_unique<dae::GameObject>();
+    child->AddGameComponent<dae::TransformComponent>();
+    child->AddGameComponent<dae::RenderComponent>()->SetTexture("qBert.png");
+    child->AddGameComponent<dae::OrbitComponent>(40.f, -3.f);
+    dae::GameObject* childPtr = child.get();
+    scene.Add(std::move(child));
+    childPtr->SetParent(parentPtr, false);
 }
 
-int main(int, char*[]) {
+int main(int, char* []) {
 #if __EMSCRIPTEN__
-	fs::path data_location = "";
+    fs::path data_location = "";
 #else
-	fs::path data_location = "./Data/";
-	if(!fs::exists(data_location))
-		data_location = "../Data/";
+    fs::path data_location = "./Data/";
+    if (!fs::exists(data_location))
+        data_location = "../Data/";
 #endif
-	dae::Minigin engine(data_location);
-	engine.Run(load);
+    dae::Minigin engine(data_location);
+    engine.Run(load);
     return 0;
 }

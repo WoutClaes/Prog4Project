@@ -1,21 +1,29 @@
 #include "RenderComponent.h"
 #include "TransformComponent.h"
+#include "GameObject.h"
 #include "ResourceManager.h"
 #include "Renderer.h"
-#include "GameObject.h"
 
-void dae::RenderComponent::SetTexture(const std::string& filename)
+namespace dae
 {
-	m_Texture = ResourceManager::GetInstance().LoadTexture(filename);
-}
+	void RenderComponent::SetTexture(const std::string& filename)
+	{
+		m_texture = ResourceManager::GetInstance().LoadTexture(filename);
+	}
 
-void dae::RenderComponent::Render() const
-{
-	if (!m_Texture) return;
+	void RenderComponent::SetTexture(std::shared_ptr<Texture2D> texture)
+	{
+		m_texture = std::move(texture);
+	}
 
-	auto* transform = GetOwner()->GetGameComponent<TransformComponent>();
-	if (!transform) return;
+	void RenderComponent::Render() const
+	{
+		if (!m_texture) return;
 
-	const auto& pos = transform->GetTransform().GetPosition();
-	Renderer::GetInstance().RenderTexture(*m_Texture, pos.x, pos.y);
+		if (auto* transform = GetOwner()->GetGameComponent<TransformComponent>())
+		{
+			const auto& pos = transform->GetWorldPosition();
+			Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
+		}
+	}
 }

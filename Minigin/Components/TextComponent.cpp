@@ -8,12 +8,13 @@
 #include "GameObject.h"
 
 dae::TextComponent::TextComponent(GameObject* pOwner, const std::string& text, std::shared_ptr<Font> font, const SDL_Color& color)
-	: GameComponent(pOwner)
-	, m_NeedsUpdate(true)
-	, m_Text(text)
-	,m_Color(color)
-	,m_Font(std::move(font))
-{}
+    : GameComponent(pOwner)
+    , m_NeedsUpdate(true)
+    , m_Text(text)
+    , m_Color(color)
+    , m_Font(std::move(font))
+{
+}
 
 void dae::TextComponent::Update()
 {
