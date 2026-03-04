@@ -11,7 +11,6 @@ namespace dae
 	static constexpr int   INT_BUFFER_SIZE = 1 << 26;
 	static constexpr int   GO_BUFFER_SIZE = 1 << 14;
 	static constexpr int   NUM_STEPS = 11;
-	static constexpr float X_LABELS[] = { 1,2,4,8,16,32,64,128,256,512,1024 };
 
 	CacheBenchmarkComponent::CacheBenchmarkComponent(GameObject* owner)
 		: GameComponent(owner)
