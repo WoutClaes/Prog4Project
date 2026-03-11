@@ -25,16 +25,27 @@ namespace dae
 			m_PreviousButtons = m_CurrentButtons;
 			m_CurrentButtons = 0;
 
-			SDL_Gamepad* pad = SDL_GetGamepadFromID(static_cast<SDL_JoystickID>(m_Index));
+			int count = 0;
+			SDL_JoystickID* gamepads = SDL_GetGamepads(&count);
+			if (!gamepads || m_Index >= static_cast<unsigned int>(count))
+			{
+				m_Connected = false;
+				if (gamepads) SDL_free(gamepads);
+				return;
+			}
+
+			SDL_Gamepad* pad = SDL_OpenGamepad(gamepads[m_Index]);
+			SDL_free(gamepads);
+
 			if (!pad) { m_Connected = false; return; }
 			m_Connected = true;
 
-			// Map SDL buttons → our ControllerButton bitmask
 			auto sdlBtn = [&](SDL_GamepadButton btn, uint32_t bit)
 				{
 					if (SDL_GetGamepadButton(pad, btn))
 						m_CurrentButtons |= bit;
 				};
+
 			sdlBtn(SDL_GAMEPAD_BUTTON_DPAD_UP, static_cast<uint32_t>(ControllerButton::DPadUp));
 			sdlBtn(SDL_GAMEPAD_BUTTON_DPAD_DOWN, static_cast<uint32_t>(ControllerButton::DPadDown));
 			sdlBtn(SDL_GAMEPAD_BUTTON_DPAD_LEFT, static_cast<uint32_t>(ControllerButton::DPadLeft));
