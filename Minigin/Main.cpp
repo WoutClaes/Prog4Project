@@ -13,7 +13,11 @@
 #include "Components/TransformComponent.h"
 #include "Components/RenderComponent.h"
 #include "Components/FPSComponent.h"
-#include "Components/CacheBenchmarkComponent.h"
+
+#include "InputManager.h"
+#include "Commands/MoveCommand.h"
+#include "GameObject.h"
+#include <glm/glm.hpp>
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -49,10 +53,44 @@ static void load()
     go->AddGameComponent<dae::FPSComponent>();
     scene.Add(std::move(go));
 
-    // Cache benchmark component
-    auto benchGO = std::make_unique<dae::GameObject>();
-    benchGO->AddGameComponent<dae::CacheBenchmarkComponent>();
-    scene.Add(std::move(benchGO));
+    // Character 1 (WASD)
+    auto go1 = std::make_unique<dae::GameObject>();
+    go1->AddGameComponent<dae::TransformComponent>()->SetPosition(200.f, 288.f);
+    go1->AddGameComponent<dae::RenderComponent>()->SetTexture("qBert.png"); // swap for your character texture
+    dae::GameObject* pChar1 = go1.get(); // raw ptr for binding – lifetime owned by scene
+    scene.Add(std::move(go1));
+
+    constexpr float speedChar1 = 100.f; // units per second
+
+    auto& input = dae::InputManager::GetInstance();
+
+    // KeyState::Pressed = fires every frame while the key is held down
+    input.BindKeyboardCommand(SDLK_W, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar1, glm::vec3{ 0.f, -1.f, 0.f }, speedChar1));
+    input.BindKeyboardCommand(SDLK_S, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar1, glm::vec3{ 0.f,  1.f, 0.f }, speedChar1));
+    input.BindKeyboardCommand(SDLK_A, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar1, glm::vec3{ -1.f,  0.f, 0.f }, speedChar1));
+    input.BindKeyboardCommand(SDLK_D, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar1, glm::vec3{ 1.f,  0.f, 0.f }, speedChar1));
+
+    // ── Character 2 (DPad, double speed) ─────────────────────────────────────
+    auto go2 = std::make_unique<dae::GameObject>();
+    go2->AddGameComponent<dae::TransformComponent>()->SetPosition(600.f, 288.f);
+    go2->AddGameComponent<dae::RenderComponent>()->SetTexture("qBert.png"); // swap for your character texture
+    dae::GameObject* pChar2 = go2.get();
+    scene.Add(std::move(go2));
+
+    constexpr float speedChar2 = speedChar1 * 2.f;
+
+    input.BindControllerCommand(0, dae::ControllerButton::DPadUp, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar2, glm::vec3{ 0.f, -1.f, 0.f }, speedChar2));
+    input.BindControllerCommand(0, dae::ControllerButton::DPadDown, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar2, glm::vec3{ 0.f,  1.f, 0.f }, speedChar2));
+    input.BindControllerCommand(0, dae::ControllerButton::DPadLeft, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar2, glm::vec3{ -1.f,  0.f, 0.f }, speedChar2));
+    input.BindControllerCommand(0, dae::ControllerButton::DPadRight, dae::KeyState::Pressed,
+        std::make_unique<dae::MoveCommand>(pChar2, glm::vec3{ 1.f,  0.f, 0.f }, speedChar2));
 }
 
 int main(int, char* []) {

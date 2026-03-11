@@ -31,7 +31,9 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
  "Minigin/Components/FPSComponent.cpp" 
  "Minigin/Components/TransformComponent.cpp"
  "Minigin/Components/OrbitComponent.cpp"
- "Minigin/Components/CacheBenchmarkComponent.cpp")
+ "Minigin/Components/CacheBenchmarkComponent.cpp" 
+ "Minigin/Commands/MoveCommand.cpp" 
+ "Minigin/Controller.cpp")
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
@@ -156,6 +158,11 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   glm::glm
   ${VLD_LIBRARIES}
 )
+
+# XInput: Windows only, hidden behind the Pimpl in Controller.cpp
+if(WIN32 AND NOT EMSCRIPTEN)
+  target_link_libraries("${TARGET_NAME}" PUBLIC xinput)
+endif()
 
 if(MSVC)
   # compile at warning level 4 + treat warnings as errors
