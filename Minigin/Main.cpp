@@ -220,7 +220,11 @@ int main(int, char* [])
 #endif
 
     dae::Minigin engine(data_location);
+#ifdef USE_STEAMWORKS
     engine.Run([steamInitialized]() { load(steamInitialized); });
+#else
+    engine.Run([]() { load(false); });
+#endif
 
 #ifdef USE_STEAMWORKS
     if (steamInitialized)
