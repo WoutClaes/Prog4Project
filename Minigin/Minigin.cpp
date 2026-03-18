@@ -7,6 +7,13 @@
 #include <windows.h>
 #endif
 
+#ifdef USE_STEAMWORKS
+#pragma warning(push)
+#pragma warning(disable:4996)
+#include <steam_api.h>
+#pragma warning(pop)
+#endif
+
 #include <SDL3/SDL.h>
 //#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -111,6 +118,10 @@ void dae::Minigin::RunOneFrame()
 		SceneManager::GetInstance().FixedUpdate();
 		GameTime::GetInstance().ConsumeFixedStep();
 	}
+
+#ifdef USE_STEAMWORKS
+	SteamAPI_RunCallbacks();
+#endif
 
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();

@@ -26,14 +26,27 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   Minigin/SceneManager.cpp
   Minigin/Texture2D.cpp
   Minigin/Transform.cpp
- "Minigin/Components/RenderComponent.cpp" 
- "Minigin/Components/TextComponent.cpp"
- "Minigin/Components/FPSComponent.cpp" 
- "Minigin/Components/TransformComponent.cpp"
- "Minigin/Components/OrbitComponent.cpp"
- "Minigin/Components/CacheBenchmarkComponent.cpp" 
- "Minigin/Commands/MoveCommand.cpp" 
- "Minigin/Controller.cpp")
+  Minigin/Controller.cpp
+
+  "Minigin/Components/RenderComponent.cpp"
+  "Minigin/Components/TextComponent.cpp"
+  "Minigin/Components/FPSComponent.cpp"
+  "Minigin/Components/TransformComponent.cpp"
+  "Minigin/Components/OrbitComponent.cpp"
+  "Minigin/Components/CacheBenchmarkComponent.cpp"
+  "Minigin/Components/HealthComponent.cpp"
+  "Minigin/Components/ScoreComponent.cpp"
+  "Minigin/Components/LivesDisplayComponent.cpp"
+  "Minigin/Components/ScoreDisplayComponent.cpp"
+  "Minigin/Components/SpriteComponent.cpp"
+
+  "Minigin/Commands/MoveCommand.cpp"
+  "Minigin/Commands/DamageCommand.cpp"
+  "Minigin/Commands/AddPointsCommand.cpp"
+  "Minigin/Commands/ResetAchievementsCommand.cpp"
+
+  "Minigin/Observer/Subject.cpp"
+)
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)

@@ -15,7 +15,6 @@ namespace dae
 	void InputManager::BindKeyboardCommand(SDL_Keycode key, KeyState state,
 		std::unique_ptr<Command> command)
 	{
-		// Replace if a binding for this key+state already exists
 		UnbindKeyboardCommand(key, state);
 		m_KeyboardBindings.push_back({ key, state, std::move(command) });
 	}
