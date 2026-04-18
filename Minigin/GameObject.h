@@ -62,7 +62,7 @@ namespace dae
 			return GetGameComponent<T>() != nullptr;
 		}
 
-		void SetParent(GameObject* parent, bool keepWorldPosition = true);
+		void SetParent(GameObject* parent, bool keepWorldPosition = false);
 
 		GameObject* GetParent() const { return m_parent; }
 

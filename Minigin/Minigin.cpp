@@ -113,6 +113,8 @@ void dae::Minigin::RunOneFrame()
 	//Game Time
 	GameTime::GetInstance().Update();
 
+	m_quit = !InputManager::GetInstance().ProcessInput();
+
 	while (GameTime::GetInstance().NeedsFixedUpdate())
 	{
 		SceneManager::GetInstance().FixedUpdate();
@@ -123,7 +125,6 @@ void dae::Minigin::RunOneFrame()
 	SteamAPI_RunCallbacks();
 #endif
 
-	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
 }

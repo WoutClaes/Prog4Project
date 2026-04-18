@@ -44,45 +44,52 @@ void dae::GameObject::CleanupRemovedGameComponents()
 
 void dae::GameObject::SetParent(GameObject* parent, bool keepWorldPosition)
 {
-	if (parent == m_parent)
-		return;
+    if (parent == m_parent)
+        return;
 
-	if (parent != nullptr)
-	{
-		GameObject* check = parent;
-		while (check)
-		{
-			if (check == this) return;
-			check = check->m_parent;
-		}
-	}
+    if (parent != nullptr)
+    {
+        GameObject* check = parent;
+        while (check)
+        {
+            if (check == this) return;
+            check = check->m_parent;
+        }
+    }
 
-	if (m_parent)
-		m_parent->RemoveChild(this);
+    if (m_parent)
+        m_parent->RemoveChild(this);
 
-	if (auto* transform = GetGameComponent<TransformComponent>())
-	{
-		if (keepWorldPosition && parent)
-		{
-			if (auto* parentTransform = parent->GetGameComponent<TransformComponent>())
-			{
-				glm::vec3 worldPos = transform->GetWorldPosition();
-				glm::vec3 parentPos = parentTransform->GetWorldPosition();
-				transform->SetLocalPosition(worldPos - parentPos);
-			}
-		}
-		else if (!keepWorldPosition)
-		{
-			transform->SetLocalPosition({ 0.f, 0.f, 0.f });
-		}
-	}
+    if (auto* transform = GetGameComponent<TransformComponent>())
+    {
+        if (keepWorldPosition)
+        {
+            if (parent)
+            {
+                if (auto* parentTransform = parent->GetGameComponent<TransformComponent>())
+                {
+                    glm::vec3 worldPos = transform->GetWorldPosition();
+                    glm::vec3 parentPos = parentTransform->GetWorldPosition();
+                    transform->SetLocalPosition(worldPos - parentPos);
+                }
+            }
+            else
+            {
+                transform->SetLocalPosition(transform->GetWorldPosition());
+            }
+        }
+        else
+        {
+            transform->SetLocalPosition({ 0.f, 0.f, 0.f });
+        }
+    }
 
-	m_parent = parent;
+    m_parent = parent;
 
-	if (m_parent)
-		m_parent->AddChild(this);
+    if (m_parent)
+        m_parent->AddChild(this);
 
-	SetPositionDirty();
+    SetPositionDirty();
 }
 
 dae::GameObject* dae::GameObject::GetChildAt(size_t index) const

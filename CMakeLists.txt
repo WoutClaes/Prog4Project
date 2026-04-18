@@ -46,7 +46,7 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   "Minigin/Commands/ResetAchievementsCommand.cpp"
 
   "Minigin/Observer/Subject.cpp"
-)
+ "Minigin/Observer/SteamAchievementObserver.cpp")
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
