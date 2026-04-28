@@ -19,6 +19,8 @@
 #include "GameObject.h"
 #include "InputManager.h"
 #include "Components/TransformComponent.h"
+#include "Sound/ServiceLocator.h"
+#include "Sound/SDLSoundSystem.h"
 
 #include "Grid/CubeGrid.h"
 #include "Components/Grid/CubeGridComponent.h"
@@ -32,6 +34,10 @@ namespace fs = std::filesystem;
 static void load(bool /*steamInitialized*/)
 {
     auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+    dae::ServiceLocator::RegisterSoundSystem(
+        std::make_unique<dae::SDLSoundSystem>()
+    );
 
     // --- Grid ---
     constexpr float originX = 400.f;

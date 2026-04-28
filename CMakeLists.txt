@@ -137,12 +137,16 @@ add_library(minigin_lib STATIC
 
   Minigin/Observer/Subject.cpp
   Minigin/Observer/SteamAchievementObserver.cpp
+
+  Minigin/Sound/ServiceLocator.cpp
+  Minigin/Sound/SDLSoundSystem.cpp
 )
 
 target_compile_features(minigin_lib PUBLIC cxx_std_20)
 
 target_include_directories(minigin_lib PUBLIC
   ${CMAKE_SOURCE_DIR}/Minigin/
+  ${CMAKE_SOURCE_DIR}/Minigin/Sound/
   ${glm_SOURCE_DIR}
   ${sdl3_SOURCE_DIR}/include
   ${sdl3_ttf_SOURCE_DIR}/include

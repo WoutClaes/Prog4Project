@@ -1,6 +1,7 @@
 #pragma once
 #include "Components/GameComponent.h"
 #include "Grid/CubeGrid.h"
+#include "Sound/ISoundSystem.h"
 
 namespace qbert
 {
@@ -53,5 +54,7 @@ namespace qbert
         float m_JumpTimer{ 0.f };
         static constexpr float JumpDuration{ 0.15f };
         bool m_IsJumping{ false };
+
+        dae::SoundId m_JumpSoundId{ dae::INVALID_SOUND_ID };
     };
 }

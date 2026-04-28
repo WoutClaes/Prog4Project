@@ -2,6 +2,7 @@
 #include "Components/TransformComponent.h"
 #include "GameObject.h"
 #include "GameTime.h"
+#include "Sound/ServiceLocator.h"
 
 namespace qbert
 {
@@ -15,6 +16,8 @@ namespace qbert
         , m_Row(row)
         , m_Col(col)
     {
+        m_JumpSoundId = dae::ServiceLocator::GetSoundSystem()
+            .RegisterSound("Data/Sounds/QBert Jump.wav");
         UpdateScreenPosition();
     }
 
@@ -72,6 +75,8 @@ namespace qbert
     {
         if (auto* cube = m_pGrid->GetCube(m_Row, m_Col))
             cube->Step();
+
+        dae::ServiceLocator::GetSoundSystem().Play(m_JumpSoundId, 1.f);
     }
 
     void QbertComponent::UpdateScreenPosition()
