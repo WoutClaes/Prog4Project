@@ -1,58 +1,11 @@
 cmake_minimum_required(VERSION 3.26)
-project(Minigin)
+project(Prog4Project)
 
-if(EMSCRIPTEN)
-  message("Using Emscripten!")
-endif()
-
-if(EMSCRIPTEN)
-  set(TARGET_NAME minigin_web)
-  set(TARGET_PARAM )
-else()
-  set(TARGET_NAME minigin)
-  set(TARGET_PARAM WIN32)
-endif()
-
-# list source files here
-add_executable(${TARGET_NAME} ${TARGET_PARAM}
-  Minigin/Font.cpp
-  Minigin/GameObject.cpp
-  Minigin/InputManager.cpp
-  Minigin/Main.cpp
-  Minigin/Minigin.cpp
-  Minigin/Renderer.cpp
-  Minigin/ResourceManager.cpp
-  Minigin/Scene.cpp
-  Minigin/SceneManager.cpp
-  Minigin/Texture2D.cpp
-  Minigin/Transform.cpp
-  Minigin/Controller.cpp
-
-  "Minigin/Components/RenderComponent.cpp"
-  "Minigin/Components/TextComponent.cpp"
-  "Minigin/Components/FPSComponent.cpp"
-  "Minigin/Components/TransformComponent.cpp"
-  "Minigin/Components/OrbitComponent.cpp"
-  "Minigin/Components/CacheBenchmarkComponent.cpp"
-  "Minigin/Components/HealthComponent.cpp"
-  "Minigin/Components/ScoreComponent.cpp"
-  "Minigin/Components/LivesDisplayComponent.cpp"
-  "Minigin/Components/ScoreDisplayComponent.cpp"
-  "Minigin/Components/SpriteComponent.cpp"
-
-  "Minigin/Commands/MoveCommand.cpp"
-  "Minigin/Commands/DamageCommand.cpp"
-  "Minigin/Commands/AddPointsCommand.cpp"
-  "Minigin/Commands/ResetAchievementsCommand.cpp"
-
-  "Minigin/Observer/Subject.cpp"
- "Minigin/Observer/SteamAchievementObserver.cpp")
-
-# enable c++20 features
-target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
-
+# ============================================================
+# Dependencies (shared between engine and game)
+# ============================================================
 include(FetchContent)
-# add glm
+
 find_package(glm CONFIG QUIET)
 if(NOT glm_FOUND)
   FetchContent_Declare(
@@ -64,10 +17,9 @@ if(NOT glm_FOUND)
   FetchContent_MakeAvailable(glm)
 endif()
 
-# Add SDL3
 find_package(SDL3 3.4 CONFIG QUIET)
 if(NOT SDL3_FOUND)
-  if (WIN32)
+  if(WIN32)
     FetchContent_Declare(
       SDL3
       URL https://www.libsdl.org/release/SDL3-devel-3.4.0-VC.zip
@@ -89,10 +41,9 @@ if(NOT SDL3_FOUND)
   endif()
 endif()
 
-# Add SDL3_ttf
 find_package(SDL3_ttf 3.2.2 CONFIG QUIET)
 if(NOT SDL3_ttf_FOUND)
-  if (WIN32)
+  if(WIN32)
     FetchContent_Declare(
       SDL3_ttf
       URL https://www.libsdl.org/projects/SDL_ttf/release/SDL3_ttf-devel-3.2.2-VC.zip
@@ -123,7 +74,6 @@ if(NOT SDL3_ttf_FOUND)
   endif()
 endif()
 
-# Dear ImGui
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui
@@ -141,21 +91,57 @@ add_library(imgui STATIC
   ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
   ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
 )
-
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${sdl3_SOURCE_DIR}/include)
 target_link_libraries(imgui PUBLIC SDL3::SDL3)
 target_compile_features(imgui PUBLIC cxx_std_20)
 
-if (WIN32)
-  # Add VLD (Visual Leak Detector) for memory leak detection on Windows
+if(WIN32)
   find_package(VLD CONFIG)
 endif()
 
-# Add steam if available
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/steam")
 find_package(Steamworks QUIET)
 
-target_include_directories("${TARGET_NAME}" PUBLIC
+# ============================================================
+# Minigin — static library (the engine)
+# ============================================================
+add_library(minigin_lib STATIC
+  Minigin/Font.cpp
+  Minigin/GameObject.cpp
+  Minigin/InputManager.cpp
+  Minigin/Minigin.cpp
+  Minigin/Renderer.cpp
+  Minigin/ResourceManager.cpp
+  Minigin/Scene.cpp
+  Minigin/SceneManager.cpp
+  Minigin/Texture2D.cpp
+  Minigin/Transform.cpp
+  Minigin/Controller.cpp
+
+  Minigin/Components/RenderComponent.cpp
+  Minigin/Components/TextComponent.cpp
+  Minigin/Components/FPSComponent.cpp
+  Minigin/Components/TransformComponent.cpp
+  Minigin/Components/OrbitComponent.cpp
+  Minigin/Components/CacheBenchmarkComponent.cpp
+  Minigin/Components/HealthComponent.cpp
+  Minigin/Components/ScoreComponent.cpp
+  Minigin/Components/LivesDisplayComponent.cpp
+  Minigin/Components/ScoreDisplayComponent.cpp
+  Minigin/Components/SpriteComponent.cpp
+
+  Minigin/Commands/MoveCommand.cpp
+  Minigin/Commands/DamageCommand.cpp
+  Minigin/Commands/AddPointsCommand.cpp
+  Minigin/Commands/ResetAchievementsCommand.cpp
+
+  Minigin/Observer/Subject.cpp
+  Minigin/Observer/SteamAchievementObserver.cpp
+)
+
+target_compile_features(minigin_lib PUBLIC cxx_std_20)
+
+target_include_directories(minigin_lib PUBLIC
   ${CMAKE_SOURCE_DIR}/Minigin/
   ${glm_SOURCE_DIR}
   ${sdl3_SOURCE_DIR}/include
@@ -164,7 +150,7 @@ target_include_directories("${TARGET_NAME}" PUBLIC
   ${VLD_INCLUDE_DIR}
 )
 
-target_link_libraries("${TARGET_NAME}" PUBLIC
+target_link_libraries(minigin_lib PUBLIC
   SDL3::SDL3
   SDL3_ttf::SDL3_ttf
   imgui
@@ -172,119 +158,120 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   ${VLD_LIBRARIES}
 )
 
-# XInput: Windows only, hidden behind the Pimpl in Controller.cpp
 if(WIN32 AND NOT EMSCRIPTEN)
-  target_link_libraries("${TARGET_NAME}" PUBLIC xinput)
+  target_link_libraries(minigin_lib PUBLIC xinput)
+endif()
+
+if(Steamworks_FOUND)
+  target_link_libraries(minigin_lib PUBLIC Steamworks::Steamworks)
+  target_compile_definitions(minigin_lib PUBLIC USE_STEAMWORKS)
 endif()
 
 if(MSVC)
-  # compile at warning level 4 + treat warnings as errors
-  target_compile_options(${TARGET_NAME} PRIVATE /W4 /WX)
+  target_compile_options(minigin_lib PRIVATE /W4 /WX)
 else()
-  target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(minigin_lib PRIVATE -Wall -Wextra -Werror)
 endif()
 
+# ============================================================
+# Qbert — executable (the game)
+# ============================================================
 if(EMSCRIPTEN)
-  set(EMSCRIPTEN_COMPILE_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -g")
-  set(EMSCRIPTEN_LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS} -sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
+  set(QBERT_TARGET qbert_web)
+  set(QBERT_PARAM)
+else()
+  set(QBERT_TARGET qbert)
+  set(QBERT_PARAM WIN32)
+endif()
 
-  # Use the Emscripten toolchain
-  set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/EmscriptenToolchain.cmake)
+add_executable(${QBERT_TARGET} ${QBERT_PARAM}
+  Qbert/Main.cpp
 
-  # Additional settings for Emscripten build
-  set_target_properties(${TARGET_NAME} PROPERTIES
-      COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
-      LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}"
+  # Grid
+  Qbert/Grid/Cube.cpp
+  Qbert/Grid/CubeGrid.cpp
+
+  Qbert/Components/Grid/GridRenderComponent.cpp
+)
+
+target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
+
+target_include_directories(${QBERT_TARGET} PRIVATE
+  ${CMAKE_SOURCE_DIR}/Qbert/
+  ${CMAKE_SOURCE_DIR}/Qbert/Components/
+)
+
+# Links against the engine — gets all engine headers and libs transitively
+target_link_libraries(${QBERT_TARGET} PRIVATE minigin_lib)
+
+if(MSVC)
+  target_compile_options(${QBERT_TARGET} PRIVATE /W4 /WX)
+else()
+  target_compile_options(${QBERT_TARGET} PRIVATE -Wall -Wextra -Werror)
+endif()
+
+# ============================================================
+# Post-build: copy DLLs and Data (Qbert executable only)
+# ============================================================
+if(EMSCRIPTEN)
+  set(EMSCRIPTEN_COMPILE_FLAGS "-g")
+  set(EMSCRIPTEN_LINK_FLAGS "-sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
+  set_target_properties(${QBERT_TARGET} PROPERTIES
+    COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
+    LINK_FLAGS    "${EMSCRIPTEN_LINK_FLAGS}"
   )
-
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${TARGET_NAME}>/"
+  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/"
   )
-
-  # Have emscripten generate a html page too.
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
 elseif(WIN32)
-  # Set minigin as the default startup project
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${TARGET_NAME})
-  # Set working directory to output folder
-  set_target_properties(${TARGET_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET_NAME}>")
-
-  # Copy SDL dlls to output folder
-  set(SDL_RUNTIME_DLLS
-    SDL3::SDL3
-    SDL3_ttf::SDL3_ttf
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${QBERT_TARGET})
+  set_target_properties(${QBERT_TARGET} PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${QBERT_TARGET}>"
   )
 
-  foreach(dllTarget IN LISTS SDL_RUNTIME_DLLS)
-    add_custom_command(
-      TARGET ${TARGET_NAME} POST_BUILD
+  foreach(dllTarget IN ITEMS SDL3::SDL3 SDL3_ttf::SDL3_ttf)
+    add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "$<TARGET_FILE:${dllTarget}>"
-          "$<TARGET_FILE_DIR:${TARGET_NAME}>"
+        "$<TARGET_FILE:${dllTarget}>"
+        "$<TARGET_FILE_DIR:${QBERT_TARGET}>"
       VERBATIM
     )
   endforeach()
 
   if(Steamworks_FOUND)
-    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
-    target_compile_definitions(${TARGET_NAME} PRIVATE USE_STEAMWORKS)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${TARGET_NAME}>")
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${TARGET_NAME}>/steam_appid.txt"
-      COMMENT "Generating steam_appid.txt"
+    add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${QBERT_TARGET}>")
+    add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${QBERT_TARGET}>/steam_appid.txt"
     )
   endif()
 
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
+  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/Data"
   )
+
 elseif(APPLE)
-  set_target_properties(${TARGET_NAME} PROPERTIES
+  set_target_properties(${QBERT_TARGET} PROPERTIES
     MACOSX_BUNDLE TRUE
     INSTALL_RPATH "@executable_path/../Frameworks"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>" "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks/"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks/"
-    COMMAND install_name_tool -change "@rpath/libSDL3_ttf.0.dylib" "@executable_path/../Frameworks/libSDL3_ttf.0.2.2.dylib" "$<TARGET_FILE:${TARGET_NAME}>"
-    COMMAND install_name_tool -change "@rpath/libSDL3.0.dylib" "@executable_path/../Frameworks/libSDL3.0.dylib" "$<TARGET_FILE:${TARGET_NAME}>"
+  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${QBERT_TARGET}>/Contents/Frameworks"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>"     "$<TARGET_BUNDLE_DIR:${QBERT_TARGET}>/Contents/Frameworks/"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${QBERT_TARGET}>/Contents/Frameworks/"
+  )
+  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/Data"
   )
 
-  if(Steamworks_FOUND)
-    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
-    target_compile_definitions(${TARGET_NAME} PRIVATE USE_STEAMWORKS)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Steamworks_LIBRARIES}" "$<TARGET_BUNDLE_DIR:${TARGET_NAME}>/Contents/Frameworks/"
-    )
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${TARGET_NAME}>/steam_appid.txt"
-      COMMENT "Generating steam_appid.txt"
-    )
-  endif()
-
-  # Copy Data folder to output directory after build
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
-  )
 else()
- if(Steamworks_FOUND)
-    target_link_libraries("${TARGET_NAME}" PUBLIC Steamworks::Steamworks)
-    target_compile_definitions(${TARGET_NAME} PRIVATE USE_STEAMWORKS)
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${Steamworks_LIBRARIES}" "$<TARGET_FILE_DIR:${TARGET_NAME}>"
-    )
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${TARGET_NAME}>/steam_appid.txt"
-      COMMENT "Generating steam_appid.txt"
-    )
-  endif()
-
-  # Copy Data folder to output directory after build
-  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${TARGET_NAME}>/Data"
+  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory
+      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/Data"
   )
 endif()
