@@ -192,6 +192,9 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Grid/CubeGrid.cpp
 
   Qbert/Components/Grid/GridRenderComponent.cpp
+
+  Qbert/Components/Player/QbertComponent.cpp
+  Qbert/Components/Player/QbertRenderComponent.cpp
 )
 
 target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
@@ -199,6 +202,7 @@ target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
 target_include_directories(${QBERT_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Qbert/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/
+  ${CMAKE_SOURCE_DIR}/Qbert/Commands/
 )
 
 # Links against the engine — gets all engine headers and libs transitively

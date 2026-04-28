@@ -9,9 +9,9 @@ namespace qbert
     class CubeGridComponent final : public dae::GameComponent
     {
     public:
-        explicit CubeGridComponent(dae::GameObject* pOwner, float originX, float originY)
+        explicit CubeGridComponent(dae::GameObject* pOwner, float originX, float originY, float scale = 2.f)
             : GameComponent(pOwner)
-            , m_Grid(originX, originY)
+            , m_Grid(originX, originY, scale)
         {}
 
         ~CubeGridComponent() override = default;

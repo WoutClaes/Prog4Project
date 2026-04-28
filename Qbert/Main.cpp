@@ -17,11 +17,15 @@
 #include "SceneManager.h"
 #include "Scene.h"
 #include "GameObject.h"
+#include "InputManager.h"
 #include "Components/TransformComponent.h"
 
 #include "Grid/CubeGrid.h"
 #include "Components/Grid/CubeGridComponent.h"
 #include "Components/Grid/GridRenderComponent.h"
+#include "Components/Player/QbertComponent.h"
+#include "Components/Player/QbertRenderComponent.h"
+#include "Commands/JumpCommand.h"
 
 namespace fs = std::filesystem;
 
@@ -29,24 +33,56 @@ static void load(bool /*steamInitialized*/)
 {
     auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
-    // Window is 1024x576.
-    // Pyramid at 32x32 tiles: ~224px wide, ~144px tall.
-    // Center horizontally, leave top margin for HUD.
-    constexpr float originX = 480.f;
-    constexpr float originY =  80.f;
+    // --- Grid ---
+    constexpr float originX = 400.f;
+    constexpr float originY =  50.f;
+    constexpr float scale   =   2.f;
 
     auto gridObject = std::make_unique<dae::GameObject>();
     gridObject->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
-
-    // CubeGrid is stored as a component so the scene owns its lifetime
-    auto* gridComp = gridObject->AddGameComponent<qbert::CubeGridComponent>(originX, originY);
-
+    auto* gridComp   = gridObject->AddGameComponent<qbert::CubeGridComponent>(originX, originY, scale);
     auto* renderComp = gridObject->AddGameComponent<qbert::GridRenderComponent>(gridComp->GetGrid());
-    renderComp->SetBaseColorIndex(1);         // orange
-    renderComp->SetIntermediateColorIndex(2); // dark
-    renderComp->SetTargetColorIndex(3);       // blue/purple
+    renderComp->SetBaseColorIndex(1);
+    renderComp->SetIntermediateColorIndex(2);
+    renderComp->SetTargetColorIndex(3);
+
+    // --- Qbert ---
+    auto qbertObject = std::make_unique<dae::GameObject>();
+    qbertObject->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
+    auto* qbertComp  = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid(), 0, 0);
+    auto* qbertRender = qbertObject->AddGameComponent<qbert::QbertRenderComponent>(qbertComp);
+
+    (void)qbertRender;
+
+    // --- Input: keyboard ---
+    auto& input = dae::InputManager::GetInstance();
+
+    // WASD — diagonal jumps to match isometric view
+    //   W = UpRight,   E = UpLeft  (or use arrow keys)
+    //   A = DownLeft,  D = DownRight  ... classic feel:
+    //   Q = UpLeft,    E = UpRight
+    //   Z = DownLeft,  X = DownRight
+    input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
+    input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
+    input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
+    input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
+
+    // --- Input: gamepad (controller 0) ---
+    input.BindControllerCommand(0, dae::ControllerButton::DPadLeft,  dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
+    input.BindControllerCommand(0, dae::ControllerButton::DPadRight, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
+    input.BindControllerCommand(0, dae::ControllerButton::DPadUp,    dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
+    input.BindControllerCommand(0, dae::ControllerButton::DPadDown,  dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
 
     scene.Add(std::move(gridObject));
+    scene.Add(std::move(qbertObject));
 }
 
 int main(int, char* [])
