@@ -35,7 +35,7 @@
 
 namespace fs = std::filesystem;
 
-static void load(bool steamInitialized)
+static void load([[maybe_unused]] bool steamInitialized)
 {
     auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
@@ -66,6 +66,7 @@ static void load(bool steamInitialized)
 
     // --- Score + Steam Achievement ---
     auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();
+    (void)scoreComp;
 
 #ifdef USE_STEAMWORKS
     if (steamInitialized)
@@ -127,7 +128,11 @@ int main(int, char* [])
 #endif
 
     dae::Minigin engine(dataLocation);
+#ifdef USE_STEAMWORKS
     engine.Run([steamInitialized]() { load(steamInitialized); });
+#else
+    engine.Run([]() { load(false); });
+#endif
 
 #ifdef USE_STEAMWORKS
     if (steamInitialized)
