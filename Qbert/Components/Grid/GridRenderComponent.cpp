@@ -27,7 +27,7 @@ namespace qbert
     {
         const int   col  = ColorColForState(cube.GetState());
         const float srcX = col * TileW;
-        const float srcY = 0.f;  // row 0 is the complete cube sprite
+        const float srcY = 0.f;
 
         const SDL_FRect src{ srcX, srcY, TileW, TileH };
 

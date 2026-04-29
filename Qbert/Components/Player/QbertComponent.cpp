@@ -1,12 +1,12 @@
 #include "QbertComponent.h"
 #include "Components/TransformComponent.h"
+#include "Components/ScoreComponent.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Sound/ServiceLocator.h"
 
 namespace qbert
 {
-    // Jump delta per direction:  (deltaRow, deltaCol)
     static constexpr int DeltaRow[4] = {  1,  1, -1, -1 };
     static constexpr int DeltaCol[4] = {  0,  1, -1,  0 };
 
@@ -50,7 +50,7 @@ namespace qbert
                 m_JumpTimer = JumpDuration;
                 UpdateScreenPosition();
             }
-            // else: jumped off the pyramid — death logic goes here later
+            // else: jumped off the pyramid - death logic goes here later
         }
     }
 
@@ -74,7 +74,16 @@ namespace qbert
     void QbertComponent::Land()
     {
         if (auto* cube = m_pGrid->GetCube(m_Row, m_Col))
+        {
+            const bool wasTarget = cube->IsTarget();
             cube->Step();
+
+            if (!wasTarget)
+            {
+                if (auto* score = GetOwner()->GetGameComponent<dae::ScoreComponent>())
+                    score->AddPoints(25);  // 25pts per cube, 500 to win = all 28 cubes + a few revisits
+            }
+        }
 
         dae::ServiceLocator::GetSoundSystem().Play(m_JumpSoundId, 1.f);
     }
@@ -85,9 +94,6 @@ namespace qbert
         {
             if (auto* transform = GetOwner()->GetGameComponent<dae::TransformComponent>())
             {
-                // Offset upward so Qbert sits on top of the cube, not inside it
-                // The cube tile is 64px tall (32 * scale=2), Qbert sprite is ~16px tall scaled
-                // so offset by roughly 1/3 tile height upward
                 constexpr float offsetY = -20.f;
                 transform->SetLocalPosition(cube->GetScreenX(), cube->GetScreenY() + offsetY);
             }

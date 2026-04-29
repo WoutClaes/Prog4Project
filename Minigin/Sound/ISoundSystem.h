@@ -11,17 +11,14 @@ namespace dae
     public:
         virtual ~ISoundSystem() = default;
 
-        // Register a sound file path, returns an ID for Play calls.
         virtual SoundId RegisterSound(const std::string& filename) = 0;
 
-        // Post a play request onto the queue -- processed on worker thread.
         virtual void Play(SoundId id, float volume = 1.f) = 0;
 
         virtual void SetMuted(bool muted) = 0;
         virtual bool IsMuted() const = 0;
     };
 
-    // Does nothing -- default before a real system is registered.
     class NullSoundSystem final : public ISoundSystem
     {
     public:

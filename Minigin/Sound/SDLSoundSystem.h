@@ -4,8 +4,6 @@
 
 namespace dae
 {
-    // SDL3 native audio implementation.
-    // SDL3 headers are ONLY in the .cpp -- never leak into this header (Pimpl).
     class SDLSoundSystem final : public ISoundSystem
     {
     public:

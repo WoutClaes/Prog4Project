@@ -18,7 +18,6 @@ namespace qbert
         , m_OriginY(originY)
         , m_Scale(scale)
     {
-        // Scaled step between adjacent cubes
         const float stepX = (TileW * scale) / 2.f;
         const float stepY = TileH * scale * 0.75f;
 

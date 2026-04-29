@@ -1,6 +1,5 @@
 #include "SDLSoundSystem.h"
 
-// SDL3 only included here -- never in any header (Pimpl)
 #include <SDL3/SDL.h>
 
 #include <thread>
@@ -118,7 +117,6 @@ namespace dae
         {
             SDL_Log("ProcessRequest: id=%u vol=%.2f", req.id, req.volume);
 
-            // Lazy load on first play
             if (m_Sounds.find(req.id) == m_Sounds.end())
             {
                 auto fileIt = m_IdToFile.find(req.id);
@@ -146,7 +144,6 @@ namespace dae
 
             const LoadedSound& sound = m_Sounds[req.id];
 
-            // Create a stream, bind it to the device, push audio data
             SDL_AudioStream* stream = SDL_CreateAudioStream(&sound.spec, nullptr);
             SDL_Log("Stream created: %s", stream ? "ok" : "FAILED");
             if (!stream)
@@ -163,7 +160,6 @@ namespace dae
                 static_cast<int>(sound.buffer.size()));
             SDL_FlushAudioStream(stream);
 
-            // Wait for the stream to drain then clean up
             const int bytesPerSample = SDL_AUDIO_BYTESIZE(sound.spec.format)
                                      * sound.spec.channels;
             const float durationSec  = static_cast<float>(sound.buffer.size())
@@ -192,7 +188,6 @@ namespace dae
         bool                      m_Quit{ false };
     };
 
-    // Forwarding
     SDLSoundSystem::SDLSoundSystem()
         : m_pImpl(std::make_unique<Impl>()) {}
 

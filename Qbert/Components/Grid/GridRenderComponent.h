@@ -35,7 +35,7 @@ namespace qbert
 
         static constexpr float TileW  = 32.f;
         static constexpr float TileH  = 32.f;
-        static constexpr float Scale  = 2.f;   // renders at 64x64, adjust to taste
+        static constexpr float Scale  = 2.f;
 
         int m_BaseCol{ 1 };
         int m_IntermediateCol{ 2 };

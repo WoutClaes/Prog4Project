@@ -4,8 +4,6 @@
 
 namespace qbert
 {
-    // Thin wrapper so CubeGrid can live as a GameComponent
-    // and be owned by the scene's GameObject lifetime.
     class CubeGridComponent final : public dae::GameComponent
     {
     public:

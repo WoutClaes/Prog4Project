@@ -23,15 +23,19 @@
 #include "Sound/SDLSoundSystem.h"
 
 #include "Grid/CubeGrid.h"
+
 #include "Components/Grid/CubeGridComponent.h"
 #include "Components/Grid/GridRenderComponent.h"
 #include "Components/Player/QbertComponent.h"
 #include "Components/Player/QbertRenderComponent.h"
 #include "Commands/JumpCommand.h"
+#include "Components/ScoreComponent.h"
+
+#include "Observer/SteamAchievementObserver.h"
 
 namespace fs = std::filesystem;
 
-static void load(bool /*steamInitialized*/)
+static void load(bool steamInitialized)
 {
     auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
@@ -60,32 +64,45 @@ static void load(bool /*steamInitialized*/)
 
     (void)qbertRender;
 
+    // --- Score + Steam Achievement ---
+    auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();
+
+#ifdef USE_STEAMWORKS
+    if (steamInitialized)
+    {
+        auto* achievement = qbertObject->AddGameComponent<dae::SteamAchievementObserver>();
+        scoreComp->AddObserver(achievement);
+    }
+#endif
+
     // --- Input: keyboard ---
     auto& input = dae::InputManager::GetInstance();
 
-    // WASD — diagonal jumps to match isometric view
-    //   W = UpRight,   E = UpLeft  (or use arrow keys)
-    //   A = DownLeft,  D = DownRight  ... classic feel:
-    //   Q = UpLeft,    E = UpRight
-    //   Z = DownLeft,  X = DownRight
     input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
+
     input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
+
     input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
+
     input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
 
+
     // --- Input: gamepad (controller 0) ---
     input.BindControllerCommand(0, dae::ControllerButton::DPadLeft,  dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
+
     input.BindControllerCommand(0, dae::ControllerButton::DPadRight, dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
+
     input.BindControllerCommand(0, dae::ControllerButton::DPadUp,    dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
+
     input.BindControllerCommand(0, dae::ControllerButton::DPadDown,  dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
 
     scene.Add(std::move(gridObject));
     scene.Add(std::move(qbertObject));

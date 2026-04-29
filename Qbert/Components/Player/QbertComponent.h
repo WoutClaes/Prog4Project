@@ -8,10 +8,10 @@ namespace qbert
     // Directions Qbert can jump
     enum class JumpDirection
     {
-        DownLeft,   // row+1, col
-        DownRight,  // row+1, col+1
-        UpLeft,     // row-1, col-1
-        UpRight     // row-1, col
+        DownLeft,
+        DownRight,
+        UpLeft,
+        UpRight
     };
 
     class QbertComponent final : public dae::GameComponent
@@ -24,13 +24,11 @@ namespace qbert
         void FixedUpdate() override {}
         void Render() const override {}
 
-        // Called by JumpCommand
         void RequestJump(JumpDirection dir);
 
         int GetRow() const { return m_Row; }
         int GetCol() const { return m_Col; }
 
-        // Returns false if jump would leave the pyramid
         bool CanJump(JumpDirection dir) const;
 
         QbertComponent(const QbertComponent&) = delete;
@@ -50,7 +48,6 @@ namespace qbert
         bool m_JumpPending{ false };
         JumpDirection m_PendingDir{ JumpDirection::DownLeft };
 
-        // Simple jump animation timer
         float m_JumpTimer{ 0.f };
         static constexpr float JumpDuration{ 0.15f };
         bool m_IsJumping{ false };
