@@ -115,8 +115,6 @@ int main(int, char* [])
     const bool steamInitialized = SteamAPI_Init();
     if (!steamInitialized)
         SDL_Log("Steam not initialized.");
-#else
-    const bool steamInitialized = false;
 #endif
 
 #if __EMSCRIPTEN__
