@@ -59,10 +59,8 @@ static void load([[maybe_unused]] bool steamInitialized)
     // --- Qbert ---
     auto qbertObject = std::make_unique<dae::GameObject>();
     qbertObject->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
-    auto* qbertComp  = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid(), 0, 0);
-    auto* qbertRender = qbertObject->AddGameComponent<qbert::QbertRenderComponent>(qbertComp);
-
-    (void)qbertRender;
+    qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid(), 0, 0);
+    qbertObject->AddGameComponent<qbert::QbertRenderComponent>();
 
     // --- Score + Steam Achievement ---
     auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();

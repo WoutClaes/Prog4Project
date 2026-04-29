@@ -7,9 +7,8 @@
 
 namespace qbert
 {
-    QbertRenderComponent::QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert)
+    QbertRenderComponent::QbertRenderComponent(dae::GameObject* pOwner)
         : GameComponent(pOwner)
-        , m_pQbert(pQbert)
     {
         m_Texture = dae::ResourceManager::GetInstance().LoadTexture("Qbert P1 Spritesheet.png");
     }

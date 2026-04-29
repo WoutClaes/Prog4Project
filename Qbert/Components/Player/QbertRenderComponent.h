@@ -10,7 +10,7 @@ namespace qbert
     class QbertRenderComponent final : public dae::GameComponent
     {
     public:
-        explicit QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert);
+        explicit QbertRenderComponent(dae::GameObject* pOwner);
         ~QbertRenderComponent() override = default;
 
         void Update()      override {}
@@ -25,7 +25,7 @@ namespace qbert
         QbertRenderComponent& operator=(QbertRenderComponent&&) = delete;
 
     private:
-        QbertComponent* m_pQbert{ nullptr };
+        //QbertComponent* m_pQbert{ nullptr };
         std::shared_ptr<dae::Texture2D> m_Texture{};
 
         JumpDirection m_LastDir{ JumpDirection::DownLeft };
