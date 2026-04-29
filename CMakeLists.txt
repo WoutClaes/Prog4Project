@@ -178,108 +178,98 @@ else()
 endif()
 
 # ============================================================
-# Qbert — executable (the game)
+# Game — executable (replace Game/ with your game folder)
 # ============================================================
 if(EMSCRIPTEN)
-  set(QBERT_TARGET qbert_web)
-  set(QBERT_PARAM)
+  set(GAME_TARGET game_web)
+  set(GAME_PARAM)
 else()
-  set(QBERT_TARGET qbert)
-  set(QBERT_PARAM WIN32)
+  set(GAME_TARGET game)
+  set(GAME_PARAM WIN32)
 endif()
 
-add_executable(${QBERT_TARGET} ${QBERT_PARAM}
-  Qbert/Main.cpp
-
-  # Grid
-  Qbert/Grid/Cube.cpp
-  Qbert/Grid/CubeGrid.cpp
-
-  Qbert/Components/Grid/GridRenderComponent.cpp
-
-  Qbert/Components/Player/QbertComponent.cpp
-  Qbert/Components/Player/QbertRenderComponent.cpp
+add_executable(${GAME_TARGET} ${GAME_PARAM}
+  Game/Main.cpp
+  # Add your game source files here
 )
 
-target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
+target_compile_features(${GAME_TARGET} PUBLIC cxx_std_20)
 
-target_include_directories(${QBERT_TARGET} PRIVATE
-  ${CMAKE_SOURCE_DIR}/Qbert/
-  ${CMAKE_SOURCE_DIR}/Qbert/Components/
-  ${CMAKE_SOURCE_DIR}/Qbert/Commands/
+target_include_directories(${GAME_TARGET} PRIVATE
+  ${CMAKE_SOURCE_DIR}/Game/
 )
 
 # Links against the engine — gets all engine headers and libs transitively
-target_link_libraries(${QBERT_TARGET} PRIVATE minigin_lib)
+target_link_libraries(${GAME_TARGET} PRIVATE minigin_lib)
 
 if(MSVC)
-  target_compile_options(${QBERT_TARGET} PRIVATE /W4 /WX)
+  target_compile_options(${GAME_TARGET} PRIVATE /W4 /WX)
 else()
-  target_compile_options(${QBERT_TARGET} PRIVATE -Wall -Wextra -Werror)
+  target_compile_options(${GAME_TARGET} PRIVATE -Wall -Wextra -Werror)
 endif()
 
 # ============================================================
-# Post-build: copy DLLs and Data (Qbert executable only)
+# Post-build: copy DLLs and Data
 # ============================================================
 if(EMSCRIPTEN)
   set(EMSCRIPTEN_COMPILE_FLAGS "-g")
   set(EMSCRIPTEN_LINK_FLAGS "-sUSE_FREETYPE=1 -sUSE_HARFBUZZ=1 -g -sALLOW_MEMORY_GROWTH --preload-file \"${CMAKE_SOURCE_DIR}/Data@/\"")
-  set_target_properties(${QBERT_TARGET} PROPERTIES
+  set_target_properties(${GAME_TARGET} PROPERTIES
     COMPILE_FLAGS "${EMSCRIPTEN_COMPILE_FLAGS}"
     LINK_FLAGS    "${EMSCRIPTEN_LINK_FLAGS}"
   )
-  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/"
+  add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/web" "$<TARGET_FILE_DIR:${GAME_TARGET}>/"
   )
   set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
 elseif(WIN32)
-  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${QBERT_TARGET})
-  set_target_properties(${QBERT_TARGET} PROPERTIES
-    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${QBERT_TARGET}>"
+  set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${GAME_TARGET})
+  set_target_properties(${GAME_TARGET} PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${GAME_TARGET}>"
   )
 
   foreach(dllTarget IN ITEMS SDL3::SDL3 SDL3_ttf::SDL3_ttf)
-    add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
         "$<TARGET_FILE:${dllTarget}>"
-        "$<TARGET_FILE_DIR:${QBERT_TARGET}>"
+        "$<TARGET_FILE_DIR:${GAME_TARGET}>"
       VERBATIM
     )
   endforeach()
 
   if(Steamworks_FOUND)
-    add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${QBERT_TARGET}>")
-    add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
-      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${QBERT_TARGET}>/steam_appid.txt"
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E copy "${Steamworks_RUNTIME_DLL}" "$<TARGET_FILE_DIR:${GAME_TARGET}>")
+    add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+      COMMAND "${CMAKE_COMMAND}" -E echo "480" > "$<TARGET_FILE_DIR:${GAME_TARGET}>/steam_appid.txt"
     )
   endif()
 
-  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+  add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/Data"
+      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
   )
 
 elseif(APPLE)
-  set_target_properties(${QBERT_TARGET} PROPERTIES
+  set_target_properties(${GAME_TARGET} PROPERTIES
     MACOSX_BUNDLE TRUE
     INSTALL_RPATH "@executable_path/../Frameworks"
     BUILD_WITH_INSTALL_RPATH TRUE
   )
-  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${QBERT_TARGET}>/Contents/Frameworks"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>"     "$<TARGET_BUNDLE_DIR:${QBERT_TARGET}>/Contents/Frameworks/"
-    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${QBERT_TARGET}>/Contents/Frameworks/"
+  add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_BUNDLE_DIR:${GAME_TARGET}>/Contents/Frameworks"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3::SDL3-shared>"     "$<TARGET_BUNDLE_DIR:${GAME_TARGET}>/Contents/Frameworks/"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:SDL3_ttf::SDL3_ttf-shared>" "$<TARGET_BUNDLE_DIR:${GAME_TARGET}>/Contents/Frameworks/"
   )
-  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+  add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/Data"
+      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
   )
 
 else()
-  add_custom_command(TARGET ${QBERT_TARGET} POST_BUILD
+  add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
     COMMAND "${CMAKE_COMMAND}" -E copy_directory
-      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${QBERT_TARGET}>/Data"
+      "${CMAKE_CURRENT_SOURCE_DIR}/Data" "$<TARGET_FILE_DIR:${GAME_TARGET}>/Data"
   )
 endif()
