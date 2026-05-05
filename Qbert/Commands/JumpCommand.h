@@ -1,7 +1,6 @@
 #pragma once
 #include "Commands/Command.h"
 #include "Components/Player/QbertComponent.h"
-#include "Components/Player/QbertRenderComponent.h"
 #include "GameObject.h"
 
 namespace qbert
@@ -18,9 +17,6 @@ namespace qbert
         {
             if (auto* qbert = m_pGO->GetGameComponent<QbertComponent>())
                 qbert->RequestJump(m_Dir);
-
-            if (auto* render = m_pGO->GetGameComponent<QbertRenderComponent>())
-                render->SetLastDirection(m_Dir);
         }
 
     private:

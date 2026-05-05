@@ -196,9 +196,15 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Grid/CubeGrid.cpp
 
   Qbert/Components/Grid/GridRenderComponent.cpp
+  Qbert/Components/Grid/GridMover.cpp
 
   Qbert/Components/Player/QbertComponent.cpp
   Qbert/Components/Player/QbertRenderComponent.cpp
+
+  "Qbert/States/Coily/CoilyStates.cpp"
+
+  Qbert/Components/Enemies/Coily/CoilyComponent.cpp
+  Qbert/Components/Enemies/Coily/CoilyRenderComponent.cpp
 )
 
 target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
@@ -206,7 +212,11 @@ target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
 target_include_directories(${QBERT_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Qbert/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/
+  ${CMAKE_SOURCE_DIR}/Qbert/Components/Grid/
+  ${CMAKE_SOURCE_DIR}/Qbert/Components/Enemies/Coily/
   ${CMAKE_SOURCE_DIR}/Qbert/Commands/
+  ${CMAKE_SOURCE_DIR}/Qbert/States/
+  ${CMAKE_SOURCE_DIR}/Qbert/States/Coily/
 )
 
 # Links against the engine — gets all engine headers and libs transitively

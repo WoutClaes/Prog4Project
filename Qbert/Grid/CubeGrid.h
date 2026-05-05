@@ -4,6 +4,14 @@
 
 namespace qbert
 {
+    enum class JumpDirection
+    {
+        DownLeft,
+        DownRight,
+        UpLeft,
+        UpRight
+    };
+
     class CubeGrid final
     {
     public:

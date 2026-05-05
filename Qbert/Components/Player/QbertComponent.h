@@ -1,35 +1,30 @@
 #pragma once
 #include "Components/GameComponent.h"
 #include "Grid/CubeGrid.h"
-#include "Sound/ISoundSystem.h"
+#include <functional>
 
 namespace qbert
 {
-    // Directions Qbert can jump
-    enum class JumpDirection
-    {
-        DownLeft,
-        DownRight,
-        UpLeft,
-        UpRight
-    };
+    class GridMover;
 
     class QbertComponent final : public dae::GameComponent
     {
     public:
-        explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid, int row = 0, int col = 0);
+        explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid,
+            int startRow = 0, int startCol = 0);
         ~QbertComponent() override = default;
 
-        void Update()      override;
+        void Update()      override {}
         void FixedUpdate() override {}
         void Render() const override {}
 
         void RequestJump(JumpDirection dir);
 
-        int GetRow() const { return m_Row; }
-        int GetCol() const { return m_Col; }
+        int GetRow() const;
+        int GetCol() const;
 
-        bool CanJump(JumpDirection dir) const;
+        std::function<void(JumpDirection)> OnJumpStarted{};
+        std::function<void()> OnLanded{};
 
         QbertComponent(const QbertComponent&) = delete;
         QbertComponent& operator=(const QbertComponent&) = delete;
@@ -38,20 +33,11 @@ namespace qbert
 
     private:
         void Land();
-        void UpdateScreenPosition();
 
         CubeGrid* m_pGrid{ nullptr };
+        GridMover* m_pMover{ nullptr };
 
-        int  m_Row{ 0 };
-        int  m_Col{ 0 };
-
-        bool m_JumpPending{ false };
-        JumpDirection m_PendingDir{ JumpDirection::DownLeft };
-
-        float m_JumpTimer{ 0.f };
-        static constexpr float JumpDuration{ 0.15f };
-        bool m_IsJumping{ false };
-
-        dae::SoundId m_JumpSoundId{ dae::INVALID_SOUND_ID };
+        static constexpr int DeltaRow[4] = { 1,  1, -1, -1 };
+        static constexpr int DeltaCol[4] = { 0,  1, -1,  0 };
     };
 }
