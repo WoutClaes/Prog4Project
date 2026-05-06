@@ -1,11 +1,8 @@
 #include "SlickSamComponent.h"
 #include "Components/Grid/GridMover.h"
-#include "Components/ScoreComponent.h"
 #include "GameObject.h"
 #include "GameTime.h"
 #include <cstdlib>
-
-#include <iostream>
 
 namespace qbert
 {
@@ -60,8 +57,6 @@ namespace qbert
 
         if (auto* cube = m_pGrid->GetCube(GetRow(), GetCol()))
             cube->Revert();
-
-        std::cout << m_pGrid->GetCube(GetRow(), GetCol())->GetCol() << " | " << m_pGrid->GetCube(GetRow(), GetCol())->GetRow() << "\n";
 
         if (GetRow() >= CubeGrid::Rows - 1)
             m_Dead = true;

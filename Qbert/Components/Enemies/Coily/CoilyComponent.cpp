@@ -5,9 +5,8 @@
 
 namespace qbert
 {
-    CoilyComponent::CoilyComponent(dae::GameObject* pOwner, CubeGrid* pGrid, dae::GameObject* pQbertObject)
+    CoilyComponent::CoilyComponent(dae::GameObject* pOwner, dae::GameObject* pQbertObject)
         : GameComponent(pOwner)
-        , m_pGrid(pGrid)
         , m_pQbertObject(pQbertObject)
         , m_pState(std::make_unique<EggState>())
     {

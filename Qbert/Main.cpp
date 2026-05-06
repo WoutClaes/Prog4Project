@@ -88,7 +88,7 @@ static void load([[maybe_unused]] bool steamInitialized)
     auto coilyObject = std::make_unique<dae::GameObject>();
     coilyObject->AddGameComponent<dae::TransformComponent>();
     coilyObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 8.f, -68.f);
-    auto* coilyComp = coilyObject->AddGameComponent<qbert::CoilyComponent>(gridComp->GetGrid(), qbertObject.get());
+    auto* coilyComp = coilyObject->AddGameComponent<qbert::CoilyComponent>(qbertObject.get());
     coilyObject->AddGameComponent<qbert::CoilyRenderComponent>(coilyComp);
 
     // --- Slick ---

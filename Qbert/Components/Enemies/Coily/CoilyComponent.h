@@ -12,7 +12,7 @@ namespace qbert
     class CoilyComponent final : public dae::GameComponent
     {
     public:
-        explicit CoilyComponent(dae::GameObject* pOwner, CubeGrid* pGrid, dae::GameObject* pQbertObject);
+        explicit CoilyComponent(dae::GameObject* pOwner, dae::GameObject* pQbertObject);
         ~CoilyComponent() override = default;
 
         void Update()      override;
@@ -33,7 +33,6 @@ namespace qbert
         CoilyComponent& operator=(CoilyComponent&&) = delete;
 
     private:
-        CubeGrid* m_pGrid{ nullptr };
         dae::GameObject* m_pQbertObject{ nullptr };
         GridMover* m_pMover{ nullptr };
 
