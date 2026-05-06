@@ -27,6 +27,12 @@ namespace qbert
         m_JumpTimer += dae::GameTime::GetInstance().GetDeltaTime();
         const float t = m_JumpTimer / JumpDuration;
 
+        if (!m_MidAirFired && t >= 0.5f)
+        {
+            m_MidAirFired = true;
+            if (OnMidAir) OnMidAir();
+        }
+
         if (t >= 1.f)
         {
             m_IsJumping = false;
@@ -55,6 +61,7 @@ namespace qbert
         m_Row = newRow;
         m_Col = newCol;
         m_IsJumping = true;
+        m_MidAirFired = false;
         m_JumpTimer = 0.f;
 
         return true;

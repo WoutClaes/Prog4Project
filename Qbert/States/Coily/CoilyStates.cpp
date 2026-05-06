@@ -21,8 +21,6 @@ namespace qbert
             ? JumpDirection::DownRight
             : JumpDirection::DownLeft;
 
-        m_Frame = CoilyFrame::EggSquished;
-
         coily.Jump(dir);
 
         if (coily.GetRow() >= CubeGrid::Rows - 1)
@@ -69,7 +67,34 @@ namespace qbert
                 : JumpDirection::UpLeft;
         }
 
-        switch (dir)
+        m_LastDir = dir;
+        coily.Jump(dir);
+
+        return nullptr;
+    }
+
+    void SnakeState::SetStretched()
+    {
+        switch (m_LastDir)
+        {
+        case JumpDirection::DownLeft:  
+            m_Frame = CoilyFrame::SnakeDownLeftStretched;  
+            break;
+        case JumpDirection::DownRight: 
+            m_Frame = CoilyFrame::SnakeDownRightStretched; 
+            break;
+        case JumpDirection::UpLeft:    
+            m_Frame = CoilyFrame::SnakeUpLeftStretched;    
+            break;
+        case JumpDirection::UpRight:   
+            m_Frame = CoilyFrame::SnakeUpRightStretched;   
+            break;
+        }
+    }
+
+    void SnakeState::SetSquished()
+    {
+        switch (m_LastDir)
         {
         case JumpDirection::DownLeft:  
             m_Frame = CoilyFrame::SnakeDownLeftSquished;  
@@ -84,9 +109,5 @@ namespace qbert
             m_Frame = CoilyFrame::SnakeUpRightSquished;   
             break;
         }
-
-        coily.Jump(dir);
-
-        return nullptr;
     }
 }

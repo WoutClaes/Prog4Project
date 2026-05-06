@@ -22,8 +22,14 @@ namespace qbert
         SnakeDownLeftStretched = 9,
     };
 
-    // Coily state interface
-    using ICoilyState = IState<CoilyComponent, CoilyFrame>;
+    class ICoilyState : public IState<CoilyComponent, CoilyFrame>
+    {
+    public:
+        virtual ICoilyState* Update(CoilyComponent& coily, float deltaTime) = 0;
+
+        virtual void SetStretched() = 0;
+        virtual void SetSquished() = 0;
+    };
 
     // EggState
     class EggState final : public ICoilyState
@@ -31,6 +37,9 @@ namespace qbert
     public:
         ICoilyState* Update(CoilyComponent& coily, float deltaTime) override;
         CoilyFrame GetFrame() const { return m_Frame; }
+
+        void SetStretched() override { m_Frame = CoilyFrame::EggNormal; }
+        void SetSquished() override { m_Frame = CoilyFrame::EggSquished; }
 
     private:
         float      m_JumpTimer{ 0.f };
@@ -48,11 +57,15 @@ namespace qbert
         ICoilyState* Update(CoilyComponent& coily, float deltaTime) override;
         CoilyFrame GetFrame() const { return m_Frame; }
 
+        void SetStretched() override;
+        void SetSquished() override;
+
     private:
         dae::GameObject* m_pQbertObject{ nullptr };
 
         float      m_JumpTimer{ 0.f };
         static constexpr float JumpInterval{ 1.f };
         CoilyFrame m_Frame{ CoilyFrame::SnakeUpRightStretched };
+        JumpDirection m_LastDir{ JumpDirection::DownLeft };
     };
 }

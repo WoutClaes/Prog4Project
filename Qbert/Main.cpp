@@ -42,6 +42,10 @@
 #include "Components/Enemies/Coily/CoilyComponent.h"
 #include "Components/Enemies/Coily/CoilyRenderComponent.h"
 
+// Enemy / Slick and Sam
+#include "Components/Enemies/SlickSam/SlickSamComponent.h"
+#include "Components/Enemies/SlickSam/SlickSamRenderComponent.h"
+
 // Audio System
 #include "Sound/ServiceLocator.h"
 #include "Sound/SDLSoundSystem.h"
@@ -77,15 +81,29 @@ static void load([[maybe_unused]] bool steamInitialized)
     auto qbertObject = std::make_unique<dae::GameObject>();
     qbertObject->AddGameComponent<dae::TransformComponent>();
     qbertObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 6.f);
-    auto* qbertComp = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid(), 0, 0);
+    auto* qbertComp = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid());
     qbertObject->AddGameComponent<qbert::QbertRenderComponent>(qbertComp);
 
     // --- Coily ---
     auto coilyObject = std::make_unique<dae::GameObject>();
     coilyObject->AddGameComponent<dae::TransformComponent>();
     coilyObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 8.f, -68.f);
-    auto* coilyComp = coilyObject->AddGameComponent<qbert::CoilyComponent>(gridComp->GetGrid(), qbertObject.get(), 0, 0);
+    auto* coilyComp = coilyObject->AddGameComponent<qbert::CoilyComponent>(gridComp->GetGrid(), qbertObject.get());
     coilyObject->AddGameComponent<qbert::CoilyRenderComponent>(coilyComp);
+
+    // --- Slick ---
+    auto slickObject = std::make_unique<dae::GameObject>();
+    slickObject->AddGameComponent<dae::TransformComponent>();
+    slickObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
+    auto* slickComp = slickObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Slick);
+    slickObject->AddGameComponent<qbert::SlickSamRenderComponent>(slickComp);
+
+    // --- Sam ---
+    auto samObject = std::make_unique<dae::GameObject>();
+    samObject->AddGameComponent<dae::TransformComponent>();
+    samObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
+    auto* samComp = samObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Sam);
+    samObject->AddGameComponent<qbert::SlickSamRenderComponent>(samComp);
 
     // --- Score + Steam Achievement ---
     auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();
@@ -142,9 +160,16 @@ static void load([[maybe_unused]] bool steamInitialized)
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
 
     // --- Add to scene ---
+    // grid
     scene.Add(std::move(gridObject));
+    // player
     scene.Add(std::move(qbertObject));
+    // coily
     scene.Add(std::move(coilyObject));
+    // slick
+    scene.Add(std::move(slickObject));
+    // sam
+    scene.Add(std::move(samObject));
 }
 
 int main(int, char* [])

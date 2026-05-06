@@ -10,8 +10,7 @@ namespace qbert
     class QbertComponent final : public dae::GameComponent
     {
     public:
-        explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid,
-            int startRow = 0, int startCol = 0);
+        explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid);
         ~QbertComponent() override = default;
 
         void Update()      override {}

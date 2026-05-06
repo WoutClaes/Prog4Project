@@ -12,10 +12,7 @@ namespace qbert
     class CoilyComponent final : public dae::GameComponent
     {
     public:
-        explicit CoilyComponent(dae::GameObject* pOwner,
-            CubeGrid* pGrid,
-            dae::GameObject* pQbertObject,
-            int startRow, int startCol);
+        explicit CoilyComponent(dae::GameObject* pOwner, CubeGrid* pGrid, dae::GameObject* pQbertObject);
         ~CoilyComponent() override = default;
 
         void Update()      override;

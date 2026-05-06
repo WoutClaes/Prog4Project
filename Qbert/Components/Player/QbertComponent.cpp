@@ -6,8 +6,7 @@
 
 namespace qbert
 {
-    QbertComponent::QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid,
-        int startRow, int startCol)
+    QbertComponent::QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid)
         : GameComponent(pOwner)
         , m_pGrid(pGrid)
     {
@@ -21,9 +20,6 @@ namespace qbert
                     if (OnLanded) OnLanded();
                 };
         }
-
-        (void)startRow;
-        (void)startCol;
     }
 
     void QbertComponent::RequestJump(JumpDirection dir)

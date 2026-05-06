@@ -5,10 +5,7 @@
 
 namespace qbert
 {
-    CoilyComponent::CoilyComponent(dae::GameObject* pOwner,
-        CubeGrid* pGrid,
-        dae::GameObject* pQbertObject,
-        int startRow, int startCol)
+    CoilyComponent::CoilyComponent(dae::GameObject* pOwner, CubeGrid* pGrid, dae::GameObject* pQbertObject)
         : GameComponent(pOwner)
         , m_pGrid(pGrid)
         , m_pQbertObject(pQbertObject)
@@ -16,9 +13,17 @@ namespace qbert
     {
         m_pMover = pOwner->GetGameComponent<GridMover>();
 
-        (void)startRow;
-        (void)startCol;
-        (void)m_pGrid;
+        m_pMover->OnMidAir = [this]()
+            {
+                // Switch to stretched frame mid-air
+                m_pState->SetStretched();
+            };
+
+        m_pMover->OnLanded = [this]()
+            {
+                // Switch to squished frame on landing
+                m_pState->SetSquished();
+            };
     }
 
     void CoilyComponent::Update()
