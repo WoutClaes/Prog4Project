@@ -10,7 +10,7 @@ namespace qbert
     class QbertRenderComponent final : public dae::GameComponent
     {
     public:
-        explicit QbertRenderComponent(dae::GameObject* pOwner);
+        explicit QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert);
         ~QbertRenderComponent() override = default;
 
         void Update()      override {}

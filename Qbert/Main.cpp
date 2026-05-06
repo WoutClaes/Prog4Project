@@ -1,10 +1,13 @@
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_main.h>
+// Standard Library
 #include <filesystem>
 
 #if _DEBUG && __has_include(<vld.h>)
 #include <vld.h>
 #endif
+
+// Third‑Party Libraries
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_main.h>
 
 #ifdef USE_STEAMWORKS
 #pragma warning(push)
@@ -13,25 +16,43 @@
 #pragma warning(pop)
 #endif
 
+// Engine Core
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "Scene.h"
 #include "GameObject.h"
 #include "InputManager.h"
+
+// Core Components
 #include "Components/TransformComponent.h"
-#include "Sound/ServiceLocator.h"
-#include "Sound/SDLSoundSystem.h"
+#include "Components/ScoreComponent.h"
 
+// Grid System
 #include "Grid/CubeGrid.h"
-
 #include "Components/Grid/CubeGridComponent.h"
 #include "Components/Grid/GridRenderComponent.h"
+#include "Components/Grid/GridMover.h"
+
+// Player / Qbert
 #include "Components/Player/QbertComponent.h"
 #include "Components/Player/QbertRenderComponent.h"
 #include "Commands/JumpCommand.h"
-#include "Components/ScoreComponent.h"
 
+// Enemy / Coily
+#include "Components/Enemies/Coily/CoilyComponent.h"
+#include "Components/Enemies/Coily/CoilyRenderComponent.h"
+
+// Enemy / Slick and Sam
+#include "Components/Enemies/SlickSam/SlickSamComponent.h"
+#include "Components/Enemies/SlickSam/SlickSamRenderComponent.h"
+
+// Audio System
+#include "Sound/ServiceLocator.h"
+#include "Sound/SDLSoundSystem.h"
+
+// Achievements / Observers
 #include "Observer/SteamAchievementObserver.h"
+
 
 namespace fs = std::filesystem;
 
@@ -58,9 +79,31 @@ static void load([[maybe_unused]] bool steamInitialized)
 
     // --- Qbert ---
     auto qbertObject = std::make_unique<dae::GameObject>();
-    qbertObject->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
-    qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid(), 0, 0);
-    qbertObject->AddGameComponent<qbert::QbertRenderComponent>();
+    qbertObject->AddGameComponent<dae::TransformComponent>();
+    qbertObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 6.f);
+    auto* qbertComp = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid());
+    qbertObject->AddGameComponent<qbert::QbertRenderComponent>(qbertComp);
+
+    // --- Coily ---
+    auto coilyObject = std::make_unique<dae::GameObject>();
+    coilyObject->AddGameComponent<dae::TransformComponent>();
+    coilyObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 8.f, -68.f);
+    auto* coilyComp = coilyObject->AddGameComponent<qbert::CoilyComponent>(gridComp->GetGrid(), qbertObject.get());
+    coilyObject->AddGameComponent<qbert::CoilyRenderComponent>(coilyComp);
+
+    // --- Slick ---
+    auto slickObject = std::make_unique<dae::GameObject>();
+    slickObject->AddGameComponent<dae::TransformComponent>();
+    slickObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
+    auto* slickComp = slickObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Slick);
+    slickObject->AddGameComponent<qbert::SlickSamRenderComponent>(slickComp);
+
+    // --- Sam ---
+    auto samObject = std::make_unique<dae::GameObject>();
+    samObject->AddGameComponent<dae::TransformComponent>();
+    samObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
+    auto* samComp = samObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Sam);
+    samObject->AddGameComponent<qbert::SlickSamRenderComponent>(samComp);
 
     // --- Score + Steam Achievement ---
     auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();
@@ -76,7 +119,20 @@ static void load([[maybe_unused]] bool steamInitialized)
 
     // --- Input: keyboard ---
     auto& input = dae::InputManager::GetInstance();
+    // --- Input: QEAD ---
+    input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
 
+    input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
+
+    input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
+
+    input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down,
+        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
+
+    // ---Input: Numberpad ---
     input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
 
@@ -103,8 +159,17 @@ static void load([[maybe_unused]] bool steamInitialized)
     input.BindControllerCommand(0, dae::ControllerButton::DPadDown,  dae::KeyState::Down,
         std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
 
+    // --- Add to scene ---
+    // grid
     scene.Add(std::move(gridObject));
+    // player
     scene.Add(std::move(qbertObject));
+    // coily
+    scene.Add(std::move(coilyObject));
+    // slick
+    scene.Add(std::move(slickObject));
+    // sam
+    scene.Add(std::move(samObject));
 }
 
 int main(int, char* [])

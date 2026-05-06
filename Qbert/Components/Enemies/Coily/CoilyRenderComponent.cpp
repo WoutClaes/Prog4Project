@@ -1,4 +1,4 @@
-#include "QbertRenderComponent.h"
+#include "CoilyRenderComponent.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "Texture2D.h"
@@ -7,30 +7,23 @@
 
 namespace qbert
 {
-    QbertRenderComponent::QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert)
+    CoilyRenderComponent::CoilyRenderComponent(dae::GameObject* pOwner,
+                                               CoilyComponent* pCoily)
         : GameComponent(pOwner)
+        , m_pCoily(pCoily)
     {
-        m_Texture = dae::ResourceManager::GetInstance().LoadTexture("Qbert P1 Spritesheet.png");
-
-        if (pQbert)
-        {
-            pQbert->OnJumpStarted = [this](JumpDirection dir)
-                {
-                    m_LastDir = dir;
-                };
-        }
+        m_Texture = dae::ResourceManager::GetInstance()
+            .LoadTexture("Coily Spritesheet.png");
     }
 
-    void QbertRenderComponent::Render() const
+    void CoilyRenderComponent::Render() const
     {
-        if (!m_Texture) return;
+        if (!m_Texture || !m_pCoily) return;
 
         auto* transform = GetOwner()->GetGameComponent<dae::TransformComponent>();
         if (!transform) return;
 
-        // DownLeft, DownRight, UpLeft, UpRight
-        static constexpr int FrameForDir[4] = { 3, 2, 1, 0 };
-        const int frame = FrameForDir[static_cast<int>(m_LastDir)];
+        const int   frame = static_cast<int>(m_pCoily->GetCurrentFrame());
         const float srcX  = frame * SrcW;
         const float srcY  = 0.f;
 
