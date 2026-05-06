@@ -36,7 +36,7 @@ namespace qbert
     {
     public:
         ICoilyState* Update(CoilyComponent& coily, float deltaTime) override;
-        CoilyFrame GetFrame() const { return m_Frame; }
+        CoilyFrame GetFrame() const override { return m_Frame; }
 
         void SetStretched() override { m_Frame = CoilyFrame::EggNormal; }
         void SetSquished() override { m_Frame = CoilyFrame::EggSquished; }
@@ -55,7 +55,7 @@ namespace qbert
             : m_pQbertObject(pQbertObject) {}
 
         ICoilyState* Update(CoilyComponent& coily, float deltaTime) override;
-        CoilyFrame GetFrame() const { return m_Frame; }
+        CoilyFrame GetFrame() const override { return m_Frame; }
 
         void SetStretched() override;
         void SetSquished() override;
