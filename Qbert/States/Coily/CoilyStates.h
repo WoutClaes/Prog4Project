@@ -44,6 +44,7 @@ namespace qbert
     private:
         float      m_JumpTimer{ 0.f };
         static constexpr float JumpInterval{ 1.2f };
+        static constexpr float LandPause{ 0.3f };
         CoilyFrame m_Frame{ CoilyFrame::EggNormal };
     };
 
@@ -65,6 +66,7 @@ namespace qbert
 
         float      m_JumpTimer{ 0.f };
         static constexpr float JumpInterval{ 1.f };
+        static constexpr float LandPause{ 0.3f };
         CoilyFrame m_Frame{ CoilyFrame::SnakeUpRightStretched };
         JumpDirection m_LastDir{ JumpDirection::DownLeft };
     };

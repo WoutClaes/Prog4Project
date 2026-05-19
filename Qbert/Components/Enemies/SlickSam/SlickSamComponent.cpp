@@ -26,6 +26,14 @@ namespace qbert
     void SlickSamComponent::Update()
     {
         if (m_Dead) return;
+
+        if (m_FallTimer >= 0.f)
+        {
+            m_FallTimer -= dae::GameTime::GetInstance().GetDeltaTime();
+            if (m_FallTimer <= 0.f) m_Dead = true;
+            return;
+        }
+
         if (m_pMover && m_pMover->IsJumping()) return;
 
         m_JumpTimer += dae::GameTime::GetInstance().GetDeltaTime();
@@ -48,7 +56,8 @@ namespace qbert
         const int newRow = GetRow() + DeltaRow[dir];
         const int newCol = GetCol() + DeltaCol[dir];
 
-        m_pMover->RequestJump(newRow, newCol);
+        if (!m_pMover->RequestJump(newRow, newCol))
+            m_FallTimer = FallDuration;
     }
 
     void SlickSamComponent::OnLanded()
@@ -57,9 +66,6 @@ namespace qbert
 
         if (auto* cube = m_pGrid->GetCube(GetRow(), GetCol()))
             cube->Revert();
-
-        if (GetRow() >= CubeGrid::Rows - 1)
-            m_Dead = true;
     }
 
     void SlickSamComponent::Catch()

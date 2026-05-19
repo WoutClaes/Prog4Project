@@ -24,8 +24,9 @@ namespace qbert
 
         void SetOffsetY(float offsetY) { m_OffsetY = offsetY; }
 
+        float GetJumpProgress() const { return m_IsJumping ? m_JumpTimer / JumpDuration : 1.f; }
+
         std::function<void()> OnLanded{};
-        std::function<void()> OnMidAir{};
 
         static constexpr float JumpDuration{ 0.25f };
 

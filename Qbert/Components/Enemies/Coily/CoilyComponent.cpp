@@ -12,22 +12,31 @@ namespace qbert
     {
         m_pMover = pOwner->GetGameComponent<GridMover>();
 
-        m_pMover->OnMidAir = [this]()
-            {
-                // Switch to stretched frame mid-air
-                m_pState->SetStretched();
-            };
-
         m_pMover->OnLanded = [this]()
             {
-                // Switch to squished frame on landing
                 m_pState->SetSquished();
+                m_LandPauseTimer = LandPause;
             };
     }
 
     void CoilyComponent::Update()
     {
-        if (m_pMover && m_pMover->IsJumping()) return;
+        if (m_pMover && m_pMover->IsJumping())
+        {
+            const float progress = m_pMover->GetJumpProgress();
+            if (progress < 0.8f)
+                m_pState->SetStretched();
+            else
+                m_pState->SetSquished();
+            return;
+        }
+
+        if (m_LandPauseTimer > 0.f)
+        {
+            m_pState->SetSquished();
+            m_LandPauseTimer -= dae::GameTime::GetInstance().GetDeltaTime();
+            return;
+        }
 
         const float dt = dae::GameTime::GetInstance().GetDeltaTime();
         ICoilyState* nextState = m_pState->Update(*this, dt);

@@ -24,7 +24,7 @@ namespace qbert
         int GetRow() const;
         int GetCol() const;
 
-        CoilyFrame       GetCurrentFrame() const { return m_pState->GetFrame(); }
+        CoilyFrame GetCurrentFrame() const { return m_pState->GetFrame(); }
         dae::GameObject* GetQbertObject()  const { return m_pQbertObject; }
 
         CoilyComponent(const CoilyComponent&) = delete;
@@ -40,5 +40,8 @@ namespace qbert
         static constexpr int DeltaCol[4] = { 0,  1, -1,  0 };
 
         std::unique_ptr<ICoilyState> m_pState{};
+
+        float m_LandPauseTimer{ 0.f };
+        static constexpr float LandPause{ 0.3f };
     };
 }

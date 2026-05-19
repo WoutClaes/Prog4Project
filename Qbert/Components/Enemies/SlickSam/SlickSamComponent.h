@@ -52,5 +52,7 @@ namespace qbert
         bool  m_Dead{ false };
         float m_JumpTimer{ 0.f };
         static constexpr float JumpInterval{ 0.9f };
+        float m_FallTimer{ -1.f };
+        static constexpr float FallDuration{ 0.3f };
     };
 }
