@@ -113,16 +113,14 @@ static void load([[maybe_unused]] bool steamInitialized)
     auto wrongwayObject = std::make_unique<dae::GameObject>();
     wrongwayObject->AddGameComponent<dae::TransformComponent>();
     wrongwayObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 6, 0, -10.f, -20.f);
-    auto* wrongwayComp = wrongwayObject->AddGameComponent<qbert::UggWrongwayComponent>(
-        gridComp->GetGrid(), qbert::UggWrongwayType::Wrongway, 6, 0);
+    auto* wrongwayComp = wrongwayObject->AddGameComponent<qbert::UggWrongwayComponent>(qbert::UggWrongwayType::Wrongway);
     wrongwayObject->AddGameComponent<qbert::UggWrongwayRenderComponent>(wrongwayComp);
 
     // --- Ugg ---
     auto uggObject = std::make_unique<dae::GameObject>();
     uggObject->AddGameComponent<dae::TransformComponent>();
     uggObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 6, 6, 10.f, -20.f);
-    auto* uggComp = uggObject->AddGameComponent<qbert::UggWrongwayComponent>(
-        gridComp->GetGrid(), qbert::UggWrongwayType::Ugg, 6, 6);
+    auto* uggComp = uggObject->AddGameComponent<qbert::UggWrongwayComponent>(qbert::UggWrongwayType::Ugg);
     uggObject->AddGameComponent<qbert::UggWrongwayRenderComponent>(uggComp);
 
     // --- Score + Steam Achievement ---

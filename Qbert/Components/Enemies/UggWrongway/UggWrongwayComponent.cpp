@@ -7,9 +7,8 @@
 namespace qbert
 {
 
-    UggWrongwayComponent::UggWrongwayComponent(dae::GameObject* pOwner, CubeGrid* pGrid, UggWrongwayType type, int startRow, int startCol)
+    UggWrongwayComponent::UggWrongwayComponent(dae::GameObject* pOwner, UggWrongwayType type)
         : GameComponent(pOwner)
-        , m_pGrid(pGrid)
         , m_Type(type)
     {
         m_pMover = pOwner->GetGameComponent<GridMover>();
@@ -17,9 +16,6 @@ namespace qbert
         m_Frame = (m_Type == UggWrongwayType::Ugg)
             ? UggWrongwayFrame::UggFrame0
             : UggWrongwayFrame::WrongwayFrame0;
-
-        (void)startRow;
-        (void)startCol;
     }
 
     void UggWrongwayComponent::Update()

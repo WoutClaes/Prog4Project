@@ -23,7 +23,7 @@ namespace qbert
     class UggWrongwayComponent final : public dae::GameComponent
     {
     public:
-        explicit UggWrongwayComponent(dae::GameObject* pOwner, CubeGrid* pGrid, UggWrongwayType type, int startRow, int startCol);
+        explicit UggWrongwayComponent(dae::GameObject* pOwner, UggWrongwayType type);
         ~UggWrongwayComponent() override = default;
 
         void Update() override;
@@ -44,7 +44,6 @@ namespace qbert
         UggWrongwayComponent& operator=(UggWrongwayComponent&&) = delete;
 
     private:
-        CubeGrid*         m_pGrid{ nullptr };
         GridMover*        m_pMover{ nullptr };
         UggWrongwayType   m_Type;
         UggWrongwayFrame  m_Frame{ UggWrongwayFrame::UggFrame0 };
