@@ -42,7 +42,7 @@ namespace qbert
         {
             const float progress = m_pMover->GetJumpProgress();
 
-            if (auto* egg = dynamic_cast<EggState*>(m_pState.get()))
+            if (dynamic_cast<EggState*>(m_pState.get()))
             {
                 return progress < 0.8f ? CoilyFrame::EggNormal : CoilyFrame::EggSquished;
             }
@@ -62,7 +62,7 @@ namespace qbert
 
         if (m_LandPauseTimer > 0.f)
         {
-            if (auto* egg = dynamic_cast<EggState*>(m_pState.get()))
+            if (dynamic_cast<EggState*>(m_pState.get()))
                 return CoilyFrame::EggSquished;
             if (auto* snake = dynamic_cast<SnakeState*>(m_pState.get()))
             {
