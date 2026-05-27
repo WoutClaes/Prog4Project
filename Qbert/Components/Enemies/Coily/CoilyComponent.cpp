@@ -13,42 +13,72 @@ namespace qbert
         m_pMover = pOwner->GetGameComponent<GridMover>();
 
         m_pMover->OnLanded = [this]()
-            {
-                m_pState->SetSquished();
-                m_LandPauseTimer = LandPause;
-            };
+        {
+            m_LandPauseTimer = LandPause;
+        };
     }
 
     void CoilyComponent::Update()
     {
-        if (m_pMover && m_pMover->IsJumping())
-        {
-            const float progress = m_pMover->GetJumpProgress();
-            if (progress < 0.8f)
-                m_pState->SetStretched();
-            else
-                m_pState->SetSquished();
-            return;
-        }
+        if (m_pMover && m_pMover->IsJumping()) return;
 
-        if (m_LandPauseTimer > 0.f)
+        if (m_LandPauseTimer > 0.8f)
         {
-            m_pState->SetSquished();
             m_LandPauseTimer -= dae::GameTime::GetInstance().GetDeltaTime();
             return;
         }
 
         const float dt = dae::GameTime::GetInstance().GetDeltaTime();
-        ICoilyState* nextState = m_pState->Update(*this, dt);
+        auto nextState = m_pState->Update(*this, dt);
         if (nextState)
-            m_pState.reset(nextState);
+            m_pState = std::move(nextState);
+    }
+
+    CoilyFrame CoilyComponent::GetCurrentFrame() const
+    {
+        const CoilyFrame baseFrame = m_pState->GetFrame();
+
+        if (m_pMover && m_pMover->IsJumping())
+        {
+            const float progress = m_pMover->GetJumpProgress();
+
+            if (auto* egg = dynamic_cast<EggState*>(m_pState.get()))
+            {
+                return progress < 0.8f ? CoilyFrame::EggNormal : CoilyFrame::EggSquished;
+            }
+            if (auto* snake = dynamic_cast<SnakeState*>(m_pState.get()))
+            {
+                if (progress < 0.8f) 
+                { 
+                    snake->SetStretched(); 
+                }
+                else                 
+                { 
+                    snake->SetSquished();
+                }
+                return m_pState->GetFrame();
+            }
+        }
+
+        if (m_LandPauseTimer > 0.f)
+        {
+            if (auto* egg = dynamic_cast<EggState*>(m_pState.get()))
+                return CoilyFrame::EggSquished;
+            if (auto* snake = dynamic_cast<SnakeState*>(m_pState.get()))
+            {
+                snake->SetSquished();
+                return m_pState->GetFrame();
+            }
+        }
+
+        return baseFrame;
     }
 
     void CoilyComponent::Jump(JumpDirection dir)
     {
         if (!m_pMover) return;
 
-        const int d = static_cast<int>(dir);
+        const int d      = static_cast<int>(dir);
         const int newRow = GetRow() + DeltaRow[d];
         const int newCol = GetCol() + DeltaCol[d];
 

@@ -24,7 +24,7 @@ namespace qbert
         int GetRow() const;
         int GetCol() const;
 
-        CoilyFrame GetCurrentFrame() const { return m_pState->GetFrame(); }
+        CoilyFrame GetCurrentFrame() const;
         dae::GameObject* GetQbertObject()  const { return m_pQbertObject; }
 
         CoilyComponent(const CoilyComponent&) = delete;
@@ -34,10 +34,10 @@ namespace qbert
 
     private:
         dae::GameObject* m_pQbertObject{ nullptr };
-        GridMover* m_pMover{ nullptr };
+        GridMover*       m_pMover{ nullptr };
 
-        static constexpr int DeltaRow[4] = { 1,  1, -1, -1 };
-        static constexpr int DeltaCol[4] = { 0,  1, -1,  0 };
+        static constexpr int DeltaRow[4] = {  1,  1, -1, -1 };
+        static constexpr int DeltaCol[4] = {  0,  1, -1,  0 };
 
         std::unique_ptr<ICoilyState> m_pState{};
 

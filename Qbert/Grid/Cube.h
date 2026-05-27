@@ -21,7 +21,7 @@ namespace qbert
         void Reset();
 
         CubeColorState GetState()  const { return m_State; }
-        bool           IsTarget()  const { return m_State == CubeColorState::Target; }
+        bool IsTarget()  const { return m_State == CubeColorState::Target; }
 
         int GetRow() const { return m_Row; }
         int GetCol() const { return m_Col; }
@@ -31,7 +31,7 @@ namespace qbert
         float GetScreenY() const { return m_ScreenY; }
 
         void SetStepsToTarget(int steps) { m_StepsToTarget = steps; }
-        int  GetStepsToTarget()    const { return m_StepsToTarget; }
+        int  GetStepsToTarget() const { return m_StepsToTarget; }
 
     private:
         int m_Row;

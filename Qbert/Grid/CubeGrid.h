@@ -15,21 +15,21 @@ namespace qbert
     class CubeGrid final
     {
     public:
-        static constexpr int   Rows       = 7;
-        static constexpr int   TotalCubes = 28;
+        static constexpr int Rows       = 7;
+        static constexpr int TotalCubes = 28;
 
         static constexpr float TileW = 32.f;
         static constexpr float TileH = 32.f;
 
         explicit CubeGrid(float originX, float originY, float scale = 2.f);
 
-        Cube*       GetCube(int row, int col);
+        Cube* GetCube(int row, int col);
         const Cube* GetCube(int row, int col) const;
 
         static bool IsValid(int row, int col);
 
         int  CountTargetCubes() const;
-        bool IsComplete()       const;
+        bool IsComplete() const;
 
         void Reset();
         void SetStepsToTarget(int steps);

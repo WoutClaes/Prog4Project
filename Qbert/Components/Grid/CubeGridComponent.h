@@ -14,11 +14,11 @@ namespace qbert
 
         ~CubeGridComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override {}
 
-        CubeGrid*       GetGrid()       { return &m_Grid; }
+        CubeGrid* GetGrid() { return &m_Grid; }
         const CubeGrid* GetGrid() const { return &m_Grid; }
 
         CubeGridComponent(const CubeGridComponent&) = delete;

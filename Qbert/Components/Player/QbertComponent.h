@@ -13,7 +13,7 @@ namespace qbert
         explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid);
         ~QbertComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override {}
 

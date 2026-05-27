@@ -46,6 +46,10 @@
 #include "Components/Enemies/SlickSam/SlickSamComponent.h"
 #include "Components/Enemies/SlickSam/SlickSamRenderComponent.h"
 
+// Enemy / Ugg and Wrongway
+#include "Components/Enemies/UggWrongway/UggWrongwayComponent.h"
+#include "Components/Enemies/UggWrongway/UggWrongwayRenderComponent.h"
+
 // Audio System
 #include "Sound/ServiceLocator.h"
 #include "Sound/SDLSoundSystem.h"
@@ -83,7 +87,7 @@ static void load([[maybe_unused]] bool steamInitialized)
     qbertObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 6.f);
     auto* qbertComp = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid());
     qbertObject->AddGameComponent<qbert::QbertRenderComponent>(qbertComp);
-
+    
     // --- Coily ---
     auto coilyObject = std::make_unique<dae::GameObject>();
     coilyObject->AddGameComponent<dae::TransformComponent>();
@@ -104,6 +108,22 @@ static void load([[maybe_unused]] bool steamInitialized)
     samObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
     auto* samComp = samObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Sam);
     samObject->AddGameComponent<qbert::SlickSamRenderComponent>(samComp);
+    
+    // --- Wrong-Way ---
+    auto wrongwayObject = std::make_unique<dae::GameObject>();
+    wrongwayObject->AddGameComponent<dae::TransformComponent>();
+    wrongwayObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 6, 0, -10.f, -20.f);
+    auto* wrongwayComp = wrongwayObject->AddGameComponent<qbert::UggWrongwayComponent>(
+        gridComp->GetGrid(), qbert::UggWrongwayType::Wrongway, 6, 0);
+    wrongwayObject->AddGameComponent<qbert::UggWrongwayRenderComponent>(wrongwayComp);
+
+    // --- Ugg ---
+    auto uggObject = std::make_unique<dae::GameObject>();
+    uggObject->AddGameComponent<dae::TransformComponent>();
+    uggObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 6, 6, 10.f, -20.f);
+    auto* uggComp = uggObject->AddGameComponent<qbert::UggWrongwayComponent>(
+        gridComp->GetGrid(), qbert::UggWrongwayType::Ugg, 6, 6);
+    uggObject->AddGameComponent<qbert::UggWrongwayRenderComponent>(uggComp);
 
     // --- Score + Steam Achievement ---
     auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();
@@ -170,6 +190,10 @@ static void load([[maybe_unused]] bool steamInitialized)
     scene.Add(std::move(slickObject));
     // sam
     scene.Add(std::move(samObject));
+    // wrongway
+    scene.Add(std::move(wrongwayObject));
+    // ugg
+    scene.Add(std::move(uggObject));
 }
 
 int main(int, char* [])

@@ -7,8 +7,10 @@
 
 namespace qbert
 {
+    // ----------------------------------------------------------------
     // EggState
-    ICoilyState* EggState::Update(CoilyComponent& coily, float deltaTime)
+    // ----------------------------------------------------------------
+    std::unique_ptr<ICoilyState> EggState::Update(CoilyComponent& coily, float deltaTime)
     {
         m_JumpTimer += deltaTime;
         if (m_JumpTimer < JumpInterval)
@@ -24,13 +26,15 @@ namespace qbert
         coily.Jump(dir);
 
         if (coily.GetRow() >= CubeGrid::Rows - 1)
-            return new SnakeState(coily.GetQbertObject());
+            return std::make_unique<SnakeState>(coily.GetQbertObject());
 
         return nullptr;
     }
 
+    // ----------------------------------------------------------------
     // SnakeState
-    ICoilyState* SnakeState::Update(CoilyComponent& coily, float deltaTime)
+    // ----------------------------------------------------------------
+    std::unique_ptr<ICoilyState> SnakeState::Update(CoilyComponent& coily, float deltaTime)
     {
         m_JumpTimer += deltaTime;
         if (m_JumpTimer < JumpInterval)

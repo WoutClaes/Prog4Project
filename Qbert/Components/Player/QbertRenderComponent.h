@@ -13,7 +13,7 @@ namespace qbert
         explicit QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert);
         ~QbertRenderComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override;
 

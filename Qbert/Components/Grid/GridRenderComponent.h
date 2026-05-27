@@ -13,13 +13,13 @@ namespace qbert
         explicit GridRenderComponent(dae::GameObject* pOwner, CubeGrid* pGrid);
         ~GridRenderComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override;
 
-        void SetBaseColorIndex(int col)         { m_BaseCol = col; }
+        void SetBaseColorIndex(int col) { m_BaseCol = col; }
         void SetIntermediateColorIndex(int col) { m_IntermediateCol = col; }
-        void SetTargetColorIndex(int col)       { m_TargetCol = col; }
+        void SetTargetColorIndex(int col) { m_TargetCol = col; }
 
         GridRenderComponent(const GridRenderComponent&) = delete;
         GridRenderComponent& operator=(const GridRenderComponent&) = delete;
