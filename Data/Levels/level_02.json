@@ -1,0 +1,15 @@
+{
+    "level": 2,
+    "originX": 400.0,
+    "originY": 50.0,
+    "scale": 2.0,
+    "baseColorIndex": 4,
+    "intermediateColorIndex": 1,
+    "targetColorIndex": 0,
+    "stepsToTarget": 2,
+    "enemies": [
+        { "type": "Coily" },
+        { "type": "UggWrongway" },
+        { "type": "SlickSam" }
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "level": 1,
+    "originX": 400.0,
+    "originY": 50.0,
+    "scale": 2.0,
+    "baseColorIndex": 0,
+    "intermediateColorIndex": 5,
+    "targetColorIndex": 3,
+    "stepsToTarget": 2,
+    "enemies": [
+        { "type": "Coily" },
+        { "type": "Coily" },
+        { "type": "SlickSam" }
+    ]
+}

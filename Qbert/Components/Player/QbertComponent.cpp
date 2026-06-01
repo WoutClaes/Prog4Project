@@ -2,6 +2,7 @@
 #include "Components/Grid/GridMover.h"
 #include "Components/ScoreComponent.h"
 #include "GameObject.h"
+#include "GameManager.h"
 #include "Sound/ServiceLocator.h"
 
 namespace qbert
@@ -29,6 +30,12 @@ namespace qbert
         const int d = static_cast<int>(dir);
         const int newRow = m_pMover->GetRow() + DeltaRow[d];
         const int newCol = m_pMover->GetCol() + DeltaCol[d];
+
+        if (!CubeGrid::IsValid(newRow, newCol))
+        {
+            GameManager::GetInstance().OnPlayerDied();
+            return;
+        }
 
         if (m_pMover->RequestJump(newRow, newCol))
             if (OnJumpStarted) OnJumpStarted(dir);

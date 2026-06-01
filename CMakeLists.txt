@@ -82,6 +82,16 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(imgui)
 
+FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.3
+  GIT_SHALLOW TRUE
+)
+set(JSON_BuildTests OFF CACHE BOOL "" FORCE)
+set(JSON_Install    OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(nlohmann_json)
+
 add_library(imgui STATIC
   ${imgui_SOURCE_DIR}/imgui.cpp
   ${imgui_SOURCE_DIR}/imgui_draw.cpp
@@ -159,6 +169,7 @@ target_link_libraries(minigin_lib PUBLIC
   SDL3_ttf::SDL3_ttf
   imgui
   glm::glm
+  nlohmann_json::nlohmann_json
   ${VLD_LIBRARIES}
 )
 
@@ -185,23 +196,27 @@ if(EMSCRIPTEN)
   set(QBERT_PARAM)
 else()
   set(QBERT_TARGET qbert)
-  set(QBERT_PARAM WIN32)
+  set(QBERT_PARAM "")
 endif()
 
 add_executable(${QBERT_TARGET} ${QBERT_PARAM}
+  # Game
   Qbert/Main.cpp
+  Qbert/GameManager.cpp
+  Qbert/LevelLoader.cpp
 
   # Grid
   Qbert/Grid/Cube.cpp
   Qbert/Grid/CubeGrid.cpp
 
+  # Components
   Qbert/Components/Grid/GridRenderComponent.cpp
   Qbert/Components/Grid/GridMover.cpp
 
+  Qbert/Components/Collision/CollisionSystem.cpp
+
   Qbert/Components/Player/QbertComponent.cpp
   Qbert/Components/Player/QbertRenderComponent.cpp
-
-  "Qbert/States/Coily/CoilyStates.cpp"
 
   Qbert/Components/Enemies/Coily/CoilyComponent.cpp
   Qbert/Components/Enemies/Coily/CoilyRenderComponent.cpp
@@ -211,6 +226,9 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
 
   Qbert/Components/Enemies/UggWrongway/UggWrongwayComponent.cpp
   Qbert/Components/Enemies/UggWrongway/UggWrongwayRenderComponent.cpp
+
+  # States
+  "Qbert/States/Coily/CoilyStates.cpp"
 )
 
 target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
@@ -218,6 +236,7 @@ target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
 target_include_directories(${QBERT_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Qbert/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/
+  ${CMAKE_SOURCE_DIR}/Qbert/Components/Collision
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Grid/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Enemies/Coily/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Enemies/SlickSam/

@@ -17,6 +17,9 @@ namespace dae
 		void FixedUpdate();
 		void Render() const;
 
+		const std::vector<std::unique_ptr<GameObject>>& GetObjects() const
+		{ return m_GameObjects; }
+
 		~Scene() = default;
 		Scene(const Scene& other) = delete;
 		Scene(Scene&& other) = delete;

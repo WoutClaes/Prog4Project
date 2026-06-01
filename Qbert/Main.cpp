@@ -23,6 +23,11 @@
 #include "GameObject.h"
 #include "InputManager.h"
 
+// Game Managers
+#include "GameManager.h"
+#include "LevelLoader.h"
+#include "GameMode.h"
+
 // Core Components
 #include "Components/TransformComponent.h"
 #include "Components/ScoreComponent.h"
@@ -32,6 +37,9 @@
 #include "Components/Grid/CubeGridComponent.h"
 #include "Components/Grid/GridRenderComponent.h"
 #include "Components/Grid/GridMover.h"
+
+// Collision
+#include "Components/Collision/CollisionSystem.h"
 
 // Player / Qbert
 #include "Components/Player/QbertComponent.h"
@@ -60,148 +68,26 @@
 
 namespace fs = std::filesystem;
 
-static void load([[maybe_unused]] bool steamInitialized)
+static void load()
 {
-    auto& scene = dae::SceneManager::GetInstance().CreateScene();
+    dae::ServiceLocator::RegisterSoundSystem(std::make_unique<dae::SDLSoundSystem>());
 
-    dae::ServiceLocator::RegisterSoundSystem(
-        std::make_unique<dae::SDLSoundSystem>()
-    );
+    auto& gm = qbert::GameManager::GetInstance();
 
-    // --- Grid ---
-    constexpr float originX = 400.f;
-    constexpr float originY =  50.f;
-    constexpr float scale   =   2.f;
+    gm.OnLoadLevel = [](int levelIndex, qbert::GameMode mode)
+        {
+            auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+            qbert::LevelLoader::Load(levelIndex, mode, scene);
+        };
 
-    auto gridObject = std::make_unique<dae::GameObject>();
-    gridObject->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
-    auto* gridComp   = gridObject->AddGameComponent<qbert::CubeGridComponent>(originX, originY, scale);
-    auto* renderComp = gridObject->AddGameComponent<qbert::GridRenderComponent>(gridComp->GetGrid());
-    renderComp->SetBaseColorIndex(1);
-    renderComp->SetIntermediateColorIndex(2);
-    renderComp->SetTargetColorIndex(3);
+    gm.StartGame(qbert::GameMode::SinglePlayer, 0);
 
-    // --- Qbert ---
-    auto qbertObject = std::make_unique<dae::GameObject>();
-    qbertObject->AddGameComponent<dae::TransformComponent>();
-    qbertObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 6.f);
-    auto* qbertComp = qbertObject->AddGameComponent<qbert::QbertComponent>(gridComp->GetGrid());
-    qbertObject->AddGameComponent<qbert::QbertRenderComponent>(qbertComp);
-    
-    // --- Coily ---
-    auto coilyObject = std::make_unique<dae::GameObject>();
-    coilyObject->AddGameComponent<dae::TransformComponent>();
-    coilyObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 8.f, -68.f);
-    auto* coilyComp = coilyObject->AddGameComponent<qbert::CoilyComponent>(qbertObject.get());
-    coilyObject->AddGameComponent<qbert::CoilyRenderComponent>(coilyComp);
-
-    // --- Slick ---
-    auto slickObject = std::make_unique<dae::GameObject>();
-    slickObject->AddGameComponent<dae::TransformComponent>();
-    slickObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
-    auto* slickComp = slickObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Slick);
-    slickObject->AddGameComponent<qbert::SlickSamRenderComponent>(slickComp);
-
-    // --- Sam ---
-    auto samObject = std::make_unique<dae::GameObject>();
-    samObject->AddGameComponent<dae::TransformComponent>();
-    samObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 0, 0, 15.f, -25.f);
-    auto* samComp = samObject->AddGameComponent<qbert::SlickSamComponent>(gridComp->GetGrid(), qbert::SlickSamType::Sam);
-    samObject->AddGameComponent<qbert::SlickSamRenderComponent>(samComp);
-    
-    // --- Wrong-Way ---
-    auto wrongwayObject = std::make_unique<dae::GameObject>();
-    wrongwayObject->AddGameComponent<dae::TransformComponent>();
-    wrongwayObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 6, 0, -10.f, -20.f);
-    auto* wrongwayComp = wrongwayObject->AddGameComponent<qbert::UggWrongwayComponent>(qbert::UggWrongwayType::Wrongway);
-    wrongwayObject->AddGameComponent<qbert::UggWrongwayRenderComponent>(wrongwayComp);
-
-    // --- Ugg ---
-    auto uggObject = std::make_unique<dae::GameObject>();
-    uggObject->AddGameComponent<dae::TransformComponent>();
-    uggObject->AddGameComponent<qbert::GridMover>(gridComp->GetGrid(), 6, 6, 10.f, -20.f);
-    auto* uggComp = uggObject->AddGameComponent<qbert::UggWrongwayComponent>(qbert::UggWrongwayType::Ugg);
-    uggObject->AddGameComponent<qbert::UggWrongwayRenderComponent>(uggComp);
-
-    // --- Score + Steam Achievement ---
-    auto* scoreComp = qbertObject->AddGameComponent<dae::ScoreComponent>();
-    (void)scoreComp;
-
-#ifdef USE_STEAMWORKS
-    if (steamInitialized)
-    {
-        auto* achievement = qbertObject->AddGameComponent<dae::SteamAchievementObserver>();
-        scoreComp->AddObserver(achievement);
-    }
-#endif
-
-    // --- Input: keyboard ---
-    auto& input = dae::InputManager::GetInstance();
-    // --- Input: QEAD ---
-    input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
-
-    input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
-
-    input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
-
-    input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
-
-    // ---Input: Numberpad ---
-    input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
-
-    input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
-
-    input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
-
-    input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
-
-
-    // --- Input: gamepad (controller 0) ---
-    input.BindControllerCommand(0, dae::ControllerButton::DPadLeft,  dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpLeft));
-
-    input.BindControllerCommand(0, dae::ControllerButton::DPadRight, dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownRight));
-
-    input.BindControllerCommand(0, dae::ControllerButton::DPadUp,    dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::UpRight));
-
-    input.BindControllerCommand(0, dae::ControllerButton::DPadDown,  dae::KeyState::Down,
-        std::make_unique<qbert::JumpCommand>(qbertObject.get(), qbert::JumpDirection::DownLeft));
-
-    // --- Add to scene ---
-    // grid
-    scene.Add(std::move(gridObject));
-    // player
-    scene.Add(std::move(qbertObject));
-    // coily
-    scene.Add(std::move(coilyObject));
-    // slick
-    scene.Add(std::move(slickObject));
-    // sam
-    scene.Add(std::move(samObject));
-    // wrongway
-    scene.Add(std::move(wrongwayObject));
-    // ugg
-    scene.Add(std::move(uggObject));
+    auto collisionObj = std::make_unique<dae::GameObject>();
+    collisionObj->AddGameComponent<dae::TransformComponent>();
 }
 
 int main(int, char* [])
 {
-#ifdef USE_STEAMWORKS
-    const bool steamInitialized = SteamAPI_Init();
-    if (!steamInitialized)
-        SDL_Log("Steam not initialized.");
-#endif
-
 #if __EMSCRIPTEN__
     fs::path dataLocation = "";
 #else
@@ -211,16 +97,8 @@ int main(int, char* [])
 #endif
 
     dae::Minigin engine(dataLocation);
-#ifdef USE_STEAMWORKS
-    engine.Run([steamInitialized]() { load(steamInitialized); });
-#else
-    engine.Run([]() { load(false); });
-#endif
 
-#ifdef USE_STEAMWORKS
-    if (steamInitialized)
-        SteamAPI_Shutdown();
-#endif
+    engine.Run([]() { load(); });
 
     return 0;
 }
