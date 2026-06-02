@@ -218,6 +218,8 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Player/QbertComponent.cpp
   Qbert/Components/Player/QbertRenderComponent.cpp
 
+  "Qbert/Components/Enemies/EnemySpawnerComponent.cpp"
+
   Qbert/Components/Enemies/Coily/CoilyComponent.cpp
   Qbert/Components/Enemies/Coily/CoilyRenderComponent.cpp
 

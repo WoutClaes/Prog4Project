@@ -9,10 +9,8 @@
 // Engine
 #include "Scene.h"
 #include "GameObject.h"
-#include "InputManager.h"
 #include "Components/TransformComponent.h"
 #include "Components/ScoreComponent.h"
-#include "Observer/SteamAchievementObserver.h"
 
 // Grid
 #include "Grid/CubeGrid.h"
@@ -24,24 +22,57 @@
 #include "Components/Player/QbertComponent.h"
 #include "Components/Player/QbertRenderComponent.h"
 #include "Commands/JumpCommand.h"
-
-// Enemies
-#include "Components/Enemies/Coily/CoilyComponent.h"
-#include "Components/Enemies/Coily/CoilyRenderComponent.h"
-#include "Components/Enemies/SlickSam/SlickSamComponent.h"
-#include "Components/Enemies/SlickSam/SlickSamRenderComponent.h"
-#include "Components/Enemies/UggWrongway/UggWrongwayComponent.h"
-#include "Components/Enemies/UggWrongway/UggWrongwayRenderComponent.h"
+#include "Commands/SkipLevelCommand.h"
+#include "Commands/SoundCommands.h"
 
 // Collision + Game
 #include "Components/Collision/CollisionSystem.h"
-#include "GameManager.h"
 #include "GameManagerUpdater.h"
+
+#include "Components/Enemies/EnemySpawnerComponent.h"
 
 using json = nlohmann::json;
 
 namespace qbert
 {
+    static void BindGlobalSystemInputs()
+    {
+        auto& input = dae::InputManager::GetInstance();
+
+        input.BindKeyboardCommand(SDLK_F1, dae::KeyState::Down, std::make_unique<SkipLevelCommand>());
+
+        input.BindKeyboardCommand(SDLK_F2, dae::KeyState::Down, std::make_unique<ToggleMuteCommand>());
+
+        input.BindKeyboardCommand(SDLK_F3, dae::KeyState::Down, std::make_unique<VolumeDownCommand>());
+        input.BindKeyboardCommand(SDLK_F4, dae::KeyState::Down, std::make_unique<VolumeUpCommand>());
+    }
+
+    static void BindQbertInputs(dae::GameObject* obj, int controllerIndex, bool useKeyboard)
+    {
+        auto& input = dae::InputManager::GetInstance();
+
+        if (useKeyboard)
+        {
+            input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpLeft));
+            input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpRight));
+            input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownLeft));
+            input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownRight));
+            input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpLeft));
+            input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpRight));
+            input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownLeft));
+            input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownRight));
+        }
+
+        if (controllerIndex >= 0)
+        {
+            const unsigned int ci = static_cast<unsigned int>(controllerIndex);
+            input.BindControllerCommand(ci, dae::ControllerButton::DPadLeft, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpLeft));
+            input.BindControllerCommand(ci, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownRight));
+            input.BindControllerCommand(ci, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpRight));
+            input.BindControllerCommand(ci, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownLeft));
+        }
+    }
+
     static QbertComponent* MakeQbert(dae::Scene& scene, CubeGrid* grid,
         int controllerIndex, bool useKeyboard)
     {
@@ -52,121 +83,72 @@ namespace qbert
         obj->AddGameComponent<QbertRenderComponent>(qbert);
         obj->AddGameComponent<dae::ScoreComponent>();
 
-        auto& input = dae::InputManager::GetInstance();
-
-        if (useKeyboard)
-        {
-            input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpLeft));
-            input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpRight));
-            input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownLeft));
-            input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownRight));
-            input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpLeft));
-            input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpRight));
-            input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownLeft));
-            input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownRight));
-        }
-
-        if (controllerIndex >= 0)
-        {
-            const unsigned int ci = static_cast<unsigned int>(controllerIndex);
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadLeft, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpLeft));
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownRight));
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpRight));
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownLeft));
-        }
+        BindQbertInputs(obj.get(), controllerIndex, useKeyboard);
 
         auto* ptr = qbert;
         scene.Add(std::move(obj));
         return ptr;
     }
 
-    static CoilyComponent* MakeCoily(dae::Scene& scene, CubeGrid* grid,
-        dae::GameObject* qbertObject)
+    bool LevelLoader::Load(int levelIndex, int stageIndex, GameMode mode, dae::Scene& scene)
     {
-        auto obj = std::make_unique<dae::GameObject>();
-        obj->AddGameComponent<dae::TransformComponent>();
-        obj->AddGameComponent<GridMover>(grid, 0, 0, 8.f, -68.f);
-        auto* coily = obj->AddGameComponent<CoilyComponent>(qbertObject);
-        obj->AddGameComponent<CoilyRenderComponent>(coily);
-        auto* ptr = coily;
-        scene.Add(std::move(obj));
-        return ptr;
-    }
+        BindGlobalSystemInputs();
 
-    static std::pair<SlickSamComponent*, SlickSamComponent*>
-        MakeSlickSam(dae::Scene& scene, CubeGrid* grid)
-    {
-        auto slick = std::make_unique<dae::GameObject>();
-        slick->AddGameComponent<dae::TransformComponent>();
-        slick->AddGameComponent<GridMover>(grid, 0, 0, 15.f, -25.f);
-        auto* sc = slick->AddGameComponent<SlickSamComponent>(grid, SlickSamType::Slick);
-        slick->AddGameComponent<SlickSamRenderComponent>(sc);
-        scene.Add(std::move(slick));
+        constexpr int maxLevels = 3;
+        if (levelIndex > maxLevels)
+        {
+            SDL_Log("Levels completed");
+            return false;
+        }
 
-        auto sam = std::make_unique<dae::GameObject>();
-        sam->AddGameComponent<dae::TransformComponent>();
-        sam->AddGameComponent<GridMover>(grid, 0, 0, 15.f, -25.f);
-        auto* samc = sam->AddGameComponent<SlickSamComponent>(grid, SlickSamType::Sam);
-        sam->AddGameComponent<SlickSamRenderComponent>(samc);
-        scene.Add(std::move(sam));
-
-        return { sc, samc };
-    }
-
-    static std::pair<UggWrongwayComponent*, UggWrongwayComponent*>
-        MakeUggWrongway(dae::Scene& scene, CubeGrid* grid)
-    {
-        auto wrongway = std::make_unique<dae::GameObject>();
-        wrongway->AddGameComponent<dae::TransformComponent>();
-        wrongway->AddGameComponent<GridMover>(grid, 6, 0, -10.f, -20.f);
-        auto* wc = wrongway->AddGameComponent<UggWrongwayComponent>(UggWrongwayType::Wrongway);
-        wrongway->AddGameComponent<UggWrongwayRenderComponent>(wc);
-        scene.Add(std::move(wrongway));
-
-        auto ugg = std::make_unique<dae::GameObject>();
-        ugg->AddGameComponent<dae::TransformComponent>();
-        ugg->AddGameComponent<GridMover>(grid, 6, 6, 10.f, -20.f);
-        auto* uc = ugg->AddGameComponent<UggWrongwayComponent>(UggWrongwayType::Ugg);
-        ugg->AddGameComponent<UggWrongwayRenderComponent>(uc);
-        scene.Add(std::move(ugg));
-
-        return { wc, uc };
-    }
-
-    bool LevelLoader::Load(int levelIndex, GameMode mode, dae::Scene& scene)
-    {
-        const std::string path = LevelPath(levelIndex);
-        std::ifstream file(path);
+        std::ifstream file(LevelPath(levelIndex));
         if (!file.is_open())
         {
-            SDL_Log("LevelLoader: could not open %s", path.c_str());
+            SDL_Log("LevelLoader: Failed to open level file: %s", LevelPath(levelIndex).c_str());
             return false;
         }
 
-        json data;
+        nlohmann::json data;
         try { file >> data; }
-        catch (const json::parse_error& e)
+        catch (const nlohmann::json::parse_error& e)
         {
-            SDL_Log("LevelLoader: JSON parse error in %s: %s", path.c_str(), e.what());
+            SDL_Log("LevelLoader: JSON parse error: %s", e.what());
             return false;
         }
 
-        const float originX = data.value("originX", 400.f);
-        const float originY = data.value("originY", 50.f);
-        const float scale = data.value("scale", 2.f);
-        const int baseCol = data.value("baseColorIndex", 1);
-        const int interCol = data.value("intermediateColorIndex", 2);
-        const int targCol = data.value("targetColorIndex", 3);
-        const int steps = data.value("stepsToTarget", 1);
+        float originX = data.value("originX", 400.0f);
+        float originY = data.value("originY", 50.0f);
+        float scale = data.value("scale", 2.0f);
+
+        nlohmann::json stageData;
+        if (data.contains("stages") && data["stages"].is_array() && !data["stages"].empty())
+        {
+            size_t stageIdx = static_cast<size_t>(stageIndex);
+            if (stageIdx >= data["stages"].size())
+            {
+                SDL_Log("LevelLoader: stageIndex %d out of bounds! Clamping to last stage.", stageIndex);
+                stageIdx = data["stages"].size() - 1;
+            }
+            stageData = data["stages"][stageIdx];
+        }
+        else
+        {
+            stageData = data;
+        }
+
+        int baseColor = stageData.value("baseColorIndex", 0);
+        int interColor = stageData.value("intermediateColorIndex", 2);
+        int targetColor = stageData.value("targetColorIndex", 3);
+        int stepsToTarget = stageData.value("stepsToTarget", 1);
 
         auto gridObj = std::make_unique<dae::GameObject>();
         gridObj->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
         auto* gridComp = gridObj->AddGameComponent<CubeGridComponent>(originX, originY, scale);
-        gridComp->GetGrid()->SetStepsToTarget(steps);
+        gridComp->GetGrid()->SetStepsToTarget(stepsToTarget);
         auto* renderComp = gridObj->AddGameComponent<GridRenderComponent>(gridComp->GetGrid());
-        renderComp->SetBaseColorIndex(baseCol);
-        renderComp->SetIntermediateColorIndex(interCol);
-        renderComp->SetTargetColorIndex(targCol);
+        renderComp->SetBaseColorIndex(baseColor);
+        renderComp->SetIntermediateColorIndex(interColor);
+        renderComp->SetTargetColorIndex(targetColor);
         CubeGrid* grid = gridComp->GetGrid();
         scene.Add(std::move(gridObj));
 
@@ -174,36 +156,22 @@ namespace qbert
         collisionObj->AddGameComponent<dae::TransformComponent>();
         auto* collision = collisionObj->AddGameComponent<CollisionSystem>();
 
-        QbertComponent* qbert1 = nullptr;
         dae::GameObject* qbert1Obj = nullptr;
+        QbertComponent* qbert1 = nullptr;
 
         if (mode == GameMode::SinglePlayer)
         {
-            {
-                auto obj = std::make_unique<dae::GameObject>();
-                obj->AddGameComponent<dae::TransformComponent>();
-                obj->AddGameComponent<GridMover>(grid, 0, 0, 6.f, -20.f);
-                qbert1 = obj->AddGameComponent<QbertComponent>(grid);
-                obj->AddGameComponent<QbertRenderComponent>(qbert1);
-                obj->AddGameComponent<dae::ScoreComponent>();
+            auto obj = std::make_unique<dae::GameObject>();
+            obj->AddGameComponent<dae::TransformComponent>();
+            obj->AddGameComponent<GridMover>(grid, 0, 0, 6.f, -20.f);
+            qbert1 = obj->AddGameComponent<QbertComponent>(grid);
+            obj->AddGameComponent<QbertRenderComponent>(qbert1);
+            obj->AddGameComponent<dae::ScoreComponent>();
 
-                auto& input = dae::InputManager::GetInstance();
-                input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpLeft));
-                input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpRight));
-                input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownLeft));
-                input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownRight));
-                input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpLeft));
-                input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpRight));
-                input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownLeft));
-                input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownRight));
-                input.BindControllerCommand(0, dae::ControllerButton::DPadLeft, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpLeft));
-                input.BindControllerCommand(0, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownRight));
-                input.BindControllerCommand(0, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::UpRight));
-                input.BindControllerCommand(0, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<JumpCommand>(obj.get(), JumpDirection::DownLeft));
+            BindQbertInputs(obj.get(), 0, true);
 
-                qbert1Obj = obj.get();
-                scene.Add(std::move(obj));
-            }
+            qbert1Obj = obj.get();
+            scene.Add(std::move(obj));
         }
         else if (mode == GameMode::Coop)
         {
@@ -215,33 +183,34 @@ namespace qbert
             qbert1 = MakeQbert(scene, grid, 0, true);
         }
 
-        collision->AddQbert(qbert1);
-
-        if (data.contains("enemies"))
+        if (qbert1Obj)
         {
-            for (const auto& enemy : data["enemies"])
-            {
-                const std::string type = enemy.value("type", "");
+            qbert1 = qbert1Obj->GetGameComponent<QbertComponent>();
+            collision->AddQbert(qbert1);
+        }
 
-                if (type == "Coily" && mode != GameMode::Versus)
+        auto spawnerObj = std::make_unique<dae::GameObject>();
+        spawnerObj->AddGameComponent<dae::TransformComponent>();
+
+        auto* spawner = spawnerObj->AddGameComponent<EnemySpawnerComponent>(
+            grid,
+            collision,
+            qbert1Obj,
+            mode
+        );
+
+        if (stageData.contains("enemies") && stageData["enemies"].is_array())
+        {
+            for (const auto& enemy : stageData["enemies"])
+            {
+                std::string type = enemy.value("type", "");
+                if (!type.empty())
                 {
-                    auto* coily = MakeCoily(scene, grid, qbert1Obj);
-                    collision->AddCoily(coily);
-                }
-                else if (type == "SlickSam")
-                {
-                    auto [slick, sam] = MakeSlickSam(scene, grid);
-                    collision->AddSlickSam(slick);
-                    collision->AddSlickSam(sam);
-                }
-                else if (type == "UggWrongway")
-                {
-                    auto [wrongway, ugg] = MakeUggWrongway(scene, grid);
-                    collision->AddUggWrongway(wrongway);
-                    collision->AddUggWrongway(ugg);
+                    spawner->AddEnemyToQueue(type);
                 }
             }
         }
+        scene.Add(std::move(spawnerObj));
 
         scene.Add(std::move(collisionObj));
 

@@ -8,33 +8,9 @@
     "stages": [
         {
             "stage_id": 1,
-            "baseColorIndex": 7,
-            "intermediateColorIndex": 0,
-            "targetColorIndex": 13,
-            "stepsToTarget": 1,
-            "enemies": [
-                { "type": "Coily" },
-                { "type": "SlickSam" },
-                { "type": "UggWrongway" }
-            ]
-        },
-        {
-            "stage_id": 2,
-            "baseColorIndex": 15,
+            "baseColorIndex": 5,
             "intermediateColorIndex": 2,
-            "targetColorIndex": 9,
-            "stepsToTarget": 1,
-            "enemies": [
-                { "type": "Coily" },
-                { "type": "SlickSam" },
-                { "type": "UggWrongway" }
-            ]
-        },
-        {
-            "stage_id": 3,
-            "baseColorIndex": 12,
-            "intermediateColorIndex": 2,
-            "targetColorIndex": 6,
+            "targetColorIndex": 11,
             "stepsToTarget": 1,
             "enemies": [
                 { "type": "Coily" },
@@ -42,10 +18,34 @@
             ]
         },
         {
-            "stage_id": 4,
-            "baseColorIndex": 4,
+            "stage_id": 2,
+            "baseColorIndex": 8,
             "intermediateColorIndex": 2,
-            "targetColorIndex": 16,
+            "targetColorIndex": 2,
+            "stepsToTarget": 1,
+            "enemies": [
+                { "type": "Coily" },
+                { "type": "UggWrongway" },
+                { "type": "SlickSam" }
+            ]
+        },
+        {
+            "stage_id": 3,
+            "baseColorIndex": 7,
+            "intermediateColorIndex": 2,
+            "targetColorIndex": 1,
+            "stepsToTarget": 1,
+            "enemies": [
+                { "type": "Coily" },
+                { "type": "UggWrongway" },
+                { "type": "SlickSam" }
+            ]
+        },
+        {
+            "stage_id": 4,
+            "baseColorIndex": 6,
+            "intermediateColorIndex": 2,
+            "targetColorIndex": 3,
             "stepsToTarget": 1,
             "enemies": [
                 { "type": "Coily" },

@@ -17,8 +17,9 @@ namespace qbert
         m_Score        = 0;
         m_GameOver     = false;
         m_CurrentLevel = startLevel;
+        m_CurrentStage = 0;
 
-        LoadLevel(m_CurrentLevel);
+        LoadLevel(m_CurrentLevel, m_CurrentStage);
     }
 
     void GameManager::Update()
@@ -43,9 +44,10 @@ namespace qbert
         }
     }
 
-    void GameManager::LoadLevel(int levelIndex)
+    void GameManager::LoadLevel(int levelIndex, int stageIndex)
     {
-        m_CurrentLevel = levelIndex;
+        m_CurrentLevel = levelIndex; 
+        m_CurrentStage = stageIndex;
 
         dae::SceneManager::GetInstance().QueueAction([this]()
             {
@@ -54,7 +56,7 @@ namespace qbert
                 dae::SceneManager::GetInstance().CreateScene();
 
                 if (OnLoadLevel)
-                    OnLoadLevel(m_CurrentLevel, m_Mode);
+                    OnLoadLevel(m_CurrentLevel, m_CurrentStage, m_Mode);
                 else
                     SDL_Log("GameManager: OnLoadLevel not set!");
             });
@@ -62,18 +64,26 @@ namespace qbert
 
     void GameManager::ReloadCurrentLevel()
     {
-        LoadLevel(m_CurrentLevel);
+        LoadLevel(m_CurrentLevel, m_CurrentStage);
     }
 
     void GameManager::LoadNextLevel()
     {
-        const int next = m_CurrentLevel + 1;
-        if (next >= MaxLevels)
+        m_CurrentStage++;
+
+        if (m_CurrentStage >= MaxStages)
         {
-            SDL_Log("GameManager: all levels complete!");
-            return;
+            m_CurrentStage = 0;
+            m_CurrentLevel++;
+
+            if (m_CurrentLevel > MaxLevels)
+            {
+                SDL_Log("GameManager: All levels and stages complete! Victory!");
+                return;
+            }
         }
-        LoadLevel(next);
+
+        LoadLevel(m_CurrentLevel, m_CurrentStage);
     }
 
     void GameManager::OnLevelComplete()

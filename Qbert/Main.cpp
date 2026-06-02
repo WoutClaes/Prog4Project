@@ -19,9 +19,7 @@
 // Engine Core
 #include "Minigin.h"
 #include "SceneManager.h"
-#include "Scene.h"
 #include "GameObject.h"
-#include "InputManager.h"
 
 // Game Managers
 #include "GameManager.h"
@@ -30,40 +28,10 @@
 
 // Core Components
 #include "Components/TransformComponent.h"
-#include "Components/ScoreComponent.h"
-
-// Grid System
-#include "Grid/CubeGrid.h"
-#include "Components/Grid/CubeGridComponent.h"
-#include "Components/Grid/GridRenderComponent.h"
-#include "Components/Grid/GridMover.h"
-
-// Collision
-#include "Components/Collision/CollisionSystem.h"
-
-// Player / Qbert
-#include "Components/Player/QbertComponent.h"
-#include "Components/Player/QbertRenderComponent.h"
-#include "Commands/JumpCommand.h"
-
-// Enemy / Coily
-#include "Components/Enemies/Coily/CoilyComponent.h"
-#include "Components/Enemies/Coily/CoilyRenderComponent.h"
-
-// Enemy / Slick and Sam
-#include "Components/Enemies/SlickSam/SlickSamComponent.h"
-#include "Components/Enemies/SlickSam/SlickSamRenderComponent.h"
-
-// Enemy / Ugg and Wrongway
-#include "Components/Enemies/UggWrongway/UggWrongwayComponent.h"
-#include "Components/Enemies/UggWrongway/UggWrongwayRenderComponent.h"
 
 // Audio System
 #include "Sound/ServiceLocator.h"
 #include "Sound/SDLSoundSystem.h"
-
-// Achievements / Observers
-#include "Observer/SteamAchievementObserver.h"
 
 
 namespace fs = std::filesystem;
@@ -74,13 +42,13 @@ static void load()
 
     auto& gm = qbert::GameManager::GetInstance();
 
-    gm.OnLoadLevel = [](int levelIndex, qbert::GameMode mode)
+    gm.OnLoadLevel = [](int levelIndex, int stageIndex, qbert::GameMode mode)
         {
             auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
-            qbert::LevelLoader::Load(levelIndex, mode, scene);
+            qbert::LevelLoader::Load(levelIndex, stageIndex, mode, scene);
         };
 
-    gm.StartGame(qbert::GameMode::SinglePlayer, 0);
+    gm.StartGame(qbert::GameMode::SinglePlayer, 1);
 
     auto collisionObj = std::make_unique<dae::GameObject>();
     collisionObj->AddGameComponent<dae::TransformComponent>();

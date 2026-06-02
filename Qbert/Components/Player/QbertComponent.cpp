@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "GameManager.h"
 #include "Sound/ServiceLocator.h"
+#include <SDL3/SDL.h>
 
 namespace qbert
 {
@@ -18,7 +19,8 @@ namespace qbert
             m_pMover->OnLanded = [this]()
                 {
                     Land();
-                    if (OnLanded) OnLanded();
+                    if (OnLanded) 
+                        OnLanded();
                 };
         }
     }
@@ -56,8 +58,12 @@ namespace qbert
                     score->AddPoints(25);
         }
 
-        dae::ServiceLocator::GetSoundSystem()
-            .Play(dae::ServiceLocator::GetSoundSystem()
-                .RegisterSound("Data/Sounds/QBert Jump.wav"), 1.f);
+        dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/QBert Jump.wav"), 1.f);
+
+        if (m_pGrid->IsComplete())
+        {
+            SDL_Log("QbertComponent: Level complete detected!");
+            qbert::GameManager::GetInstance().OnLevelComplete();
+        }
     }
 }

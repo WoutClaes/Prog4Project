@@ -15,7 +15,7 @@ namespace qbert
 
         void Update();
 
-        void LoadLevel(int levelIndex);
+        void LoadLevel(int levelIndex, int stageIndex);
         void ReloadCurrentLevel();
         void LoadNextLevel();
 
@@ -31,7 +31,7 @@ namespace qbert
 
         void AddScore(int amount);
 
-        std::function<void(int levelIndex, GameMode mode)> OnLoadLevel{};
+        std::function<void(int levelIndex, int stageIndex, GameMode mode)> OnLoadLevel{};
 
     private:
         GameManager() = default;
@@ -43,10 +43,12 @@ namespace qbert
         int      m_Lives        { 3 };
         int      m_Score        { 0 };
         int      m_CurrentLevel { 0 };
+        int      m_CurrentStage{ 0 };
         GameMode m_Mode         { GameMode::SinglePlayer };
         bool     m_GameOver     { false };
 
         static constexpr int MaxLives { 3 };
-        static constexpr int MaxLevels{ 3 };
+        static constexpr int MaxLevels{ 12 };
+        static constexpr int MaxStages{ 4 };
     };
 }

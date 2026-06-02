@@ -25,9 +25,15 @@ namespace qbert
 
     void GridRenderComponent::RenderCube(const Cube& cube) const
     {
-        const int   col  = ColorColForState(cube.GetState());
+        const int colIndex = ColorColForState(cube.GetState());
+
+        const int tilesPerRow = 6;
+
+        const int row = colIndex / tilesPerRow;
+        const int col = colIndex % tilesPerRow;
+
         const float srcX = col * TileW;
-        const float srcY = 0.f;
+        const float srcY = row * TileH;
 
         const SDL_FRect src{ srcX, srcY, TileW, TileH };
 

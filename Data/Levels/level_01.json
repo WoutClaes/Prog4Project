@@ -1,15 +1,52 @@
 {
-    "level": 1,
+    "level_id": 1,
+    "behavior": "permanent",
     "originX": 400.0,
     "originY": 50.0,
     "scale": 2.0,
-    "baseColorIndex": 0,
-    "intermediateColorIndex": 5,
-    "targetColorIndex": 3,
-    "stepsToTarget": 2,
-    "enemies": [
-        { "type": "Coily" },
-        { "type": "Coily" },
-        { "type": "SlickSam" }
+    
+    "stages": [
+        {
+            "stage_id": 1,
+            "baseColorIndex": 0,
+            "intermediateColorIndex": 0,
+            "targetColorIndex": 6,
+            "stepsToTarget": 1,
+            "enemies": [
+                { "type": "Coily" }
+            ]
+        },
+        {
+            "stage_id": 2,
+            "baseColorIndex": 1,
+            "intermediateColorIndex": 0,
+            "targetColorIndex": 7,
+            "stepsToTarget": 1,
+            "enemies": [
+                { "type": "Coily" }
+            ]
+        },
+        {
+            "stage_id": 3,
+            "baseColorIndex": 2,
+            "intermediateColorIndex": 0,
+            "targetColorIndex": 8,
+            "stepsToTarget": 1,
+            "enemies": [
+                { "type": "Coily" },
+                { "type": "UggWrongway" }
+            ]
+        },
+        {
+            "stage_id": 4,
+            "baseColorIndex": 3,
+            "intermediateColorIndex": 0,
+            "targetColorIndex": 9,
+            "stepsToTarget": 1,
+            "enemies": [
+                { "type": "Coily" },
+                { "type": "SlickSam" }
+            ]
+        }
     ]
 }

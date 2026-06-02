@@ -46,6 +46,9 @@ namespace dae
             }
             SDL_Log("SDLSoundSystem: audio device opened, id=%u", m_DeviceId);
             m_Initialized = true;
+
+            UpdateDeviceVolume();
+
             m_Worker = std::thread(&Impl::WorkerLoop, this);
         }
 
@@ -88,12 +91,40 @@ namespace dae
 
         void SetMuted(bool muted)
         {
+            std::lock_guard lock(m_Mutex);
             m_Muted = muted;
+            UpdateDeviceVolume();
         }
 
-        bool IsMuted() const { return m_Muted; }
+        bool IsMuted() const 
+        {
+            std::lock_guard lock(m_Mutex);
+            return m_Muted;
+        }
+
+        void SetVolume(float volume)
+        {
+            std::lock_guard lock(m_Mutex);
+            m_Volume = volume;
+            UpdateDeviceVolume();
+        }
+
+        float GetVolume() const
+        {
+            std::lock_guard lock(m_Mutex);
+            return m_Volume;
+        }
 
     private:
+        void UpdateDeviceVolume()
+        {
+            if (m_Initialized && m_DeviceId != 0)
+            {
+                float actualGain = m_Muted ? 0.0f : m_Volume;
+                SDL_SetAudioDeviceGain(m_DeviceId, actualGain);
+            }
+        }
+
         void WorkerLoop()
         {
             while (true)
@@ -174,6 +205,7 @@ namespace dae
 
         bool              m_Initialized{ false };
         bool              m_Muted{ false };
+        float             m_Volume{ 1.0f };
         SDL_AudioDeviceID m_DeviceId{ 0 };
 
         unsigned int m_NextId{ 1 };
@@ -181,11 +213,11 @@ namespace dae
         std::unordered_map<SoundId, std::string> m_IdToFile{};
         std::unordered_map<SoundId, LoadedSound> m_Sounds{};
 
-        std::queue<SoundRequest>  m_Queue{};
-        std::mutex                m_Mutex{};
-        std::condition_variable   m_CV{};
-        std::thread               m_Worker{};
-        bool                      m_Quit{ false };
+        std::queue<SoundRequest> m_Queue{};
+        mutable std::mutex m_Mutex{};
+        std::condition_variable m_CV{};
+        std::thread m_Worker{};
+        bool m_Quit{ false };
     };
 
     SDLSoundSystem::SDLSoundSystem()
@@ -204,4 +236,14 @@ namespace dae
 
     bool SDLSoundSystem::IsMuted() const
     { return m_pImpl->IsMuted(); }
+
+    void SDLSoundSystem::SetVolume(float volume)
+    {
+        m_pImpl->SetVolume(volume);
+    }
+
+    float SDLSoundSystem::GetVolume() const
+    {
+        return m_pImpl->GetVolume();
+    }
 }
