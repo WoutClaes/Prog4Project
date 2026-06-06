@@ -1,9 +1,17 @@
 #pragma once
 #include "GameComponent.h"
 #include "Observer/Subject.h"
+#include <string>
+#include <vector>
 
 namespace dae
 {
+    struct HighScoreEntry
+    {
+        std::string name;
+        int score{ 0 };
+    };
+
     class ScoreComponent final : public GameComponent, public Subject
     {
     public:
@@ -14,10 +22,11 @@ namespace dae
         void FixedUpdate() override {}
         void Render() const override {}
 
-        // Called by AddPointsCommand
         void AddPoints(int amount);
-
         int GetScore() const { return m_Score; }
+
+        static void SaveCurrentScore(const std::string& playerName, int score);
+        static std::vector<HighScoreEntry> LoadHighScores();
 
         ScoreComponent(const ScoreComponent&) = delete;
         ScoreComponent& operator=(const ScoreComponent&) = delete;

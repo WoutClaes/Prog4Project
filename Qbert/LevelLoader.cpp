@@ -11,6 +11,12 @@
 #include "GameObject.h"
 #include "Components/TransformComponent.h"
 #include "Components/ScoreComponent.h"
+#include "Components/SpriteComponent.h"
+#include "Components/TextComponent.h"
+#include "ResourceManager.h"
+#include "SceneManager.h"
+#include "Components/NameInputComponent.h"
+#include "Commands/NameInputCommands.h"
 
 // Grid
 #include "Grid/CubeGrid.h"
@@ -27,9 +33,13 @@
 
 // Collision + Game
 #include "Components/Collision/CollisionSystem.h"
+#include "GameManager.h"
 #include "GameManagerUpdater.h"
+#include "GameMode.h"
 
 #include "Components/Enemies/EnemySpawnerComponent.h"
+
+#include "Components/HUD/HUDComponent.h"
 
 using json = nlohmann::json;
 
@@ -141,6 +151,8 @@ namespace qbert
         int targetColor = stageData.value("targetColorIndex", 3);
         int stepsToTarget = stageData.value("stepsToTarget", 1);
 
+        qbert::GameManager::GetInstance().m_Bonus = stageData.value("bonus", 0);
+
         auto gridObj = std::make_unique<dae::GameObject>();
         gridObj->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
         auto* gridComp = gridObj->AddGameComponent<CubeGridComponent>(originX, originY, scale);
@@ -214,12 +226,164 @@ namespace qbert
 
         scene.Add(std::move(collisionObj));
 
+        auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
+
+        auto player1Obj = std::make_unique<dae::GameObject>();
+        player1Obj->AddGameComponent<dae::TransformComponent>()->SetPosition(40.f, 30.f);
+        auto* playerSprite = player1Obj->AddGameComponent<dae::SpriteComponent>();
+        playerSprite->SetSpriteSheet("Player Titles.png");
+        playerSprite->SetSourceRect(0.f, 0.f, 80.f, 11.f);
+        playerSprite->SetDestSize(160.f, 32.f);
+
+        auto scoreObj = std::make_unique<dae::GameObject>();
+        scoreObj->AddGameComponent<dae::TransformComponent>()->SetPosition(40.f, 60.f);
+        auto* scoreText = scoreObj->AddGameComponent<dae::TextComponent>("0", font, SDL_Color{ 255, 165, 0, 255 });
+
+        auto changeToObj = std::make_unique<dae::GameObject>();
+        changeToObj->AddGameComponent<dae::TransformComponent>()->SetPosition(40.f, 120.f);
+        changeToObj->AddGameComponent<dae::TextComponent>("CHANGE TO:", font, SDL_Color{ 255, 0, 0, 255 });
+
+        auto targetBlockObj = std::make_unique<dae::GameObject>();
+        targetBlockObj->AddGameComponent<dae::TransformComponent>()->SetPosition(70.f, 150.f);
+        auto* targetBlockSprite = targetBlockObj->AddGameComponent<dae::SpriteComponent>();
+        targetBlockSprite->SetSpriteSheet("Color Icons Spritesheet.png");
+        float blockSpriteWidth = 14.f;
+        targetBlockSprite->SetSourceRect(0.f, 0.f, blockSpriteWidth, 12.f);
+        targetBlockSprite->SetDestSize(34.f, 34.f);
+
+        auto levelTextObj = std::make_unique<dae::GameObject>();
+        levelTextObj->AddGameComponent<dae::TransformComponent>()->SetPosition(500.f, 30.f);
+        auto* levelText = levelTextObj->AddGameComponent<dae::TextComponent>("LEVEL: 1", font, SDL_Color{ 0, 255, 0, 255 });
+
+        auto livesObj = std::make_unique<dae::GameObject>();
+        livesObj->AddGameComponent<dae::TransformComponent>()->SetPosition(500.f, 60.f);
+        auto* livesText = livesObj->AddGameComponent<dae::TextComponent>("ROUND: 1", font, SDL_Color{ 255, 0, 255, 255 });
+
+        auto gameOverObj = std::make_unique<dae::GameObject>();
+        gameOverObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, 200.f);
+        auto* gameOverSprite = gameOverObj->AddGameComponent<dae::SpriteComponent>();
+
+        auto winObj = std::make_unique<dae::GameObject>();
+        winObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, 200.f);
+        auto* winSprite = winObj->AddGameComponent<dae::SpriteComponent>();
+
+        auto bonusObj = std::make_unique<dae::GameObject>();
+        bonusObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, 400.f);
+        auto* bonusText = bonusObj->AddGameComponent<dae::TextComponent>("", font, SDL_Color{ 255, 165, 0, 255 });
+
+        auto hudObj = std::make_unique<dae::GameObject>();
+        hudObj->AddGameComponent<dae::TransformComponent>();
+        hudObj->AddGameComponent<HUDComponent>(scoreText, livesText, levelText, gameOverSprite, winSprite, bonusText);
+
+        scene.Add(std::move(player1Obj));
+        scene.Add(std::move(scoreObj));
+        scene.Add(std::move(changeToObj));
+        scene.Add(std::move(targetBlockObj));
+        scene.Add(std::move(levelTextObj));
+        scene.Add(std::move(livesObj));
+        scene.Add(std::move(gameOverObj));
+        scene.Add(std::move(winObj));
+        scene.Add(std::move(bonusObj));
+        scene.Add(std::move(hudObj));
+
         auto gmObj = std::make_unique<dae::GameObject>();
         gmObj->AddGameComponent<dae::TransformComponent>();
         gmObj->AddGameComponent<GameManagerUpdater>();
         scene.Add(std::move(gmObj));
 
         return true;
+    }
+
+    void LevelLoader::QueueLoadLevel(int levelIndex, int stageIndex, GameMode mode)
+    {
+        dae::SceneManager::GetInstance().QueueAction([=]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            Load(levelIndex, stageIndex, mode, scene);
+            });
+    }
+
+    void LevelLoader::QueueLoadHighScoreInput(int finalScore)
+    {
+        dae::SceneManager::GetInstance().QueueAction([finalScore]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            auto inputObj = std::make_unique<dae::GameObject>();
+            inputObj->AddGameComponent<dae::TransformComponent>()->SetPosition(400.f, 300.f);
+
+            auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 36);
+            auto* textComp = inputObj->AddGameComponent<dae::TextComponent>("AAA", font, SDL_Color{ 255, 255, 0, 255 });
+
+            auto* nameComp = inputObj->AddGameComponent<dae::NameInputComponent>(textComp, finalScore);
+
+            nameComp->SetOnCompleteCallback([]() {
+                qbert::LevelLoader::QueueLoadHighScoreBoard();
+                });
+
+            auto& input = dae::InputManager::GetInstance();
+
+            input.BindKeyboardCommand(SDLK_UP, dae::KeyState::Down, std::make_unique<dae::ChangeLetterCommand>(nameComp, 1));
+            input.BindKeyboardCommand(SDLK_DOWN, dae::KeyState::Down, std::make_unique<dae::ChangeLetterCommand>(nameComp, -1));
+            input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<dae::NextSlotCommand>(nameComp));
+
+            input.BindControllerCommand(0, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<dae::ChangeLetterCommand>(nameComp, 1));
+            input.BindControllerCommand(0, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<dae::ChangeLetterCommand>(nameComp, -1));
+            input.BindControllerCommand(0, dae::ControllerButton::ButtonA, dae::KeyState::Down, std::make_unique<dae::NextSlotCommand>(nameComp));
+
+            scene.Add(std::move(inputObj));
+            });
+    }
+
+    void LevelLoader::QueueLoadEndScreen(bool isWin)
+    {
+        dae::SceneManager::GetInstance().QueueAction([isWin]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            auto endObj = std::make_unique<dae::GameObject>();
+            endObj->AddGameComponent<dae::TransformComponent>()->SetPosition(200.f, 200.f);
+            auto* sprite = endObj->AddGameComponent<dae::SpriteComponent>();
+
+            sprite->SetSpriteSheet(isWin ? "Victory Title.png" : "Game Over Title.png");
+            sprite->SetSourceRect(0.f, 0.f, isWin ? 270.f : 376, 149.f);
+            sprite->SetDestSize(isWin ? 270.f : 376, 149.f);
+            scene.Add(std::move(endObj));
+
+            auto gmObj = std::make_unique<dae::GameObject>();
+            gmObj->AddGameComponent<dae::TransformComponent>();
+            gmObj->AddGameComponent<GameManagerUpdater>();
+            scene.Add(std::move(gmObj));
+            });
+    }
+
+    void LevelLoader::QueueLoadHighScoreBoard()
+    {
+        dae::SceneManager::GetInstance().QueueAction([]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
+            auto scores = dae::ScoreComponent::LoadHighScores();
+
+            auto titleObj = std::make_unique<dae::GameObject>();
+            titleObj->AddGameComponent<dae::TransformComponent>()->SetPosition(300.f, 50.f);
+            titleObj->AddGameComponent<dae::TextComponent>("HIGH SCORES", font, SDL_Color{ 255, 255, 255, 255 });
+            scene.Add(std::move(titleObj));
+
+            float startY = 100.f;
+            for (size_t i = 0; i < scores.size(); ++i)
+            {
+                auto scoreObj = std::make_unique<dae::GameObject>();
+                scoreObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, startY + (i * 30.f));
+
+                std::string entry = std::to_string(i + 1) + ". " + scores[i].name + " - " + std::to_string(scores[i].score);
+                scoreObj->AddGameComponent<dae::TextComponent>(entry, font, SDL_Color{ 255, 255, 0, 255 });
+
+                scene.Add(std::move(scoreObj));
+            }
+            });
     }
 
     std::string LevelLoader::LevelPath(int levelIndex)

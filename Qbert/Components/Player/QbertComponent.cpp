@@ -27,7 +27,7 @@ namespace qbert
 
     void QbertComponent::RequestJump(JumpDirection dir)
     {
-        if (!m_pMover || m_pMover->IsJumping()) return;
+        if (!m_pMover || m_pMover->IsJumping() || !this->GetOwner()->IsActive()) return;
 
         const int d = static_cast<int>(dir);
         const int newRow = m_pMover->GetRow() + DeltaRow[d];
@@ -54,8 +54,7 @@ namespace qbert
             cube->Step();
 
             if (!wasTarget)
-                if (auto* score = GetOwner()->GetGameComponent<dae::ScoreComponent>())
-                    score->AddPoints(25);
+                qbert::GameManager::GetInstance().AddScore(25);
         }
 
         dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/QBert Jump.wav"), 1.f);

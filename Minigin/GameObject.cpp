@@ -8,6 +8,8 @@ dae::GameObject::~GameObject() = default;
 
 void dae::GameObject::Update()
 {
+    if (!m_IsActive) return;
+
 	for (auto& component : m_GameComponents)
 		component->Update();
 
@@ -16,6 +18,8 @@ void dae::GameObject::Update()
 
 void dae::GameObject::FixedUpdate()
 {
+    if (!m_IsActive) return;
+
 	for (auto& component : m_GameComponents)
 		component->FixedUpdate();
 }

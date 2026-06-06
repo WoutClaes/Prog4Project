@@ -140,6 +140,8 @@ add_library(minigin_lib STATIC
   Minigin/Components/ScoreDisplayComponent.cpp
   Minigin/Components/SpriteComponent.cpp
 
+  Minigin/Components/NameInputComponent.cpp
+
   Minigin/Commands/MoveCommand.cpp
   Minigin/Commands/DamageCommand.cpp
   Minigin/Commands/AddPointsCommand.cpp
@@ -149,8 +151,7 @@ add_library(minigin_lib STATIC
   Minigin/Observer/SteamAchievementObserver.cpp
 
   Minigin/Sound/ServiceLocator.cpp
-  Minigin/Sound/SDLSoundSystem.cpp
-)
+  Minigin/Sound/SDLSoundSystem.cpp)
 
 target_compile_features(minigin_lib PUBLIC cxx_std_20)
 
@@ -218,7 +219,9 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Player/QbertComponent.cpp
   Qbert/Components/Player/QbertRenderComponent.cpp
 
-  "Qbert/Components/Enemies/EnemySpawnerComponent.cpp"
+  Qbert/Components/Enemies/EnemySpawnerComponent.cpp
+  
+  Qbert/Components/HUD/HUDComponent.cpp
 
   Qbert/Components/Enemies/Coily/CoilyComponent.cpp
   Qbert/Components/Enemies/Coily/CoilyRenderComponent.cpp
@@ -230,7 +233,7 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Enemies/UggWrongway/UggWrongwayRenderComponent.cpp
 
   # States
-  "Qbert/States/Coily/CoilyStates.cpp"
+  Qbert/States/Coily/CoilyStates.cpp
 )
 
 target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
@@ -240,6 +243,7 @@ target_include_directories(${QBERT_TARGET} PRIVATE
   ${CMAKE_SOURCE_DIR}/Qbert/Components/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Collision
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Grid/
+  ${CMAKE_SOURCE_DIR}/Qbert/Components/HUD/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Enemies/Coily/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Enemies/SlickSam/
   ${CMAKE_SOURCE_DIR}/Qbert/Components/Enemies/UggWrongway/

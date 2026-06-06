@@ -14,6 +14,9 @@ namespace dae
 		void FixedUpdate();
 		void Render() const;
 
+		void SetActive(bool active) { m_IsActive = active; }
+		bool IsActive() const { return m_IsActive; }
+
 		template<typename T, typename... Args>
 		T* AddGameComponent(Args&&... args)
 		{
@@ -92,5 +95,7 @@ namespace dae
 
 		GameObject* m_parent{ nullptr };
 		std::vector<GameObject*> m_children{};
+
+		bool m_IsActive{ true };
 	};
 }

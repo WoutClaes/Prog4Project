@@ -12,6 +12,7 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 6,
             "stepsToTarget": 1,
+            "Bonus": 1000,
             "enemies": [
                 { "type": "Coily" }
             ]
@@ -22,6 +23,7 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 7,
             "stepsToTarget": 1,
+            "Bonus": 1250,
             "enemies": [
                 { "type": "Coily" }
             ]
@@ -32,6 +34,7 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 8,
             "stepsToTarget": 1,
+            "Bonus": 1500,
             "enemies": [
                 { "type": "Coily" },
                 { "type": "UggWrongway" }
@@ -43,6 +46,7 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 9,
             "stepsToTarget": 1,
+            "Bonus": 1750,
             "enemies": [
                 { "type": "Coily" },
                 { "type": "SlickSam" }
