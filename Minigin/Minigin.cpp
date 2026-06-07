@@ -74,8 +74,8 @@ dae::Minigin::Minigin(const std::filesystem::path& dataPath)
 
 	g_window = SDL_CreateWindow(
 		"Qb*rt",
-		1024,
-		576,
+		850,
+		500,
 		SDL_WINDOW_OPENGL
 	);
 	if (g_window == nullptr) 

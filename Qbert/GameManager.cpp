@@ -187,14 +187,20 @@ namespace qbert
             }
         }
 
-        auto swearObj = std::make_unique<dae::GameObject>();
-        swearObj->AddGameComponent<dae::TransformComponent>()->SetPosition(playerPos.x, playerPos.y - 32.f);
-        auto* sprite = swearObj->AddGameComponent<dae::SpriteComponent>();
-        sprite->SetSpriteSheet("Qbert Curses.png");
-        sprite->SetSourceRect(0.f, 0.f, 48.f, 25.f);
-        sprite->SetDestSize(64.f, 32.f);
-        swearObj->AddGameComponent<GameManagerUpdater>();
-        scene.Add(std::move(swearObj));
+        dae::SceneManager::GetInstance().QueueAction([playerPos]() {
+            auto& deferredScene = dae::SceneManager::GetInstance().GetActiveScene();
+
+            auto swearObj = std::make_unique<dae::GameObject>();
+            swearObj->AddGameComponent<dae::TransformComponent>()->SetPosition(playerPos.x, playerPos.y - 32.f);
+
+            auto* sprite = swearObj->AddGameComponent<dae::SpriteComponent>();
+            sprite->SetSpriteSheet("Qbert Curses.png");
+            sprite->SetSourceRect(0.f, 0.f, 48.f, 25.f);
+            sprite->SetDestSize(64.f, 32.f);
+
+            swearObj->AddGameComponent<GameManagerUpdater>();
+            deferredScene.Add(std::move(swearObj));
+            });
     }
 
     void GameManager::OnGameOver()

@@ -68,43 +68,60 @@ namespace qbert
                     obj->AddGameComponent<dae::TransformComponent>();
                     obj->AddGameComponent<GridMover>(m_pGrid, 0, 0, 8.f, -68.f);
                     auto* coily = obj->AddGameComponent<CoilyComponent>(m_pQbertObj);
+                    coily->OnDeathCallback = [this]() { AddEnemyToQueue("Coily"); };
                     obj->AddGameComponent<CoilyRenderComponent>(coily);
 
                     m_pCollision->AddCoily(coily);
                     scene.Add(std::move(obj));
                 }
-                else if (type == "SlickSam")
+                else if (type == "SlickSam" || type == "Slick")
                 {
                     auto slick = std::make_unique<dae::GameObject>();
                     slick->AddGameComponent<dae::TransformComponent>();
                     slick->AddGameComponent<GridMover>(m_pGrid, 0, 0, 15.f, -25.f);
                     auto* sc = slick->AddGameComponent<SlickSamComponent>(m_pGrid, SlickSamType::Slick);
+                    sc->OnDeathCallback = [this]() { AddEnemyToQueue("Slick"); };
                     slick->AddGameComponent<SlickSamRenderComponent>(sc);
                     m_pCollision->AddSlickSam(sc);
                     scene.Add(std::move(slick));
-
+                    if (type == "SlickSam")
+                    {
+                        m_EnemyQueue.insert(m_EnemyQueue.begin() + m_CurrentQueueIndex, "Sam");
+                    }
+                }
+                else if (type == "Sam")
+                {
                     auto sam = std::make_unique<dae::GameObject>();
                     sam->AddGameComponent<dae::TransformComponent>();
                     sam->AddGameComponent<GridMover>(m_pGrid, 0, 0, 15.f, -25.f);
                     auto* samc = sam->AddGameComponent<SlickSamComponent>(m_pGrid, SlickSamType::Sam);
+                    samc->OnDeathCallback = [this]() { AddEnemyToQueue("Sam"); };
                     sam->AddGameComponent<SlickSamRenderComponent>(samc);
                     m_pCollision->AddSlickSam(samc);
                     scene.Add(std::move(sam));
                 }
-                else if (type == "UggWrongway")
+                else if (type == "UggWrongway" || type == "Wrongway")
                 {
                     auto wrongway = std::make_unique<dae::GameObject>();
                     wrongway->AddGameComponent<dae::TransformComponent>();
                     wrongway->AddGameComponent<GridMover>(m_pGrid, 6, 0, -10.f, -20.f);
                     auto* wc = wrongway->AddGameComponent<UggWrongwayComponent>(UggWrongwayType::Wrongway);
+                    wc->OnDeathCallback = [this]() { AddEnemyToQueue("Wrongway"); };
                     wrongway->AddGameComponent<UggWrongwayRenderComponent>(wc);
                     m_pCollision->AddUggWrongway(wc);
                     scene.Add(std::move(wrongway));
 
+                    if (type == "UggWrongway") {
+                        m_EnemyQueue.insert(m_EnemyQueue.begin() + m_CurrentQueueIndex, "Ugg");
+                    }
+                }
+                else if (type == "Ugg")
+                {
                     auto ugg = std::make_unique<dae::GameObject>();
                     ugg->AddGameComponent<dae::TransformComponent>();
                     ugg->AddGameComponent<GridMover>(m_pGrid, 6, 6, 10.f, -20.f);
                     auto* uc = ugg->AddGameComponent<UggWrongwayComponent>(UggWrongwayType::Ugg);
+                    uc->OnDeathCallback = [this]() { AddEnemyToQueue("Ugg"); };
                     ugg->AddGameComponent<UggWrongwayRenderComponent>(uc);
                     m_pCollision->AddUggWrongway(uc);
                     scene.Add(std::move(ugg));

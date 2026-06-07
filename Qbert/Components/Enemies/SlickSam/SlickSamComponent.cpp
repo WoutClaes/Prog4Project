@@ -56,8 +56,14 @@ namespace qbert
         const int newRow = GetRow() + DeltaRow[dir];
         const int newCol = GetCol() + DeltaCol[dir];
 
-        if (!m_pMover->RequestJump(newRow, newCol))
-            m_FallTimer = FallDuration;
+        if (!CubeGrid::IsValid(newRow, newCol))
+        {
+            m_pMover->JumpOff(DeltaRow[dir], DeltaCol[dir]);
+            Die();
+            return;
+        }
+
+        m_pMover->RequestJump(newRow, newCol);
     }
 
     void SlickSamComponent::OnLanded()
@@ -68,10 +74,16 @@ namespace qbert
             cube->Revert();
     }
 
-    void SlickSamComponent::Catch()
+    void SlickSamComponent::Die()
     {
         if (m_Dead) return;
         m_Dead = true;
+        if (OnDeathCallback) OnDeathCallback();
+    }
+
+    void SlickSamComponent::Catch()
+    {
+        Die();
     }
 
     int SlickSamComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }

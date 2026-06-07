@@ -30,6 +30,8 @@ namespace qbert
         CoilyFrame GetCurrentFrame() const;
         dae::GameObject* GetQbertObject()  const { return m_pQbertObject; }
 
+        std::function<void()> OnDeathCallback;
+
         CoilyComponent(const CoilyComponent&) = delete;
         CoilyComponent& operator=(const CoilyComponent&) = delete;
         CoilyComponent(CoilyComponent&&) = delete;

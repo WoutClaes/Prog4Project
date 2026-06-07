@@ -107,8 +107,8 @@ namespace qbert
     void CoilyComponent::Die()
     {
         if (m_IsDead) return;
-
         m_IsDead = true;
+        if (OnDeathCallback) OnDeathCallback();
     }
 
     int CoilyComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }

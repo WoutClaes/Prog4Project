@@ -27,35 +27,45 @@ namespace qbert
         if (m_JumpTimer < JumpInterval) return;
         m_JumpTimer = 0.f;
 
-        static constexpr int DeltaRow[4] = { 1,  1, -1, -1 };
-        static constexpr int DeltaCol[4] = { 0,  1, -1,  0 };
+        const bool choice = (rand() % 2) == 0;
+        int deltaRow = 0;
+        int deltaCol = 0;
 
-        const bool goRight = (rand() % 2) == 0;
+        if (m_Type == UggWrongwayType::Wrongway)
+        {
+            if (choice) { deltaRow = -1; deltaCol = 0; }
+            else { deltaRow = 0;  deltaCol = 1; }
 
-        JumpDirection preferred = goRight ? JumpDirection::UpRight : JumpDirection::UpLeft;
-        JumpDirection fallback = goRight ? JumpDirection::UpLeft : JumpDirection::UpRight;
+            m_Frame = choice ? UggWrongwayFrame::WrongwayFrame1 : UggWrongwayFrame::WrongwayFrame0;
+        }
+        else
+        {
+            if (choice) { deltaRow = -1; deltaCol = -1; }
+            else { deltaRow = 0;  deltaCol = -1; }
 
-        int d = static_cast<int>(preferred);
-        int newRow = GetRow() + DeltaRow[d];
-        int newCol = GetCol() + DeltaCol[d];
+            m_Frame = choice ? UggWrongwayFrame::UggFrame1 : UggWrongwayFrame::UggFrame0;
+        }
+
+        int newRow = GetRow() + deltaRow;
+        int newCol = GetCol() + deltaCol;
 
         if (!CubeGrid::IsValid(newRow, newCol))
         {
-            d = static_cast<int>(fallback);
-            newRow = GetRow() + DeltaRow[d];
-            newCol = GetCol() + DeltaCol[d];
+            m_pMover->JumpOff(deltaRow, deltaCol);
+            Die();
+            return;
         }
 
-        const bool finalGoRight = (d == static_cast<int>(JumpDirection::UpRight));
-        if (m_Type == UggWrongwayType::Ugg)
-            m_Frame = finalGoRight ? UggWrongwayFrame::UggFrame1 : UggWrongwayFrame::UggFrame0;
-        else
-            m_Frame = finalGoRight ? UggWrongwayFrame::WrongwayFrame1 : UggWrongwayFrame::WrongwayFrame0;
-
-        if (!m_pMover->RequestJump(newRow, newCol))
-            m_Dead = true;
+        m_pMover->RequestJump(newRow, newCol);
     }
 
     int UggWrongwayComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }
     int UggWrongwayComponent::GetCol() const { return m_pMover ? m_pMover->GetCol() : 0; }
+
+    void UggWrongwayComponent::Die()
+    {
+        if(m_Dead) return;
+        m_Dead = true;
+        if (OnDeathCallback) OnDeathCallback();
+    }
 }

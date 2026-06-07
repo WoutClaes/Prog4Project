@@ -34,7 +34,10 @@ namespace qbert
         SlickSamType  GetType()         const { return m_Type; }
 
         bool IsDead() const { return m_Dead; }
+        void Die();
         void Catch();
+
+        std::function<void()> OnDeathCallback;
 
         SlickSamComponent(const SlickSamComponent&) = delete;
         SlickSamComponent& operator=(const SlickSamComponent&) = delete;

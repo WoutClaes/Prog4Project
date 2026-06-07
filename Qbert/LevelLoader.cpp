@@ -283,17 +283,29 @@ namespace qbert
         auto targetBlockObj = std::make_unique<dae::GameObject>();
         targetBlockObj->AddGameComponent<dae::TransformComponent>()->SetPosition(70.f, 150.f);
         auto* targetBlockSprite = targetBlockObj->AddGameComponent<dae::SpriteComponent>();
-        targetBlockSprite->SetSpriteSheet("Color Icons Spritesheet.png");
-        float blockSpriteWidth = 14.f;
-        targetBlockSprite->SetSourceRect(0.f, 0.f, blockSpriteWidth, 12.f);
+        targetBlockSprite->SetSpriteSheet("Qbert Cubes.png");
+
+        float blockSpriteWidth = 32.f;
+        float blockSpriteHeight = 32.f;
+        int hudTilesPerRow = 6;
+
+        int hudRow = targetColor / hudTilesPerRow;
+        int hudCol = targetColor % hudTilesPerRow;
+
+        targetBlockSprite->SetSourceRect(
+            hudCol* blockSpriteWidth,
+            hudRow* blockSpriteHeight,
+            blockSpriteWidth,
+            blockSpriteHeight
+        );
         targetBlockSprite->SetDestSize(34.f, 34.f);
 
         auto levelTextObj = std::make_unique<dae::GameObject>();
-        levelTextObj->AddGameComponent<dae::TransformComponent>()->SetPosition(500.f, 30.f);
+        levelTextObj->AddGameComponent<dae::TransformComponent>()->SetPosition(700.f, 30.f);
         auto* levelText = levelTextObj->AddGameComponent<dae::TextComponent>("LEVEL: 1", font, SDL_Color{ 0, 255, 0, 255 });
 
         auto livesObj = std::make_unique<dae::GameObject>();
-        livesObj->AddGameComponent<dae::TransformComponent>()->SetPosition(500.f, 60.f);
+        livesObj->AddGameComponent<dae::TransformComponent>()->SetPosition(700.f, 60.f);
         auto* livesText = livesObj->AddGameComponent<dae::TextComponent>("ROUND: 1", font, SDL_Color{ 255, 0, 255, 255 });
 
         auto gameOverObj = std::make_unique<dae::GameObject>();
@@ -305,7 +317,7 @@ namespace qbert
         auto* winSprite = winObj->AddGameComponent<dae::SpriteComponent>();
 
         auto bonusObj = std::make_unique<dae::GameObject>();
-        bonusObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, 400.f);
+        bonusObj->AddGameComponent<dae::TransformComponent>()->SetPosition(325.f, 425.f);
         auto* bonusText = bonusObj->AddGameComponent<dae::TextComponent>("", font, SDL_Color{ 255, 165, 0, 255 });
 
         auto hudObj = std::make_unique<dae::GameObject>();

@@ -1,6 +1,7 @@
 #pragma once
 #include "Components/GameComponent.h"
 #include "Grid/CubeGrid.h"
+#include <functional>
 
 namespace qbert
 {
@@ -37,6 +38,9 @@ namespace qbert
         UggWrongwayType  GetType() const { return m_Type; }
 
         bool IsDead() const { return m_Dead; }
+        void Die();
+
+        std::function<void()> OnDeathCallback;
 
         UggWrongwayComponent(const UggWrongwayComponent&) = delete;
         UggWrongwayComponent& operator=(const UggWrongwayComponent&) = delete;
