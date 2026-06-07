@@ -20,6 +20,8 @@ namespace qbert
 
     void CoilyComponent::Update()
     {
+        if (m_IsDead) return;
+
         if (m_pMover && m_pMover->IsJumping()) return;
 
         if (m_LandPauseTimer > 0.8f)
@@ -82,7 +84,17 @@ namespace qbert
         const int newRow = GetRow() + DeltaRow[d];
         const int newCol = GetCol() + DeltaCol[d];
 
-        m_pMover->RequestJump(newRow, newCol);
+        if (!m_pMover->RequestJump(newRow, newCol))
+        {
+            Die();
+        }
+    }
+
+    void CoilyComponent::Die()
+    {
+        if (m_IsDead) return;
+
+        m_IsDead = true;
     }
 
     int CoilyComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }

@@ -31,6 +31,9 @@ namespace qbert
         int  CountTargetCubes() const;
         bool IsComplete() const;
 
+        void SetReverts(bool reverts);
+        bool DoesRevert() const { return m_Reverts; }
+
         void Reset();
         void SetStepsToTarget(int steps);
 
@@ -45,5 +48,7 @@ namespace qbert
         float m_OriginX;
         float m_OriginY;
         float m_Scale;
+
+        bool m_Reverts{ false };
     };
 }

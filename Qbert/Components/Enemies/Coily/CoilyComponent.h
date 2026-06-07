@@ -21,6 +21,9 @@ namespace qbert
 
         void Jump(JumpDirection dir);
 
+        bool IsDead() const { return m_IsDead; }
+        void Die();
+
         int GetRow() const;
         int GetCol() const;
 
@@ -43,5 +46,7 @@ namespace qbert
 
         float m_LandPauseTimer{ 0.f };
         static constexpr float LandPause{ 0.3f };
+
+        bool m_IsDead{ false };
     };
 }

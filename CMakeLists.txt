@@ -214,6 +214,8 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Grid/GridRenderComponent.cpp
   Qbert/Components/Grid/GridMover.cpp
 
+  Qbert/Components/Grid/Disk/DiskComponent.cpp
+
   Qbert/Components/Collision/CollisionSystem.cpp
 
   Qbert/Components/Player/QbertComponent.cpp
@@ -233,8 +235,7 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Enemies/UggWrongway/UggWrongwayRenderComponent.cpp
 
   # States
-  Qbert/States/Coily/CoilyStates.cpp
-)
+  Qbert/States/Coily/CoilyStates.cpp)
 
 target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
 

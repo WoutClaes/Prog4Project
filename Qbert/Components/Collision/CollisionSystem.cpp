@@ -26,7 +26,7 @@ namespace qbert
 
             for (auto* coily : m_Coilys)
             {
-                if (!coily) continue;
+                if (!coily || coily->IsDead()) continue;
 
                 if (qbert->GetRow() == coily->GetRow() &&
                     qbert->GetCol() == coily->GetCol())

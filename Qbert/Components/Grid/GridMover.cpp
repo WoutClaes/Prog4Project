@@ -61,6 +61,28 @@ namespace qbert
         return true;
     }
 
+    bool GridMover::ForceJump(int newRow, int newCol, const glm::vec3& targetPos)
+    {
+        if (m_IsJumping) return false;
+
+        m_StartPos = GetOwner()->GetGameComponent<dae::TransformComponent>()->GetLocalTransform().GetPosition();
+        m_TargetPos = targetPos;
+        m_Row = newRow;
+        m_Col = newCol;
+        m_IsJumping = true;
+        m_MidAirFired = false;
+        m_JumpTimer = 0.f;
+
+        return true;
+    }
+
+    void GridMover::SetGridPosition(int row, int col, const glm::vec3& screenPos)
+    {
+        m_Row = row;
+        m_Col = col;
+        UpdateTransform(screenPos);
+    }
+
     glm::vec3 GridMover::CubeScreenPos(int row, int col) const
     {
         if (auto* cube = m_pGrid->GetCube(row, col))

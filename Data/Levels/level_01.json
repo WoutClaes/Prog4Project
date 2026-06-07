@@ -12,7 +12,12 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 6,
             "stepsToTarget": 1,
+            "reverts": false,
             "Bonus": 1000,
+            "disks": [
+                { "row": 3, "col": -1, "offsetX": -144.0, "offsetY": 160.0 },
+                { "row": 3, "col": 4, "offsetX": 176.0, "offsetY": 160.0 }
+            ],
             "enemies": [
                 { "type": "Coily" }
             ]
@@ -23,7 +28,12 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 7,
             "stepsToTarget": 1,
+            "reverts": false,
             "Bonus": 1250,
+            "disks": [
+                { "row": 4, "col": -1, "offsetX": -176.0, "offsetY": 208.0 },
+                { "row": 5, "col": 6, "offsetX": 240.0, "offsetY": 256.0 }
+            ],
             "enemies": [
                 { "type": "Coily" }
             ]
@@ -34,7 +44,12 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 8,
             "stepsToTarget": 1,
+            "reverts": false,
             "Bonus": 1500,
+            "disks": [
+                { "row": 2, "col": -1, "offsetX": -112.0, "offsetY": 112.0 },
+                { "row": 4, "col": 5, "offsetX": 208.0, "offsetY": 208.0 }
+            ],
             "enemies": [
                 { "type": "Coily" },
                 { "type": "UggWrongway" }
@@ -46,7 +61,12 @@
             "intermediateColorIndex": 0,
             "targetColorIndex": 9,
             "stepsToTarget": 1,
+            "reverts": false,
             "Bonus": 1750,
+            "disks": [
+                { "row": 0, "col": -1, "offsetX": -16.0, "offsetY": -32.0 },
+                { "row": 5, "col": 6, "offsetX": 240.0, "offsetY": 256.0 }
+            ],
             "enemies": [
                 { "type": "Coily" },
                 { "type": "SlickSam" }

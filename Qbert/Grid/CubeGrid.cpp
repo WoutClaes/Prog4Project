@@ -61,6 +61,15 @@ namespace qbert
         return CountTargetCubes() == TotalCubes;
     }
 
+    void CubeGrid::SetReverts(bool reverts)
+    {
+        m_Reverts = reverts;
+        for (auto& cube : m_Cubes)
+        {
+            cube.m_Reverts = reverts;
+        }
+    }
+
     void CubeGrid::Reset()
     {
         for (auto& cube : m_Cubes)

@@ -10,7 +10,13 @@ namespace qbert
     void Cube::Step()
     {
         if (m_State == CubeColorState::Target)
+        {
+            if (m_Reverts)
+            {
+                m_State = (m_StepsToTarget == 2) ? CubeColorState::Intermediate : CubeColorState::Base;
+            }
             return;
+        }
 
         if (m_StepsToTarget == 1)
         {

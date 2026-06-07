@@ -11,8 +11,14 @@
             "baseColorIndex": 7,
             "intermediateColorIndex": 0,
             "targetColorIndex": 13,
-            "stepsToTarget": 1,
+            "stepsToTarget": 2,
+            "reverts": false,
             "Bonus": 2000,
+            "disks": [
+                { "row": -1, "col": 0, "offsetX": 48.0, "offsetY": -32.0 },
+                { "row": 2, "col": -1,  "offsetX": -112.0, "offsetY": 112.0 },
+                { "row": 3, "col": 4,  "offsetX": 176.0, "offsetY": 160.0 }
+            ],
             "enemies": [
                 { "type": "Coily" },
                 { "type": "SlickSam" },
@@ -24,8 +30,14 @@
             "baseColorIndex": 15,
             "intermediateColorIndex": 2,
             "targetColorIndex": 9,
-            "stepsToTarget": 1,
+            "stepsToTarget": 2,
+            "reverts": false,
             "Bonus": 2250,
+            "disks": [
+                { "row": -1, "col": 0, "offsetX": 48.0, "offsetY": -32.0 },
+                { "row": 4, "col": -1, "offsetX": -176.0, "offsetY": 208.0 },
+                { "row": 4, "col": 5,  "offsetX": 208.0, "offsetY": 208.0 } 
+            ],
             "enemies": [
                 { "type": "Coily" },
                 { "type": "SlickSam" },
@@ -37,8 +49,13 @@
             "baseColorIndex": 12,
             "intermediateColorIndex": 2,
             "targetColorIndex": 6,
-            "stepsToTarget": 1,
+            "stepsToTarget": 2,
+            "reverts": false,
             "Bonus": 2500,
+            "disks": [
+                { "row": 1, "col": -1, "offsetX": -80.0, "offsetY": 64.0 },
+                { "row": 4, "col": 5,  "offsetX": 208.0, "offsetY": 208.0 } 
+            ],
             "enemies": [
                 { "type": "Coily" },
                 { "type": "SlickSam" }
@@ -49,8 +66,13 @@
             "baseColorIndex": 4,
             "intermediateColorIndex": 2,
             "targetColorIndex": 16,
-            "stepsToTarget": 1,
+            "stepsToTarget": 2,
+            "reverts": false,
             "Bonus": 2750,
+            "disks": [
+                { "row": 0, "col": -1, "offsetX": -48.0, "offsetY": 16.0 },
+                { "row": 2, "col": 3,  "offsetX": 144.0, "offsetY": 112.0 } 
+            ],
             "enemies": [
                 { "type": "Coily" },
                 { "type": "UggWrongway" },

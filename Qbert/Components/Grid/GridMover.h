@@ -18,6 +18,9 @@ namespace qbert
 
         bool RequestJump(int newRow, int newCol);
 
+        bool ForceJump(int newRow, int newCol, const glm::vec3& targetPos);
+        void SetGridPosition(int row, int col, const glm::vec3& screenPos);
+
         bool IsJumping() const { return m_IsJumping; }
         int  GetRow() const { return m_Row; }
         int  GetCol() const { return m_Col; }

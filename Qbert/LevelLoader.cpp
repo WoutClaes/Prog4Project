@@ -18,11 +18,13 @@
 #include "Components/NameInputComponent.h"
 #include "Commands/NameInputCommands.h"
 
-// Grid
+// Grid + Disk
 #include "Grid/CubeGrid.h"
 #include "Components/Grid/CubeGridComponent.h"
 #include "Components/Grid/GridRenderComponent.h"
 #include "Components/Grid/GridMover.h"
+
+#include "Components/Grid/Disk/DiskComponent.h"
 
 // Player
 #include "Components/Player/QbertComponent.h"
@@ -40,6 +42,7 @@
 #include "Components/Enemies/EnemySpawnerComponent.h"
 
 #include "Components/HUD/HUDComponent.h"
+#include <glm/fwd.hpp>
 
 using json = nlohmann::json;
 
@@ -83,7 +86,7 @@ namespace qbert
         }
     }
 
-    static QbertComponent* MakeQbert(dae::Scene& scene, CubeGrid* grid,
+    static dae::GameObject* MakeQbert(dae::Scene& scene, CubeGrid* grid,
         int controllerIndex, bool useKeyboard)
     {
         auto obj = std::make_unique<dae::GameObject>();
@@ -95,9 +98,46 @@ namespace qbert
 
         BindQbertInputs(obj.get(), controllerIndex, useKeyboard);
 
-        auto* ptr = qbert;
+        auto* ptr = obj.get();
         scene.Add(std::move(obj));
         return ptr;
+    }
+
+    static void LoadDisks(dae::Scene& scene, const nlohmann::json& stageData,
+        dae::GameObject* qbert1Obj, float originX, float originY)
+    {
+        if (!qbert1Obj) return;
+
+        auto* qbertComp = qbert1Obj->GetGameComponent<QbertComponent>();
+        auto* gridMover = qbert1Obj->GetGameComponent<GridMover>();
+        glm::vec3 topCubePos = { originX + 16, originY - 32, 0.f };
+
+        if (stageData.contains("disks") && stageData["disks"].is_array())
+        {
+            for (const auto& diskData : stageData["disks"])
+            {
+                int row = diskData.value("row", 5);
+                int col = diskData.value("col", -1);
+                float offsetX = diskData.value("offsetX", -212.f);
+                float offsetY = diskData.value("offsetY", 256.f);
+
+                auto diskObj = std::make_unique<dae::GameObject>();
+                auto* transform = diskObj->AddGameComponent<dae::TransformComponent>();
+
+                glm::vec3 screenPos = { originX + offsetX, originY + offsetY, 0.f };
+                transform->SetPosition(screenPos.x, screenPos.y);
+
+                auto* sprite = diskObj->AddGameComponent<dae::SpriteComponent>();
+                sprite->SetSpriteSheet("Disk Spritesheet.png");
+                sprite->SetSourceRect(0.f, 0.f, 16.f, 16.f);
+                sprite->SetDestSize(32.f, 32.f);
+
+                diskObj->AddGameComponent<DiskComponent>(qbert1Obj, gridMover, row, col, topCubePos);
+                qbertComp->AddDisk(row, col, screenPos);
+
+                scene.Add(std::move(diskObj));
+            }
+        }
     }
 
     bool LevelLoader::Load(int levelIndex, int stageIndex, GameMode mode, dae::Scene& scene)
@@ -150,13 +190,15 @@ namespace qbert
         int interColor = stageData.value("intermediateColorIndex", 2);
         int targetColor = stageData.value("targetColorIndex", 3);
         int stepsToTarget = stageData.value("stepsToTarget", 1);
+        bool reverts = stageData.value("reverts", false);
 
-        qbert::GameManager::GetInstance().m_Bonus = stageData.value("bonus", 0);
+        qbert::GameManager::GetInstance().m_Bonus = stageData.value("Bonus", 0);
 
         auto gridObj = std::make_unique<dae::GameObject>();
         gridObj->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
         auto* gridComp = gridObj->AddGameComponent<CubeGridComponent>(originX, originY, scale);
         gridComp->GetGrid()->SetStepsToTarget(stepsToTarget);
+        gridComp->GetGrid()->SetReverts(reverts);
         auto* renderComp = gridObj->AddGameComponent<GridRenderComponent>(gridComp->GetGrid());
         renderComp->SetBaseColorIndex(baseColor);
         renderComp->SetIntermediateColorIndex(interColor);
@@ -173,33 +215,28 @@ namespace qbert
 
         if (mode == GameMode::SinglePlayer)
         {
-            auto obj = std::make_unique<dae::GameObject>();
-            obj->AddGameComponent<dae::TransformComponent>();
-            obj->AddGameComponent<GridMover>(grid, 0, 0, 6.f, -20.f);
-            qbert1 = obj->AddGameComponent<QbertComponent>(grid);
-            obj->AddGameComponent<QbertRenderComponent>(qbert1);
-            obj->AddGameComponent<dae::ScoreComponent>();
-
-            BindQbertInputs(obj.get(), 0, true);
-
-            qbert1Obj = obj.get();
-            scene.Add(std::move(obj));
+            qbert1Obj = MakeQbert(scene, grid, 0, true);
         }
         else if (mode == GameMode::Coop)
         {
-            qbert1 = MakeQbert(scene, grid, 0, true);
+            qbert1Obj = MakeQbert(scene, grid, 0, true);
             MakeQbert(scene, grid, 1, false);
         }
         else if (mode == GameMode::Versus)
         {
-            qbert1 = MakeQbert(scene, grid, 0, true);
+            qbert1Obj = MakeQbert(scene, grid, 0, true);
         }
 
-        if (qbert1Obj)
+        if (!qbert1Obj)
         {
-            qbert1 = qbert1Obj->GetGameComponent<QbertComponent>();
-            collision->AddQbert(qbert1);
+            SDL_Log("LevelLoader: Failed to create Player 1!");
+            return false;
         }
+
+        qbert1 = qbert1Obj->GetGameComponent<QbertComponent>(); 
+        collision->AddQbert(qbert1);
+
+        LoadDisks(scene, stageData, qbert1Obj, originX, originY);
 
         auto spawnerObj = std::make_unique<dae::GameObject>();
         spawnerObj->AddGameComponent<dae::TransformComponent>();
