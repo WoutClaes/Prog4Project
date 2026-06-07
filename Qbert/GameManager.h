@@ -21,7 +21,7 @@ namespace qbert
         void LoadNextLevel();
 
         void OnLevelComplete();
-        void OnPlayerDied();
+        void OnPlayerDied(dae::GameObject* pPlayerObj);
         void OnGameOver();
         void OnGameWin();
 
@@ -58,11 +58,13 @@ namespace qbert
         static constexpr int MaxLives { 4 };
         static constexpr int MaxLevels{ 3 };
         static constexpr int MaxStages{ 4 };
+        static constexpr float m_Timer{ 3.f };
 
         int m_LevelStartScore{ 0 };
         float m_EndScreenTimer{ 0.0f };
         bool m_PendingHighScore{ false };
 
         float m_LevelCompleteTimer{ 0.0f };
+        float m_DeathTimer{ 0.0f };
     };
 }

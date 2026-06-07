@@ -28,6 +28,8 @@ namespace qbert
 
         void RequestJump(JumpDirection dir);
 
+        void Die();
+
         void AddDisk(int row, int col, const glm::vec3& screenPos);
 
         int GetRow() const;
@@ -41,6 +43,17 @@ namespace qbert
         QbertComponent(QbertComponent&&) = delete;
         QbertComponent& operator=(QbertComponent&&) = delete;
 
+        bool IsRidingDisk() const { return m_IsRidingDisk; }
+        void SetRidingDisk(bool riding, int diskRow = 0, int diskCol = 0)
+        {
+            m_IsRidingDisk = riding;
+            m_DiskRow = diskRow;
+            m_DiskCol = diskCol;
+        }
+
+        int GetDiskRow() const { return m_DiskRow; }
+        int GetDiskCol() const { return m_DiskCol; }
+
     private:
         void Land();
 
@@ -51,5 +64,9 @@ namespace qbert
 
         static constexpr int DeltaRow[4] = { 1,  1, -1, -1 };
         static constexpr int DeltaCol[4] = { 0,  1, -1,  0 };
+
+        bool m_IsRidingDisk{ false };
+        int m_DiskRow{ 0 };
+        int m_DiskCol{ 0 };
     };
 }

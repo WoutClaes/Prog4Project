@@ -2,6 +2,8 @@
 #include "Components/Grid/GridMover.h"
 #include "GameObject.h"
 #include "GameTime.h"
+#include "Grid/CubeGrid.h"
+#include "GameManager.h"
 
 namespace qbert
 {
@@ -14,6 +16,12 @@ namespace qbert
 
         m_pMover->OnLanded = [this]()
         {
+            if (!CubeGrid::IsValid(GetRow(), GetCol()))
+            {
+                qbert::GameManager::GetInstance().AddScore(500);
+                Die();
+                return;
+            }
             m_LandPauseTimer = LandPause;
         };
     }
@@ -83,6 +91,12 @@ namespace qbert
         const int d      = static_cast<int>(dir);
         const int newRow = GetRow() + DeltaRow[d];
         const int newCol = GetCol() + DeltaCol[d];
+
+        if (!CubeGrid::IsValid(newRow, newCol))
+        {
+            m_pMover->JumpOff(DeltaRow[d], DeltaCol[d]);
+            return;
+        }
 
         if (!m_pMover->RequestJump(newRow, newCol))
         {

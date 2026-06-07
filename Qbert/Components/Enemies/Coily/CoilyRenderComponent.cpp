@@ -18,7 +18,7 @@ namespace qbert
 
     void CoilyRenderComponent::Render() const
     {
-        if (!m_Texture || !m_pCoily) return;
+        if (!m_Texture || !m_pCoily || m_pCoily->IsDead()) return;
 
         auto* transform = GetOwner()->GetGameComponent<dae::TransformComponent>();
         if (!transform) return;

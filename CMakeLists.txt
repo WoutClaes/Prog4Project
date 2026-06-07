@@ -215,6 +215,7 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Grid/GridMover.cpp
 
   Qbert/Components/Grid/Disk/DiskComponent.cpp
+  Qbert/Components/Grid/Disk/DiskRenderComponent.cpp
 
   Qbert/Components/Collision/CollisionSystem.cpp
 

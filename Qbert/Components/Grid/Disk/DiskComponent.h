@@ -30,5 +30,7 @@ namespace qbert
         float m_MoveTimer{ 0.f };
 
         glm::vec3 m_StartPos{};
+
+        glm::vec3 m_QbertOffset{};
     };
 }

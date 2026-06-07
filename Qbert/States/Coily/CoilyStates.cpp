@@ -48,13 +48,29 @@ namespace qbert
 
         if (!qbertComp) return nullptr;
 
-        const int qRow = qbertComp->GetRow();
-        const int qCol = qbertComp->GetCol();
+        int targetRow = qbertComp->GetRow();
+        int targetCol = qbertComp->GetCol();
+
+        if (qbertComp->IsRidingDisk())
+        {
+            targetRow = qbertComp->GetDiskRow();
+            targetCol = qbertComp->GetDiskCol();
+        }
+
         const int myRow = coily.GetRow();
         const int myCol = coily.GetCol();
 
-        const int dRow = qRow - myRow;
-        const int dCol = qCol - myCol;
+        if (qbertComp->IsRidingDisk() && myRow == targetRow && myCol == targetCol)
+        {
+            JumpDirection plungeDir = (targetCol <= 0) ? JumpDirection::UpLeft : JumpDirection::UpRight;
+
+            m_LastDir = plungeDir;
+            coily.Jump(plungeDir);
+            return nullptr;
+        }
+
+        const int dRow = targetRow - myRow;
+        const int dCol = targetCol - myCol;
 
         JumpDirection dir;
 

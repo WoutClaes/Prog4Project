@@ -22,7 +22,7 @@ namespace qbert
     {
         for (auto* qbert : m_Qberts)
         {
-            if (!qbert) continue;
+            if (!qbert || qbert->IsRidingDisk()) continue;
 
             for (auto* coily : m_Coilys)
             {
@@ -31,7 +31,7 @@ namespace qbert
                 if (qbert->GetRow() == coily->GetRow() &&
                     qbert->GetCol() == coily->GetCol())
                 {
-                    GameManager::GetInstance().OnPlayerDied();
+                    qbert->Die();
                     return;
                 }
             }
@@ -42,7 +42,7 @@ namespace qbert
     {
         for (auto* qbert : m_Qberts)
         {
-            if (!qbert) continue;
+            if (!qbert || qbert->IsRidingDisk()) continue;
 
             for (auto* ss : m_SlickSams)
             {
@@ -62,7 +62,7 @@ namespace qbert
     {
         for (auto* qbert : m_Qberts)
         {
-            if (!qbert) continue;
+            if (!qbert || qbert->IsRidingDisk()) continue;
 
             for (auto* uw : m_UggWrongways)
             {
@@ -71,7 +71,7 @@ namespace qbert
                 if (qbert->GetRow() == uw->GetRow() &&
                     qbert->GetCol() == uw->GetCol())
                 {
-                    GameManager::GetInstance().OnPlayerDied();
+                    qbert->Die();
                     return;
                 }
             }

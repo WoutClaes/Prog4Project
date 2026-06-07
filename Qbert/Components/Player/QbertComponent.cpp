@@ -43,20 +43,28 @@ namespace qbert
                 {
                     if (OnJumpStarted) OnJumpStarted(dir);
                 }
-
-                m_Disks.erase(it);
                 return;
             }
         }
 
         if (!CubeGrid::IsValid(newRow, newCol))
         {
-            GameManager::GetInstance().OnPlayerDied();
+            if (m_pMover->JumpOff(DeltaRow[d], DeltaCol[d]))
+            {
+                if (OnJumpStarted) OnJumpStarted(dir);
+            }
             return;
         }
 
         if (m_pMover->RequestJump(newRow, newCol))
+        {
             if (OnJumpStarted) OnJumpStarted(dir);
+        }
+    }
+
+    void QbertComponent::Die()
+    {
+        GameManager::GetInstance().OnPlayerDied(GetOwner());
     }
 
     void QbertComponent::AddDisk(int row, int col, const glm::vec3& screenPos)
@@ -69,6 +77,21 @@ namespace qbert
 
     void QbertComponent::Land()
     {
+        for (auto it = m_Disks.begin(); it != m_Disks.end(); ++it)
+        {
+            if (it->row == GetRow() && it->col == GetCol())
+            {
+                m_Disks.erase(it);
+                return;
+            }
+        }
+
+        if (!CubeGrid::IsValid(GetRow(), GetCol()))
+        {
+            Die();
+            return;
+        }
+
         if (auto* cube = m_pGrid->GetCube(GetRow(), GetCol()))
         {
             const bool wasTarget = cube->IsTarget();

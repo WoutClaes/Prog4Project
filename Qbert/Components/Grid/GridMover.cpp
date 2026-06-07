@@ -76,6 +76,36 @@ namespace qbert
         return true;
     }
 
+    bool GridMover::JumpOff(int deltaRow, int deltaCol)
+    {
+        if (m_IsJumping) return false;
+
+        m_StartPos = GetOwner()->GetGameComponent<dae::TransformComponent>()->GetLocalTransform().GetPosition();
+
+        const float scale = m_pGrid->GetScale();
+        const float stepX = (CubeGrid::TileW * scale) / 2.f;
+        const float stepY = CubeGrid::TileH * scale * 0.75f;
+
+        float dx = 0.f;
+        float dy = 0.f;
+
+        if (deltaRow == 1 && deltaCol == 0) { dx = -stepX; dy = stepY; }
+        else if (deltaRow == 1 && deltaCol == 1) { dx = stepX; dy = stepY; }
+        else if (deltaRow == -1 && deltaCol == -1) { dx = -stepX; dy = -stepY; }
+        else if (deltaRow == -1 && deltaCol == 0) { dx = stepX; dy = -stepY; }
+
+        m_TargetPos = m_StartPos + glm::vec3{ dx, dy + 32.f, 0.f };
+
+        m_Row += deltaRow;
+        m_Col += deltaCol;
+
+        m_IsJumping = true;
+        m_MidAirFired = false;
+        m_JumpTimer = 0.f;
+
+        return true;
+    }
+
     void GridMover::SetGridPosition(int row, int col, const glm::vec3& screenPos)
     {
         m_Row = row;

@@ -9,6 +9,8 @@
 #include "Scene.h"
 #include "GameManagerUpdater.h"
 #include "Sound/ServiceLocator.h"
+#include "Components/TransformComponent.h"
+#include "Components/SpriteComponent.h"
 
 namespace qbert
 {
@@ -63,19 +65,26 @@ namespace qbert
             return;
         }
 
-        if (m_PendingGameOver)
+        if (m_DeathTimer > 0.f)
         {
-            m_PendingGameOver = false;
-            OnGameOver();
-            SDL_Log("GameManager: game over! Score: %d", m_Score);
+            m_DeathTimer -= dae::GameTime::GetInstance().GetDeltaTime();
+            if (m_DeathTimer <= 0.f)
+            {
+                if (m_PendingGameOver)
+                {
+                    m_PendingGameOver = false;
+                    OnGameOver();
+                    SDL_Log("GameManager: game over! Score: %d", m_Score);
+                }
+                else if (m_PendingReload)
+                {
+                    m_PendingReload = false;
+                    ReloadCurrentLevel();
+                }
+            }
             return;
         }
-        if (m_PendingReload)
-        {
-            m_PendingReload = false;
-            ReloadCurrentLevel();
-            return;
-        }
+
         if (m_PendingNext)
         {
             m_PendingNext = false;
@@ -127,7 +136,7 @@ namespace qbert
             return;
         }
         AddScore(m_Bonus);
-        m_LevelCompleteTimer = 2.0f;
+        m_LevelCompleteTimer = m_Timer;
 
         dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Round Complete Tune.wav"), 1.f);
 
@@ -142,8 +151,10 @@ namespace qbert
         
     }
 
-    void GameManager::OnPlayerDied()
+    void GameManager::OnPlayerDied(dae::GameObject* pPlayerObj)
     {
+        if (m_DeathTimer > 0.f) return;
+
         --m_Lives;
         SDL_Log("GameManager: player died, lives remaining: %d", m_Lives);
 
@@ -157,7 +168,15 @@ namespace qbert
             m_PendingReload = true;
         }
 
+        m_DeathTimer = m_Timer;
+
         dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Swearing.wav"), 1.f);
+
+        glm::vec3 playerPos{ 0.f, 0.f, 0.f };
+        if (pPlayerObj && pPlayerObj->HasGameComponent<dae::TransformComponent>())
+        {
+            playerPos = pPlayerObj->GetGameComponent<dae::TransformComponent>()->GetWorldPosition();
+        }
 
         auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
         for (const auto& obj : scene.GetObjects())
@@ -167,6 +186,15 @@ namespace qbert
                 obj->SetActive(false);
             }
         }
+
+        auto swearObj = std::make_unique<dae::GameObject>();
+        swearObj->AddGameComponent<dae::TransformComponent>()->SetPosition(playerPos.x, playerPos.y - 32.f);
+        auto* sprite = swearObj->AddGameComponent<dae::SpriteComponent>();
+        sprite->SetSpriteSheet("Qbert Curses.png");
+        sprite->SetSourceRect(0.f, 0.f, 48.f, 25.f);
+        sprite->SetDestSize(64.f, 32.f);
+        swearObj->AddGameComponent<GameManagerUpdater>();
+        scene.Add(std::move(swearObj));
     }
 
     void GameManager::OnGameOver()
@@ -176,7 +204,7 @@ namespace qbert
         auto scores = dae::ScoreComponent::LoadHighScores();
         m_PendingHighScore = (scores.size() < 15) || (m_Score > scores.back().score);
 
-        m_EndScreenTimer = 3.0f;
+        m_EndScreenTimer = m_Timer;
 
         LevelLoader::QueueLoadEndScreen(false);
     }
@@ -188,7 +216,7 @@ namespace qbert
         auto scores = dae::ScoreComponent::LoadHighScores();
         m_PendingHighScore = (scores.size() < 15) || (m_Score > scores.back().score);
 
-        m_EndScreenTimer = 3.0f;
+        m_EndScreenTimer = m_Timer;
 
         LevelLoader::QueueLoadEndScreen(true);
     }

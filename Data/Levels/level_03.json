@@ -9,7 +9,7 @@
         {
             "stage_id": 1,
             "baseColorIndex": 5,
-            "intermediateColorIndex": 2,
+            "intermediateColorIndex": 0,
             "targetColorIndex": 11,
             "stepsToTarget": 1,
             "reverts": true,
@@ -28,7 +28,7 @@
         {
             "stage_id": 2,
             "baseColorIndex": 8,
-            "intermediateColorIndex": 2,
+            "intermediateColorIndex": 0,
             "targetColorIndex": 2,
             "stepsToTarget": 1,
             "reverts": true,
@@ -48,7 +48,7 @@
         {
             "stage_id": 3,
             "baseColorIndex": 7,
-            "intermediateColorIndex": 2,
+            "intermediateColorIndex": 0,
             "targetColorIndex": 1,
             "stepsToTarget": 1,
             "reverts": true,
@@ -67,7 +67,7 @@
         {
             "stage_id": 4,
             "baseColorIndex": 6,
-            "intermediateColorIndex": 2,
+            "intermediateColorIndex": 0,
             "targetColorIndex": 3,
             "stepsToTarget": 1,
             "reverts": true,
