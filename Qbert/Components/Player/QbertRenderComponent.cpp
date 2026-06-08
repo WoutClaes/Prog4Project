@@ -7,10 +7,18 @@
 
 namespace qbert
 {
-    QbertRenderComponent::QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert)
+    QbertRenderComponent::QbertRenderComponent(dae::GameObject* pOwner, QbertComponent* pQbert, int playerIdx)
         : GameComponent(pOwner)
+        , m_PlayerIdx(playerIdx)
     {
-        m_Texture = dae::ResourceManager::GetInstance().LoadTexture("Qbert P1 Spritesheet.png");
+        if (m_PlayerIdx == 0)
+        {
+            m_Texture = dae::ResourceManager::GetInstance().LoadTexture("Qbert P1 Spritesheet.png");
+        }
+        else
+        {
+            m_Texture = dae::ResourceManager::GetInstance().LoadTexture("Qbert P2 Spritesheet.png");
+        }
 
         if (pQbert)
         {

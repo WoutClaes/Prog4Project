@@ -19,7 +19,7 @@ namespace qbert
     class QbertComponent final : public dae::GameComponent
     {
     public:
-        explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid);
+        explicit QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid, int playerIdx);
         ~QbertComponent() override = default;
 
         void Update() override {}
@@ -53,6 +53,7 @@ namespace qbert
 
         int GetDiskRow() const { return m_DiskRow; }
         int GetDiskCol() const { return m_DiskCol; }
+        int GetPlayerIndex() const { return m_PlayerIdx; }
 
     private:
         void Land();
@@ -68,5 +69,6 @@ namespace qbert
         bool m_IsRidingDisk{ false };
         int m_DiskRow{ 0 };
         int m_DiskCol{ 0 };
+        int m_PlayerIdx{ -1 };
     };
 }

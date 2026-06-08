@@ -4,6 +4,7 @@
 #include <functional>
 #include "Singleton.h"
 #include "Components/ScoreComponent.h"
+#include <array>
 
 namespace qbert
 {
@@ -25,7 +26,7 @@ namespace qbert
         void OnGameOver();
         void OnGameWin();
 
-        int GetLives() const { return m_Lives; }
+        int GetLives(int playerIdx = 0) const { return m_Lives[playerIdx]; }
         int GetScore() const { return m_Score; }
         int GetLevel() const { return m_CurrentLevel; }
         int GetRound() const { return m_CurrentRound; }
@@ -48,7 +49,8 @@ namespace qbert
         bool m_PendingNext{ false };
         bool m_PendingGameOver{ false };
 
-        int m_Lives{ 4 };
+        std::array<int, 2> m_Lives{ { 4, 4 } };
+        std::array<int, 2> m_IsPlayerDead{ false, false };
         int m_Score{ 0 };
         int m_CurrentLevel{ 0 };
         int m_CurrentRound{ 0 };

@@ -11,6 +11,7 @@
 #include "Sound/ServiceLocator.h"
 #include "Components/TransformComponent.h"
 #include "Components/SpriteComponent.h"
+#include "Components/Player/QbertComponent.h"
 
 namespace qbert
 {
@@ -22,10 +23,11 @@ namespace qbert
 
     void GameManager::StartGame(GameMode mode, int startLevel)
     {
-        m_Mode         = mode;
-        m_Lives        = MaxLives;
-        m_Score        = 0;
-        m_GameOver     = false;
+        m_Mode = mode;
+        m_Lives.fill(MaxLives);
+        m_IsPlayerDead.fill(false);
+        m_Score = 0;
+        m_GameOver = false;
         m_CurrentLevel = startLevel;
         m_CurrentRound = 0;
         m_LastTransitionLevel = -1;
@@ -164,17 +166,29 @@ namespace qbert
     {
         if (m_DeathTimer > 0.f) return;
 
-        --m_Lives;
+        int pIdx = pPlayerObj->GetGameComponent<QbertComponent>()->GetPlayerIndex();
+
+        --m_Lives[pIdx];
         SDL_Log("GameManager: player died, lives remaining: %d", m_Lives);
 
-        if (m_Lives <= 0)
+        if (m_Lives[pIdx] <= 0)
         {
             m_PendingGameOver = true;
+            pPlayerObj->SetActive(false);
         }
         else
         {
             m_Score = m_LevelStartScore;
             m_PendingReload = true;
+        }
+
+        if (m_Mode == GameMode::Coop)
+        {
+            if (m_IsPlayerDead[0] && m_IsPlayerDead[1]) m_PendingGameOver = true;
+        }
+        else
+        {
+            if (m_IsPlayerDead[0]) m_PendingGameOver = true;
         }
 
         m_DeathTimer = m_Timer;

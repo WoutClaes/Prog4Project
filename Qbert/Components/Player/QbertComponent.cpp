@@ -10,9 +10,10 @@
 
 namespace qbert
 {
-    QbertComponent::QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid)
+    QbertComponent::QbertComponent(dae::GameObject* pOwner, CubeGrid* pGrid, int playerIdx)
         : GameComponent(pOwner)
         , m_pGrid(pGrid)
+        , m_PlayerIdx(playerIdx)
     {
         m_pMover = pOwner->GetGameComponent<GridMover>();
 

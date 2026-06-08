@@ -1,17 +1,17 @@
 #include "InputManager.h"
+#include "InputManager.h"
+#include "InputManager.h"
 #include <SDL3/SDL.h>
 #include <backends/imgui_impl_sdl3.h>
 
 namespace dae
 {
-	//  Constructor – pre-create all four controller slots
 	InputManager::InputManager()
 	{
 		for (unsigned int i = 0; i < MaxControllers; ++i)
 			m_Controllers.emplace_back(std::make_unique<Controller>(i));
 	}
 
-	//  Bind / Unbind – Keyboard
 	void InputManager::BindKeyboardCommand(SDL_Keycode key, KeyState state,
 		std::unique_ptr<Command> command)
 	{
@@ -28,7 +28,6 @@ namespace dae
 			m_KeyboardBindings.end());
 	}
 
-	//  Bind / Unbind – Controller
 	void InputManager::BindControllerCommand(unsigned int controllerIndex,
 		ControllerButton button, KeyState state,
 		std::unique_ptr<Command> command)
@@ -52,18 +51,26 @@ namespace dae
 			m_ControllerBindings.end());
 	}
 
-	//  ProcessInput
+	void InputManager::RemoveAllBindings()
+	{
+		m_KeyboardBindings.clear();
+		m_ControllerBindings.clear();
+	}
+
+	bool InputManager::IsControllerConnected(unsigned int index) const
+	{
+		if (index >= m_Controllers.size()) return false;
+		return m_Controllers[index]->IsConnected();
+	}
+
 	bool InputManager::ProcessInput()
 	{
-		// 1. Update controller state (must happen before querying IsDown etc.)
 		for (auto& controller : m_Controllers)
 			controller->Update();
 
-		// 2. Clear per-frame keyboard transition lists
 		m_KeysDown.clear();
 		m_KeysUp.clear();
 
-		// 3. Poll SDL events
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{
@@ -79,7 +86,6 @@ namespace dae
 				m_KeysUp.push_back(e.key.key);
 		}
 
-		// 4. Execute keyboard commands
 		const bool* keyboardState = SDL_GetKeyboardState(nullptr);
 
 		for (auto& binding : m_KeyboardBindings)
@@ -110,7 +116,6 @@ namespace dae
 				binding.command->Execute();
 		}
 
-		// 5. Execute controller commands
 		for (auto& binding : m_ControllerBindings)
 		{
 			const auto& controller = m_Controllers[binding.controllerIndex];

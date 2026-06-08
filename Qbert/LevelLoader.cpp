@@ -64,43 +64,38 @@ namespace qbert
         input.BindKeyboardCommand(SDLK_F4, dae::KeyState::Down, std::make_unique<VolumeUpCommand>());
     }
 
-    static void BindQbertInputs(dae::GameObject* obj, int controllerIndex, bool useKeyboard)
+    static void BindKeyboardGameplay(dae::GameObject* pPlayer)
     {
         auto& input = dae::InputManager::GetInstance();
 
-        if (useKeyboard)
-        {
-            input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpLeft));
-            input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpRight));
-            input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownLeft));
-            input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownRight));
-            input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpLeft));
-            input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpRight));
-            input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownLeft));
-            input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownRight));
-        }
+        input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpLeft));
+        input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpRight));
+        input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownLeft));
+        input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownRight));
 
-        if (controllerIndex >= 0)
-        {
-            const unsigned int ci = static_cast<unsigned int>(controllerIndex);
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadLeft, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpLeft));
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownRight));
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::UpRight));
-            input.BindControllerCommand(ci, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<JumpCommand>(obj, JumpDirection::DownLeft));
-        }
+        input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpLeft));
+        input.BindKeyboardCommand(SDLK_KP_9, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpRight));
+        input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownLeft));
+        input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownRight));
+    }
+    static void BindGamepadGameplay(dae::GameObject* pPlayer, unsigned int controllerIndex)
+    {
+        auto& input = dae::InputManager::GetInstance();
+
+        input.BindControllerCommand(controllerIndex, dae::ControllerButton::DPadLeft, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpLeft));
+        input.BindControllerCommand(controllerIndex, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpRight));
+        input.BindControllerCommand(controllerIndex, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownLeft));
+        input.BindControllerCommand(controllerIndex, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownRight));
     }
 
-    static dae::GameObject* MakeQbert(dae::Scene& scene, CubeGrid* grid,
-        int controllerIndex, bool useKeyboard)
+    static dae::GameObject* MakeQbert(dae::Scene& scene, CubeGrid* grid, int startRow, int startCol, int playerIndex)
     {
         auto obj = std::make_unique<dae::GameObject>();
         obj->AddGameComponent<dae::TransformComponent>();
-        obj->AddGameComponent<GridMover>(grid, 0, 0, 6.f, -20.f);
-        auto* qbert = obj->AddGameComponent<QbertComponent>(grid);
-        obj->AddGameComponent<QbertRenderComponent>(qbert);
+        obj->AddGameComponent<GridMover>(grid, startRow, startCol, 6.f, -20.f);
+        auto* qbert = obj->AddGameComponent<QbertComponent>(grid, playerIndex);
+        obj->AddGameComponent<QbertRenderComponent>(qbert, playerIndex);
         obj->AddGameComponent<dae::ScoreComponent>();
-
-        BindQbertInputs(obj.get(), controllerIndex, useKeyboard);
 
         auto* ptr = obj.get();
         scene.Add(std::move(obj));
@@ -217,18 +212,56 @@ namespace qbert
         dae::GameObject* qbert1Obj = nullptr;
         QbertComponent* qbert1 = nullptr;
 
+        auto& input = dae::InputManager::GetInstance();
+        bool gamepad0Connected = input.IsControllerConnected(0);
+        bool gamepad1Connected = input.IsControllerConnected(1);
+
         if (mode == GameMode::SinglePlayer)
         {
-            qbert1Obj = MakeQbert(scene, grid, 0, true);
+            qbert1Obj = MakeQbert(scene, grid, 0, 0, 0);
+
+            BindKeyboardGameplay(qbert1Obj);
+            if (gamepad0Connected)
+            {
+                BindGamepadGameplay(qbert1Obj, 0);
+            }
         }
         else if (mode == GameMode::Coop)
         {
-            qbert1Obj = MakeQbert(scene, grid, 0, true);
-            MakeQbert(scene, grid, 1, false);
+            int bottomRow = 6;
+            qbert1Obj = MakeQbert(scene, grid, bottomRow, 0, 0);
+            auto* qbert2Obj = MakeQbert(scene, grid, bottomRow, bottomRow, 1);
+
+            BindKeyboardGameplay(qbert1Obj);
+
+            if (gamepad1Connected)
+            {
+                BindGamepadGameplay(qbert1Obj, 0);
+                BindGamepadGameplay(qbert2Obj, 1);
+            }
+            else if (gamepad0Connected)
+            {
+                BindGamepadGameplay(qbert2Obj, 0);
+            }
         }
         else if (mode == GameMode::Versus)
         {
-            qbert1Obj = MakeQbert(scene, grid, 0, true);
+            qbert1Obj = MakeQbert(scene, grid, 0, 0, 0);
+
+            BindKeyboardGameplay(qbert1Obj);
+
+            //dae::GameObject* coilyEnemyObj = nullptr;
+            // coilyEnemyObj = MakeControllableCoily(scene, grid, qbert1Obj);
+
+            if (gamepad1Connected)
+            {
+                BindGamepadGameplay(qbert1Obj, 0);
+                // BindGamepadGameplay(coilyEnemyObj, 1);
+            }
+            else if (gamepad0Connected)
+            {
+                // BindGamepadGameplay(coilyEnemyObj, 0);
+            }
         }
 
         if (!qbert1Obj)
@@ -351,6 +384,7 @@ namespace qbert
     {
         dae::SceneManager::GetInstance().QueueAction([=]() {
             dae::SceneManager::GetInstance().RemoveAllScenes();
+            dae::InputManager::GetInstance().RemoveAllBindings();
             auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
             Load(levelIndex, stageIndex, mode, scene);
@@ -443,6 +477,7 @@ namespace qbert
     {
         dae::SceneManager::GetInstance().QueueAction([]() {
             dae::SceneManager::GetInstance().RemoveAllScenes();
+            dae::InputManager::GetInstance().RemoveAllBindings();
             auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
             auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
@@ -462,7 +497,7 @@ namespace qbert
 
             auto coopObj = std::make_unique<dae::GameObject>();
             coopObj->AddGameComponent<dae::TransformComponent>()->SetPosition(300.f, 350.f);
-            coopObj->AddGameComponent<dae::TextComponent>("CO-OP", font, SDL_Color{ 100, 100, 100, 255 }); // Greyed out
+            coopObj->AddGameComponent<dae::TextComponent>("CO-OP", font, SDL_Color{ 255, 255, 0, 255 });
             scene.Add(std::move(coopObj));
 
             auto versusObj = std::make_unique<dae::GameObject>();
@@ -481,13 +516,25 @@ namespace qbert
 
             auto* selector = arrowObj->AddGameComponent<MenuSelectorComponent>();
             selector->AddOption({ 250.f, 300.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::SinglePlayer); });
-            selector->AddOption({ 250.f, 350.f, 0.f }, []() { /* Not hooked up yet */ });
+            selector->AddOption({ 250.f, 350.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::Coop); });
             selector->AddOption({ 250.f, 400.f, 0.f }, []() { /* Not hooked up yet */ });
 
             auto& input = dae::InputManager::GetInstance();
-            input.BindKeyboardCommand(SDLK_UP, dae::KeyState::Down, std::make_unique<MenuMoveCommand>(selector, -1));
-            input.BindKeyboardCommand(SDLK_DOWN, dae::KeyState::Down, std::make_unique<MenuMoveCommand>(selector, 1));
-            input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<MenuSelectCommand>(selector));
+            // Move Selection Up (Mapped to Q, E, or standard Arrow Keys)
+            input.BindKeyboardCommand(SDLK_W, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
+            input.BindKeyboardCommand(SDLK_KP_8, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
+
+            // Move Selection Down (Mapped to A, D, or standard Arrow Keys)
+            input.BindKeyboardCommand(SDLK_S, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
+            input.BindKeyboardCommand(SDLK_KP_2, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
+
+            // Confirm Options
+            input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<qbert::MenuSelectCommand>(selector));
+
+            input.BindControllerCommand(0, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
+            input.BindControllerCommand(0, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
+
+            input.BindControllerCommand(0, dae::ControllerButton::ButtonA, dae::KeyState::Down, std::make_unique<qbert::MenuSelectCommand>(selector));
 
             scene.Add(std::move(arrowObj));
             });
@@ -514,12 +561,13 @@ namespace qbert
 
             auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
             auto textObj = std::make_unique<dae::GameObject>();
-            textObj->AddGameComponent<dae::TransformComponent>()->SetPosition(260.f, 420.f);
-            textObj->AddGameComponent<dae::TextComponent>("PRESS ENTER TO START", font, SDL_Color{ 255, 255, 0, 255 });
+            textObj->AddGameComponent<dae::TransformComponent>()->SetPosition(200.f, 420.f);
+            textObj->AddGameComponent<dae::TextComponent>("PRESS ENTER OR 'A' TO START", font, SDL_Color{ 255, 255, 0, 255 });
             scene.Add(std::move(textObj));
 
             auto& input = dae::InputManager::GetInstance();
             input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<StartGameCommand>(mode, 1));
+            input.BindControllerCommand(0, dae::ControllerButton::ButtonA, dae::KeyState::Down, std::make_unique<StartGameCommand>(mode, 1));
             });
     }
 
