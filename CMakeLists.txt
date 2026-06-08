@@ -236,7 +236,11 @@ add_executable(${QBERT_TARGET} ${QBERT_PARAM}
   Qbert/Components/Enemies/UggWrongway/UggWrongwayRenderComponent.cpp
 
   # States
-  Qbert/States/Coily/CoilyStates.cpp)
+  Qbert/States/Coily/CoilyStates.cpp
+  
+  # Menu
+  Qbert/Components/Menu/MenuComponents.cpp
+)
 
 target_compile_features(${QBERT_TARGET} PUBLIC cxx_std_20)
 

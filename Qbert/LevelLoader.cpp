@@ -44,6 +44,10 @@
 #include "Components/HUD/HUDComponent.h"
 #include <glm/fwd.hpp>
 
+// Menu
+#include "Components/Menu/MenuComponents.h"
+#include "Commands/MenuCommands.h"
+
 using json = nlohmann::json;
 
 namespace qbert
@@ -432,6 +436,116 @@ namespace qbert
 
                 scene.Add(std::move(scoreObj));
             }
+            });
+    }
+
+    void LevelLoader::QueueLoadMainMenu()
+    {
+        dae::SceneManager::GetInstance().QueueAction([]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
+
+            auto titleObj = std::make_unique<dae::GameObject>();
+            titleObj->AddGameComponent<dae::TransformComponent>()->SetPosition(200.f, 100.f);
+            auto* titleSprite = titleObj->AddGameComponent<dae::SpriteComponent>();
+            titleSprite->SetSpriteSheet("Game Title.png");
+            titleSprite->SetSourceRect(0.f, 0.f, 474.f, 150.f);
+            titleSprite->SetDestSize(400.f, 120.f);
+            scene.Add(std::move(titleObj));
+
+            auto spObj = std::make_unique<dae::GameObject>();
+            spObj->AddGameComponent<dae::TransformComponent>()->SetPosition(300.f, 300.f);
+            spObj->AddGameComponent<dae::TextComponent>("SINGLE PLAYER", font, SDL_Color{ 255, 255, 0, 255 });
+            scene.Add(std::move(spObj));
+
+            auto coopObj = std::make_unique<dae::GameObject>();
+            coopObj->AddGameComponent<dae::TransformComponent>()->SetPosition(300.f, 350.f);
+            coopObj->AddGameComponent<dae::TextComponent>("CO-OP", font, SDL_Color{ 100, 100, 100, 255 }); // Greyed out
+            scene.Add(std::move(coopObj));
+
+            auto versusObj = std::make_unique<dae::GameObject>();
+            versusObj->AddGameComponent<dae::TransformComponent>()->SetPosition(300.f, 400.f);
+            versusObj->AddGameComponent<dae::TextComponent>("VERSUS", font, SDL_Color{ 100, 100, 100, 255 }); // Greyed out
+            scene.Add(std::move(versusObj));
+
+            auto arrowObj = std::make_unique<dae::GameObject>();
+            auto* arrowTransform = arrowObj->AddGameComponent<dae::TransformComponent>();
+            arrowTransform->SetPosition(250.f, 300.f);
+
+            auto* arrowSprite = arrowObj->AddGameComponent<dae::SpriteComponent>();
+            arrowSprite->SetSpriteSheet("Selection Arrow.png");
+            arrowSprite->SetSourceRect(0.f, 0.f, 6.f, 9.f);
+            arrowSprite->SetDestSize(24.f, 24.f);
+
+            auto* selector = arrowObj->AddGameComponent<MenuSelectorComponent>();
+            selector->AddOption({ 250.f, 300.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::SinglePlayer); });
+            selector->AddOption({ 250.f, 350.f, 0.f }, []() { /* Not hooked up yet */ });
+            selector->AddOption({ 250.f, 400.f, 0.f }, []() { /* Not hooked up yet */ });
+
+            auto& input = dae::InputManager::GetInstance();
+            input.BindKeyboardCommand(SDLK_UP, dae::KeyState::Down, std::make_unique<MenuMoveCommand>(selector, -1));
+            input.BindKeyboardCommand(SDLK_DOWN, dae::KeyState::Down, std::make_unique<MenuMoveCommand>(selector, 1));
+            input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<MenuSelectCommand>(selector));
+
+            scene.Add(std::move(arrowObj));
+            });
+    }
+
+    void LevelLoader::QueueLoadControlsScreen(GameMode mode)
+    {
+        dae::SceneManager::GetInstance().QueueAction([mode]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            auto controlsObj = std::make_unique<dae::GameObject>();
+            controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(150.f, 100.f);
+            auto* sprite = controlsObj->AddGameComponent<dae::SpriteComponent>();
+
+            if (mode == GameMode::SinglePlayer)
+            {
+                sprite->SetSpriteSheet("P1 Controls.png");
+                sprite->SetSourceRect(0.f, 0.f, 300.f, 198.f);
+                sprite->SetDestSize(500.f, 300.f);
+            }
+
+            scene.Add(std::move(controlsObj));
+
+            auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
+            auto textObj = std::make_unique<dae::GameObject>();
+            textObj->AddGameComponent<dae::TransformComponent>()->SetPosition(260.f, 420.f);
+            textObj->AddGameComponent<dae::TextComponent>("PRESS ENTER TO START", font, SDL_Color{ 255, 255, 0, 255 });
+            scene.Add(std::move(textObj));
+
+            auto& input = dae::InputManager::GetInstance();
+            input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<StartGameCommand>(mode, 1));
+            });
+    }
+
+    void LevelLoader::QueueLoadLevelTransition(int levelIndex, int stageIndex, GameMode mode)
+    {
+        dae::SceneManager::GetInstance().QueueAction([levelIndex, stageIndex, mode]() {
+            dae::SceneManager::GetInstance().RemoveAllScenes();
+            auto& scene = dae::SceneManager::GetInstance().CreateScene();
+
+            auto titleObj = std::make_unique<dae::GameObject>();
+            titleObj->AddGameComponent<dae::TransformComponent>()->SetPosition(200.f, 200.f);
+
+            auto* sprite = titleObj->AddGameComponent<dae::SpriteComponent>();
+
+            int clampedLevel = std::clamp(levelIndex, 1, 3);
+
+            std::string spriteName = "Level 0" + std::to_string(clampedLevel) + " Title.png";
+            sprite->SetSpriteSheet(spriteName);
+            sprite->SetSourceRect(0.f, 0.f, 500.f, 230.f);
+            sprite->SetDestSize(400.f, 150.f);
+
+            titleObj->AddGameComponent<ScreenTimerComponent>(2.0f, [levelIndex, stageIndex, mode]() {
+                LevelLoader::QueueLoadLevel(levelIndex, stageIndex, mode);
+                });
+
+            scene.Add(std::move(titleObj));
             });
     }
 

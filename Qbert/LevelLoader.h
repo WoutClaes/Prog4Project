@@ -20,6 +20,10 @@ namespace qbert
 
         static void QueueLoadHighScoreBoard();
 
+        static void QueueLoadMainMenu();
+        static void QueueLoadControlsScreen(GameMode mode);
+        static void QueueLoadLevelTransition(int levelIndex, int stageIndex, GameMode mode);
+
     private:
         static std::string LevelPath(int levelIndex);
     };

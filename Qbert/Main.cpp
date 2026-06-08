@@ -48,7 +48,7 @@ static void load()
             qbert::LevelLoader::Load(levelIndex, stageIndex, mode, scene);
         };
 
-    gm.StartGame(qbert::GameMode::SinglePlayer, 1);
+    qbert::LevelLoader::QueueLoadMainMenu();
 
     auto collisionObj = std::make_unique<dae::GameObject>();
     collisionObj->AddGameComponent<dae::TransformComponent>();

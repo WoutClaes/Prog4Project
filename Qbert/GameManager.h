@@ -66,5 +66,7 @@ namespace qbert
 
         float m_LevelCompleteTimer{ 0.0f };
         float m_DeathTimer{ 0.0f };
+
+        int m_LastTransitionLevel{ -1 };
     };
 }

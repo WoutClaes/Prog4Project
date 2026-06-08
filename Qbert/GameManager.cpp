@@ -28,6 +28,7 @@ namespace qbert
         m_GameOver     = false;
         m_CurrentLevel = startLevel;
         m_CurrentRound = 0;
+        m_LastTransitionLevel = -1;
 
         LoadLevel(m_CurrentLevel, m_CurrentRound);
     }
@@ -101,7 +102,15 @@ namespace qbert
         m_LevelCompleteTimer = 0.0f;
         m_PendingNext = false;
 
-        LevelLoader::QueueLoadLevel(m_CurrentLevel, m_CurrentRound, m_Mode);
+        if (stageIndex == 0 && m_LastTransitionLevel != levelIndex)
+        {
+            m_LastTransitionLevel = levelIndex;
+            LevelLoader::QueueLoadLevelTransition(m_CurrentLevel, m_CurrentRound, m_Mode);
+        }
+        else
+        {
+            LevelLoader::QueueLoadLevel(m_CurrentLevel, m_CurrentRound, m_Mode);
+        }
     }
 
     void GameManager::ReloadCurrentLevel()
