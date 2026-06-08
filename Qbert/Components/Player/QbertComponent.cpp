@@ -36,7 +36,9 @@ namespace qbert
         const int newRow = m_pMover->GetRow() + DeltaRow[d];
         const int newCol = m_pMover->GetCol() + DeltaCol[d];
 
-        for (auto it = m_Disks.begin(); it != m_Disks.end(); ++it)
+        auto& disks = GameManager::GetInstance().GetDisks();
+
+        for (auto it = disks.begin(); it != disks.end(); ++it)
         {
             if (it->row == newRow && it->col == newCol)
             {
@@ -65,12 +67,8 @@ namespace qbert
 
     void QbertComponent::Die()
     {
+        m_IsDead = true;
         GameManager::GetInstance().OnPlayerDied(GetOwner());
-    }
-
-    void QbertComponent::AddDisk(int row, int col, const glm::vec3& screenPos)
-    {
-        m_Disks.push_back({ row, col, screenPos });
     }
 
     int QbertComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }
@@ -78,11 +76,13 @@ namespace qbert
 
     void QbertComponent::Land()
     {
-        for (auto it = m_Disks.begin(); it != m_Disks.end(); ++it)
+        auto& disks = GameManager::GetInstance().GetDisks();
+
+        for (auto it = disks.begin(); it != disks.end(); ++it)
         {
             if (it->row == GetRow() && it->col == GetCol())
             {
-                m_Disks.erase(it);
+                disks.erase(it);
                 return;
             }
         }

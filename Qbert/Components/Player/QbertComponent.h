@@ -2,19 +2,10 @@
 #include "Components/GameComponent.h"
 #include "Grid/CubeGrid.h"
 #include <functional>
-#include <glm/glm.hpp>
-#include <vector>
 
 namespace qbert
 {
     class GridMover;
-
-    struct DiskData
-    {
-        int row{ 0 };
-        int col{ 0 };
-        glm::vec3 screenPos;
-    };
 
     class QbertComponent final : public dae::GameComponent
     {
@@ -29,8 +20,7 @@ namespace qbert
         void RequestJump(JumpDirection dir);
 
         void Die();
-
-        void AddDisk(int row, int col, const glm::vec3& screenPos);
+        bool IsDead() const { return m_IsDead; };
 
         int GetRow() const;
         int GetCol() const;
@@ -61,8 +51,6 @@ namespace qbert
         CubeGrid* m_pGrid{ nullptr };
         GridMover* m_pMover{ nullptr };
 
-        std::vector<DiskData> m_Disks{};
-
         static constexpr int DeltaRow[4] = { 1,  1, -1, -1 };
         static constexpr int DeltaCol[4] = { 0,  1, -1,  0 };
 
@@ -70,5 +58,6 @@ namespace qbert
         int m_DiskRow{ 0 };
         int m_DiskCol{ 0 };
         int m_PlayerIdx{ -1 };
+        bool m_IsDead{ false };
     };
 }

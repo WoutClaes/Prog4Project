@@ -4,6 +4,7 @@
 #include "GameObject.h"
 #include "GameTime.h"
 #include "Components/TransformComponent.h"
+#include "InputManager.cpp"
 
 // Grid & Collisions
 #include "Grid/CubeGrid.h"
@@ -13,6 +14,7 @@
 // Enemy Components & Renders
 #include "Components/Enemies/Coily/CoilyComponent.h"
 #include "Components/Enemies/Coily/CoilyRenderComponent.h"
+#include "Commands/CoilyCommands.h"
 #include "Components/Enemies/SlickSam/SlickSamComponent.h"
 #include "Components/Enemies/SlickSam/SlickSamRenderComponent.h"
 #include "Components/Enemies/UggWrongway/UggWrongwayComponent.h"
@@ -62,17 +64,43 @@ namespace qbert
             {
                 auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
 
-                if (type == "Coily" && m_Mode != GameMode::Versus)
+                if (type == "Coily")
                 {
-                    auto obj = std::make_unique<dae::GameObject>();
-                    obj->AddGameComponent<dae::TransformComponent>();
-                    obj->AddGameComponent<GridMover>(m_pGrid, 0, 0, 8.f, -68.f);
-                    auto* coily = obj->AddGameComponent<CoilyComponent>(m_pQbertObj);
-                    coily->OnDeathCallback = [this]() { AddEnemyToQueue("Coily"); };
-                    obj->AddGameComponent<CoilyRenderComponent>(coily);
+                    auto coilyObj = std::make_unique<dae::GameObject>();
+                    coilyObj->AddGameComponent<dae::TransformComponent>();
+
+                    coilyObj->AddGameComponent<GridMover>(m_pGrid, 0, 0, 8.f, -68.f);
+
+                    auto* coily = coilyObj->AddGameComponent<CoilyComponent>(m_pQbertObj);
+                    coilyObj->AddGameComponent<CoilyRenderComponent>(coily);
 
                     m_pCollision->AddCoily(coily);
-                    scene.Add(std::move(obj));
+
+                    if (m_Mode == GameMode::Versus)
+                    {
+                        coily->m_IsPlayerControlled = true;
+
+                        auto& input = dae::InputManager::GetInstance();
+                        auto* rawCoilyPtr = coilyObj.get();
+
+                        input.BindControllerCommand(1, dae::ControllerButton::DPadLeft, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::UpLeft));
+                        input.BindControllerCommand(1, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::UpRight));
+                        input.BindControllerCommand(1, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::DownLeft));
+                        input.BindControllerCommand(1, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::DownRight));
+
+                        input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::UpLeft));
+                        input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::UpRight));
+                        input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::DownLeft));
+                        input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::DownRight));
+
+                        coily->OnDeathCallback = [this, &input]() { AddEnemyToQueue("Coily");};
+                    }
+                    else 
+                    {
+                        coily->OnDeathCallback = [this]() { AddEnemyToQueue("Coily"); };
+                    }
+
+                    scene.Add(std::move(coilyObj));
                 }
                 else if (type == "SlickSam" || type == "Slick")
                 {

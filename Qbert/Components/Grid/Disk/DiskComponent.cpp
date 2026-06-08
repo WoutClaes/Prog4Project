@@ -8,10 +8,9 @@
 
 namespace qbert
 {
-    DiskComponent::DiskComponent(dae::GameObject* pOwner, dae::GameObject* pQbertObj, GridMover* pQbertMover, int diskRow, int diskCol, const glm::vec3& topPos)
+    DiskComponent::DiskComponent(dae::GameObject* pOwner, const std::vector<dae::GameObject*>& players, int diskRow, int diskCol, const glm::vec3& topPos)
         : GameComponent(pOwner)
-        , m_pQbertObj(pQbertObj)
-        , m_pQbertMover(pQbertMover)
+        , m_Players(players)
         , m_Row(diskRow)
         , m_Col(diskCol)
         , m_TopPos(topPos)
@@ -31,18 +30,30 @@ namespace qbert
 
         if (!m_IsMoving)
         {
-            if (m_pQbertMover->GetRow() == m_Row && m_pQbertMover->GetCol() == m_Col)
+            for (auto* pPlayer : m_Players)
             {
-                if (!m_pQbertMover->IsJumping())
-                {
-                    m_pQbertObj->GetGameComponent<QbertComponent>()->SetRidingDisk(true, m_Row, m_Col);
-                    m_IsMoving = true;
-                    m_StartPos = pTransform->GetLocalTransform().GetPosition();
+                if (!pPlayer || !pPlayer->IsActive()) continue;
 
-                    auto* qTransform = m_pQbertObj->GetGameComponent<dae::TransformComponent>();
-                    if (qTransform)
+                auto* pMover = pPlayer->GetGameComponent<GridMover>();
+                if (!pMover) continue;
+
+                if (pMover->GetRow() == m_Row && pMover->GetCol() == m_Col)
+                {
+                    if (!pMover->IsJumping())
                     {
-                        m_QbertOffset = qTransform->GetLocalTransform().GetPosition() - m_StartPos;
+                        m_pRidingObj = pPlayer;
+                        m_pRidingMover = pMover;
+
+                        m_pRidingObj->GetGameComponent<QbertComponent>()->SetRidingDisk(true, m_Row, m_Col);
+                        m_IsMoving = true;
+                        m_StartPos = pTransform->GetLocalTransform().GetPosition();
+
+                        auto* qTransform = m_pRidingObj->GetGameComponent<dae::TransformComponent>();
+                        if (qTransform)
+                        {
+                            m_QbertOffset = qTransform->GetLocalTransform().GetPosition() - m_StartPos;
+                        }
+                        break;
                     }
                 }
             }
@@ -56,12 +67,16 @@ namespace qbert
 
         if (t >= 1.f)
         {
-            m_pQbertObj->GetGameComponent<QbertComponent>()->SetRidingDisk(false);
+            if (m_pRidingObj)
+                m_pRidingObj->GetGameComponent<QbertComponent>()->SetRidingDisk(false);
+
             t = 1.f;
             m_IsActive = false;
             GetOwner()->SetActive(false);
 
-            m_pQbertMover->ForceJump(0, 0, m_TopPos);
+            if (m_pRidingMover)
+                m_pRidingMover->ForceJump(0, 0, m_TopPos);
+
             pTransform->SetLocalPosition({ -9999.f, -9999.f, 0.f });
             return;
         }
@@ -69,10 +84,13 @@ namespace qbert
         glm::vec3 currentPos = m_StartPos + (m_TopPos - m_StartPos) * t;
         pTransform->SetLocalPosition(currentPos);
 
-        auto* qTransform = m_pQbertObj->GetGameComponent<dae::TransformComponent>();
-        if (qTransform)
+        if (m_pRidingObj)
         {
-            qTransform->SetLocalPosition(currentPos + m_QbertOffset);
+            auto* qTransform = m_pRidingObj->GetGameComponent<dae::TransformComponent>();
+            if (qTransform)
+            {
+                qTransform->SetLocalPosition(currentPos + m_QbertOffset);
+            }
         }
     }
 }

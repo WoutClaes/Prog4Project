@@ -97,12 +97,15 @@ namespace qbert
 
     void GameManager::LoadLevel(int levelIndex, int stageIndex)
     {
+        ClearDisks();
+
         m_CurrentLevel = levelIndex;
         m_CurrentRound = stageIndex;
         m_LevelStartScore = m_Score;
 
         m_LevelCompleteTimer = 0.0f;
         m_PendingNext = false;
+        m_IsPlayerDead.fill(false);
 
         if (stageIndex == 0 && m_LastTransitionLevel != levelIndex)
         {
@@ -164,35 +167,17 @@ namespace qbert
 
     void GameManager::OnPlayerDied(dae::GameObject* pPlayerObj)
     {
-        if (m_DeathTimer > 0.f) return;
+        auto* qbert = pPlayerObj->GetGameComponent<QbertComponent>();
+        if (!qbert) return;
 
-        int pIdx = pPlayerObj->GetGameComponent<QbertComponent>()->GetPlayerIndex();
+        int playerIdx = qbert->GetPlayerIndex();
 
-        --m_Lives[pIdx];
-        SDL_Log("GameManager: player died, lives remaining: %d", m_Lives);
+        if (m_IsPlayerDead[playerIdx]) return;
 
-        if (m_Lives[pIdx] <= 0)
-        {
-            m_PendingGameOver = true;
-            pPlayerObj->SetActive(false);
-        }
-        else
-        {
-            m_Score = m_LevelStartScore;
-            m_PendingReload = true;
-        }
+        --m_Lives[playerIdx];
+        m_IsPlayerDead[playerIdx] = true;
 
-        if (m_Mode == GameMode::Coop)
-        {
-            if (m_IsPlayerDead[0] && m_IsPlayerDead[1]) m_PendingGameOver = true;
-        }
-        else
-        {
-            if (m_IsPlayerDead[0]) m_PendingGameOver = true;
-        }
-
-        m_DeathTimer = m_Timer;
-
+        pPlayerObj->SetActive(false);
         dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Swearing.wav"), 1.f);
 
         glm::vec3 playerPos{ 0.f, 0.f, 0.f };
@@ -201,18 +186,8 @@ namespace qbert
             playerPos = pPlayerObj->GetGameComponent<dae::TransformComponent>()->GetWorldPosition();
         }
 
-        auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
-        for (const auto& obj : scene.GetObjects())
-        {
-            if (!obj->HasGameComponent<GameManagerUpdater>())
-            {
-                obj->SetActive(false);
-            }
-        }
-
         dae::SceneManager::GetInstance().QueueAction([playerPos]() {
             auto& deferredScene = dae::SceneManager::GetInstance().GetActiveScene();
-
             auto swearObj = std::make_unique<dae::GameObject>();
             swearObj->AddGameComponent<dae::TransformComponent>()->SetPosition(playerPos.x, playerPos.y - 32.f);
 
@@ -224,6 +199,60 @@ namespace qbert
             swearObj->AddGameComponent<GameManagerUpdater>();
             deferredScene.Add(std::move(swearObj));
             });
+
+        bool isGameOver = false;
+        if (m_Mode == GameMode::Coop)
+        {
+            if (m_Lives[0] <= 0 && m_Lives[1] <= 0)
+                isGameOver = true;
+        }
+        else
+        {
+            if (m_Lives[playerIdx] <= 0)
+                isGameOver = true;
+        }
+
+        if (isGameOver)
+        {
+            OnGameOver();
+
+            auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+            for (const auto& obj : scene.GetObjects())
+            {
+                if (!obj->HasGameComponent<GameManagerUpdater>())
+                    obj->SetActive(false);
+            }
+            return;
+        }
+
+        bool shouldResetLevel = false;
+        if (m_Mode == GameMode::Coop)
+        {
+            bool p1Done = m_IsPlayerDead[0] || m_Lives[0] <= 0;
+            bool p2Done = m_IsPlayerDead[1] || m_Lives[1] <= 0;
+
+            if (p1Done && p2Done)
+            {
+                shouldResetLevel = true;
+                m_PendingReload = true;
+            }
+        }
+        else
+        {
+            shouldResetLevel = true;
+            m_PendingReload = true;
+        }
+
+        if (shouldResetLevel)
+        {
+            m_DeathTimer = m_Timer;
+            auto& scene = dae::SceneManager::GetInstance().GetActiveScene();
+            for (const auto& obj : scene.GetObjects())
+            {
+                if (!obj->HasGameComponent<GameManagerUpdater>())
+                    obj->SetActive(false);
+            }
+        }
     }
 
     void GameManager::OnGameOver()

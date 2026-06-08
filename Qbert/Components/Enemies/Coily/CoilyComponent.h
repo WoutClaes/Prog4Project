@@ -27,6 +27,10 @@ namespace qbert
         int GetRow() const;
         int GetCol() const;
 
+        bool m_IsPlayerControlled{ false };
+
+        ICoilyState* GetState() const { return m_pState.get(); }
+
         CoilyFrame GetCurrentFrame() const;
         dae::GameObject* GetQbertObject()  const { return m_pQbertObject; }
 

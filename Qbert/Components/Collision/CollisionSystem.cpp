@@ -22,7 +22,7 @@ namespace qbert
     {
         for (auto* qbert : m_Qberts)
         {
-            if (!qbert || qbert->IsRidingDisk()) continue;
+            if (!qbert || qbert->IsRidingDisk() || qbert->IsDead()) continue;
 
             for (auto* coily : m_Coilys)
             {
@@ -32,7 +32,7 @@ namespace qbert
                     qbert->GetCol() == coily->GetCol())
                 {
                     qbert->Die();
-                    return;
+                    break;
                 }
             }
         }
@@ -72,7 +72,7 @@ namespace qbert
                     qbert->GetCol() == uw->GetCol())
                 {
                     qbert->Die();
-                    return;
+                    break;
                 }
             }
         }

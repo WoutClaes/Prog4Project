@@ -5,9 +5,17 @@
 #include "Singleton.h"
 #include "Components/ScoreComponent.h"
 #include <array>
+#include <glm/glm.hpp>
 
 namespace qbert
 {
+    struct DiskData
+    {
+        int row{ 0 };
+        int col{ 0 };
+        glm::vec3 screenPos;
+    };
+
     class GameManager final
     {
     public:
@@ -37,6 +45,10 @@ namespace qbert
         void SetBonus(int bonus) { m_Bonus = bonus; }
 
         void AddScore(int amount);
+
+        void AddDisk(int row, int col, const glm::vec3& screenPos) { m_Disks.push_back({ row, col, screenPos }); }
+        std::vector<DiskData>& GetDisks() { return m_Disks; }
+        void ClearDisks() { m_Disks.clear(); }
 
         std::function<void(int levelIndex, int stageIndex, GameMode mode)> OnLoadLevel{};
 
@@ -70,5 +82,7 @@ namespace qbert
         float m_DeathTimer{ 0.0f };
 
         int m_LastTransitionLevel{ -1 };
+
+        std::vector<DiskData> m_Disks{};
     };
 }

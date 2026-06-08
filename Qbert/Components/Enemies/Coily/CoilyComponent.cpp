@@ -39,9 +39,14 @@ namespace qbert
         }
 
         const float dt = dae::GameTime::GetInstance().GetDeltaTime();
-        auto nextState = m_pState->Update(*this, dt);
-        if (nextState)
-            m_pState = std::move(nextState);
+        bool skipAIUpdate = m_IsPlayerControlled && dynamic_cast<SnakeState*>(m_pState.get()) != nullptr;
+
+        if (!skipAIUpdate)
+        {
+            auto nextState = m_pState->Update(*this, dt);
+            if (nextState)
+                m_pState = std::move(nextState);
+        }
     }
 
     CoilyFrame CoilyComponent::GetCurrentFrame() const

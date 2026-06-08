@@ -103,12 +103,8 @@ namespace qbert
     }
 
     static void LoadDisks(dae::Scene& scene, const nlohmann::json& stageData,
-        dae::GameObject* qbert1Obj, float originX, float originY)
+        std::vector<dae::GameObject*> qbertObj, float originX, float originY)
     {
-        if (!qbert1Obj) return;
-
-        auto* qbertComp = qbert1Obj->GetGameComponent<QbertComponent>();
-        auto* gridMover = qbert1Obj->GetGameComponent<GridMover>();
         glm::vec3 topCubePos = { originX + 16, originY - 32, 0.f };
 
         if (stageData.contains("disks") && stageData["disks"].is_array())
@@ -131,8 +127,9 @@ namespace qbert
                 sprite->SetSourceRect(0.f, 0.f, 16.f, 16.f);
                 sprite->SetDestSize(32.f, 32.f);
 
-                diskObj->AddGameComponent<DiskComponent>(qbert1Obj, gridMover, row, col, topCubePos);
-                qbertComp->AddDisk(row, col, screenPos);
+                diskObj->AddGameComponent<DiskComponent>(qbertObj, row, col, topCubePos);
+
+                qbert::GameManager::GetInstance().AddDisk(row, col, screenPos);
 
                 scene.Add(std::move(diskObj));
             }
@@ -212,6 +209,9 @@ namespace qbert
         dae::GameObject* qbert1Obj = nullptr;
         QbertComponent* qbert1 = nullptr;
 
+        dae::GameObject* qbert2Obj = nullptr;
+        QbertComponent* qbert2 = nullptr;
+
         auto& input = dae::InputManager::GetInstance();
         bool gamepad0Connected = input.IsControllerConnected(0);
         bool gamepad1Connected = input.IsControllerConnected(1);
@@ -230,9 +230,12 @@ namespace qbert
         {
             int bottomRow = 6;
             qbert1Obj = MakeQbert(scene, grid, bottomRow, 0, 0);
-            auto* qbert2Obj = MakeQbert(scene, grid, bottomRow, bottomRow, 1);
+            
+            qbert2Obj = MakeQbert(scene, grid, bottomRow, bottomRow, 1);
 
-            BindKeyboardGameplay(qbert1Obj);
+            qbert2 = qbert2Obj->GetGameComponent<QbertComponent>();
+
+            BindKeyboardGameplay(qbert2Obj);
 
             if (gamepad1Connected)
             {
@@ -241,27 +244,14 @@ namespace qbert
             }
             else if (gamepad0Connected)
             {
-                BindGamepadGameplay(qbert2Obj, 0);
+                BindGamepadGameplay(qbert1Obj, 0);
             }
         }
         else if (mode == GameMode::Versus)
         {
             qbert1Obj = MakeQbert(scene, grid, 0, 0, 0);
 
-            BindKeyboardGameplay(qbert1Obj);
-
-            //dae::GameObject* coilyEnemyObj = nullptr;
-            // coilyEnemyObj = MakeControllableCoily(scene, grid, qbert1Obj);
-
-            if (gamepad1Connected)
-            {
-                BindGamepadGameplay(qbert1Obj, 0);
-                // BindGamepadGameplay(coilyEnemyObj, 1);
-            }
-            else if (gamepad0Connected)
-            {
-                // BindGamepadGameplay(coilyEnemyObj, 0);
-            }
+            BindGamepadGameplay(qbert1Obj, 0);
         }
 
         if (!qbert1Obj)
@@ -270,10 +260,18 @@ namespace qbert
             return false;
         }
 
-        qbert1 = qbert1Obj->GetGameComponent<QbertComponent>(); 
+        std::vector<dae::GameObject*> activePlayers;
+        qbert1 = qbert1Obj->GetGameComponent<QbertComponent>();
         collision->AddQbert(qbert1);
+        activePlayers.push_back(qbert1Obj);
 
-        LoadDisks(scene, stageData, qbert1Obj, originX, originY);
+        if (mode == GameMode::Coop && qbert2Obj != nullptr)
+        {
+            collision->AddQbert(qbert2);
+            activePlayers.push_back(qbert2Obj);
+        }
+
+        LoadDisks(scene, stageData, activePlayers, originX, originY);
 
         auto spawnerObj = std::make_unique<dae::GameObject>();
         spawnerObj->AddGameComponent<dae::TransformComponent>();
@@ -502,7 +500,7 @@ namespace qbert
 
             auto versusObj = std::make_unique<dae::GameObject>();
             versusObj->AddGameComponent<dae::TransformComponent>()->SetPosition(300.f, 400.f);
-            versusObj->AddGameComponent<dae::TextComponent>("VERSUS", font, SDL_Color{ 100, 100, 100, 255 }); // Greyed out
+            versusObj->AddGameComponent<dae::TextComponent>("VERSUS", font, SDL_Color{ 255, 255, 0, 255 });
             scene.Add(std::move(versusObj));
 
             auto arrowObj = std::make_unique<dae::GameObject>();
@@ -517,18 +515,15 @@ namespace qbert
             auto* selector = arrowObj->AddGameComponent<MenuSelectorComponent>();
             selector->AddOption({ 250.f, 300.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::SinglePlayer); });
             selector->AddOption({ 250.f, 350.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::Coop); });
-            selector->AddOption({ 250.f, 400.f, 0.f }, []() { /* Not hooked up yet */ });
+            selector->AddOption({ 250.f, 400.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::Versus); });
 
             auto& input = dae::InputManager::GetInstance();
-            // Move Selection Up (Mapped to Q, E, or standard Arrow Keys)
             input.BindKeyboardCommand(SDLK_W, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
             input.BindKeyboardCommand(SDLK_KP_8, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
 
-            // Move Selection Down (Mapped to A, D, or standard Arrow Keys)
             input.BindKeyboardCommand(SDLK_S, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
             input.BindKeyboardCommand(SDLK_KP_2, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
 
-            // Confirm Options
             input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<qbert::MenuSelectCommand>(selector));
 
             input.BindControllerCommand(0, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
@@ -547,14 +542,48 @@ namespace qbert
             auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
             auto controlsObj = std::make_unique<dae::GameObject>();
-            controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(150.f, 100.f);
-            auto* sprite = controlsObj->AddGameComponent<dae::SpriteComponent>();
 
             if (mode == GameMode::SinglePlayer)
             {
+                controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(150.f, 100.f);
+                auto* sprite = controlsObj->AddGameComponent<dae::SpriteComponent>();
                 sprite->SetSpriteSheet("P1 Controls.png");
-                sprite->SetSourceRect(0.f, 0.f, 300.f, 198.f);
+                sprite->SetSourceRect(0.f, 0.f, 300.f, 200.f);
                 sprite->SetDestSize(500.f, 300.f);
+            }
+            else if (mode == GameMode::Coop)
+            {
+                controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(100.f, 150.f);
+                auto* sprite = controlsObj->AddGameComponent<dae::SpriteComponent>();
+                sprite->SetSpriteSheet("P1 Controls.png");
+                sprite->SetSourceRect(0.f, 0.f, 300.f, 200.f);
+                sprite->SetDestSize(250.f, 150.f);
+
+                auto controlsObj2 = std::make_unique<dae::GameObject>();
+                controlsObj2->AddGameComponent<dae::TransformComponent>()->SetPosition(450.f, 150.f);
+                auto* sprite2 = controlsObj2->AddGameComponent<dae::SpriteComponent>();
+                sprite2->SetSpriteSheet("P2 QBert Controls.png");
+                sprite2->SetSourceRect(0.f, 0.f, 300.f, 200.f);
+                sprite2->SetDestSize(250.f, 150.f);
+
+                scene.Add(std::move(controlsObj2));
+            }
+            else if (mode == GameMode::Versus)
+            {
+                controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(100.f, 150.f);
+                auto* sprite = controlsObj->AddGameComponent<dae::SpriteComponent>();
+                sprite->SetSpriteSheet("P1 Controls.png");
+                sprite->SetSourceRect(0.f, 0.f, 300.f, 200.f);
+                sprite->SetDestSize(250.f, 150.f);
+
+                auto controlsObj2 = std::make_unique<dae::GameObject>();
+                controlsObj2->AddGameComponent<dae::TransformComponent>()->SetPosition(450.f, 150.f);
+                auto* sprite2 = controlsObj2->AddGameComponent<dae::SpriteComponent>();
+                sprite2->SetSpriteSheet("P2 Coily Controls.png");
+                sprite2->SetSourceRect(0.f, 0.f, 300.f, 200.f);
+                sprite2->SetDestSize(250.f, 150.f);
+
+                scene.Add(std::move(controlsObj2));
             }
 
             scene.Add(std::move(controlsObj));
