@@ -43,7 +43,6 @@ namespace qbert
         int m_PreviousLives{ -1 };
         int m_PreviousLevel{ -1 };
         int m_PreviousBonus{ -1 };
-        int m_LastScore{ -1 };
         bool m_GameOverTriggered{ false };
     };
 }
