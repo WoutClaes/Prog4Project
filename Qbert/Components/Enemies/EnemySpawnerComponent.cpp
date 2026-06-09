@@ -93,7 +93,7 @@ namespace qbert
                         input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::DownLeft));
                         input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<qbert::CoilyJumpCommand>(rawCoilyPtr, qbert::JumpDirection::DownRight));
 
-                        coily->OnDeathCallback = [this, &input]() { AddEnemyToQueue("Coily");};
+                        coily->OnDeathCallback = [this]() { AddEnemyToQueue("Coily");};
                     }
                     else 
                     {
