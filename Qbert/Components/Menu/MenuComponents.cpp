@@ -2,6 +2,7 @@
 #include "GameTime.h"
 #include "Components/TransformComponent.h"
 #include "GameObject.h"
+#include "Sound/ServiceLocator.h"
 
 namespace qbert
 {
@@ -35,6 +36,8 @@ namespace qbert
         if (m_Options.empty()) return;
 
         m_SelectedIndex = (m_SelectedIndex + direction + m_Options.size()) % m_Options.size();
+
+        dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Change Selection.wav"), 1.f);
 
         GetOwner()->GetGameComponent<dae::TransformComponent>()->SetPosition(
             m_Options[m_SelectedIndex].position.x,

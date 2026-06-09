@@ -5,6 +5,7 @@
 #include "Components/Enemies/SlickSam/SlickSamComponent.h"
 #include "Components/Enemies/UggWrongway/UggWrongwayComponent.h"
 #include "GameManager.h"
+#include "Sound/ServiceLocator.h"
 
 namespace qbert
 {
@@ -31,6 +32,7 @@ namespace qbert
                 if (qbert->GetRow() == coily->GetRow() &&
                     qbert->GetCol() == coily->GetCol())
                 {
+                    dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Qbert Hit.wav"), 1.f);
                     qbert->Die();
                     break;
                 }
@@ -71,6 +73,7 @@ namespace qbert
                 if (qbert->GetRow() == uw->GetRow() &&
                     qbert->GetCol() == uw->GetCol())
                 {
+                    dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Qbert Hit.wav"), 1.f);
                     qbert->Die();
                     break;
                 }

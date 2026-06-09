@@ -4,6 +4,7 @@
 #include "GameTime.h"
 #include "Grid/CubeGrid.h"
 #include "GameManager.h"
+#include "Sound/ServiceLocator.h"
 
 namespace qbert
 {
@@ -19,6 +20,7 @@ namespace qbert
             if (!CubeGrid::IsValid(GetRow(), GetCol()))
             {
                 qbert::GameManager::GetInstance().AddScore(500);
+                dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Coily Fall.wav"), 1.f);
                 Die();
                 return;
             }
@@ -96,6 +98,11 @@ namespace qbert
         const int d      = static_cast<int>(dir);
         const int newRow = GetRow() + DeltaRow[d];
         const int newCol = GetCol() + DeltaCol[d];
+
+        if(dynamic_cast<EggState*>(m_pState.get()))
+            dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Coily Egg Jump.wav"), 1.f);
+        else
+            dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Coily Snake Jump.wav"), 1.f);
 
         if (!CubeGrid::IsValid(newRow, newCol))
         {

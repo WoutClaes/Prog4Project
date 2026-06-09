@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "GameTime.h"
 #include <cstdlib>
+#include "Sound/ServiceLocator.h"
 
 namespace qbert
 {
@@ -63,6 +64,7 @@ namespace qbert
             return;
         }
 
+        dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Other Foes Jump.wav"), 1.f);
         m_pMover->RequestJump(newRow, newCol);
     }
 
@@ -83,6 +85,7 @@ namespace qbert
 
     void SlickSamComponent::Catch()
     {
+        dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/SlickSam Caught.wav"), 1.f);
         Die();
     }
 

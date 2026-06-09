@@ -4,7 +4,6 @@
 #include "GameManager.h"
 #include "Sound/ServiceLocator.h"
 #include <Components/GameComponent.h>
-#include <glm/glm.hpp>
 #include <SDL3/SDL_log.h>
 #include <Grid/CubeGrid.h>
 
@@ -89,6 +88,8 @@ namespace qbert
 
         if (!CubeGrid::IsValid(GetRow(), GetCol()))
         {
+
+            dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/QBert Fall.wav"), 1.f);
             Die();
             return;
         }

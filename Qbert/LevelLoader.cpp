@@ -618,6 +618,8 @@ namespace qbert
             sprite->SetSourceRect(0.f, 0.f, 500.f, 230.f);
             sprite->SetDestSize(400.f, 150.f);
 
+            dae::ServiceLocator::GetSoundSystem().Play(dae::ServiceLocator::GetSoundSystem().RegisterSound("Data/Sounds/Level Screen Tune.wav"), 1.f);
+
             titleObj->AddGameComponent<ScreenTimerComponent>(2.0f, [levelIndex, stageIndex, mode]() {
                 LevelLoader::QueueLoadLevel(levelIndex, stageIndex, mode);
                 });
