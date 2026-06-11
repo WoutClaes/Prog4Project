@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <chrono>
 
 namespace dae
 {
@@ -116,6 +117,12 @@ namespace dae
         }
 
     private:
+        struct ActiveStream
+        {
+            SDL_AudioStream* stream;
+            std::chrono::steady_clock::time_point endTime;
+        };
+
         void UpdateDeviceVolume()
         {
             if (m_Initialized && m_DeviceId != 0)
@@ -130,17 +137,55 @@ namespace dae
             while (true)
             {
                 SoundRequest req{};
+                bool hasRequest = false;
                 {
                     std::unique_lock lock(m_Mutex);
-                    m_CV.wait(lock, [this]
+                    m_CV.wait_for(lock, std::chrono::milliseconds(10), [this]
+                        {
+                            return m_Quit || !m_Queue.empty();
+                        });
+
+                    if (m_Quit && m_Queue.empty()) break;
+
+                    if (!m_Queue.empty())
                     {
-                        return m_Quit || !m_Queue.empty();
-                    });
-                    if (m_Quit && m_Queue.empty()) return;
-                    req = m_Queue.front();
-                    m_Queue.pop();
+                        req = m_Queue.front();
+                        m_Queue.pop();
+                        hasRequest = true;
+                    }
                 }
-                ProcessRequest(req);
+
+                if (hasRequest)
+                {
+                    ProcessRequest(req);
+                }
+
+                CleanUpStreams();
+            }
+
+            for (auto& active : m_ActiveStreams)
+            {
+                SDL_UnbindAudioStream(active.stream);
+                SDL_DestroyAudioStream(active.stream);
+            }
+            m_ActiveStreams.clear();
+        }
+
+        void CleanUpStreams()
+        {
+            auto now = std::chrono::steady_clock::now();
+            for (auto it = m_ActiveStreams.begin(); it != m_ActiveStreams.end(); )
+            {
+                if (now >= it->endTime)
+                {
+                    SDL_UnbindAudioStream(it->stream);
+                    SDL_DestroyAudioStream(it->stream);
+                    it = m_ActiveStreams.erase(it);
+                }
+                else
+                {
+                    ++it;
+                }
             }
         }
 
@@ -192,15 +237,13 @@ namespace dae
             SDL_FlushAudioStream(stream);
 
             const int bytesPerSample = SDL_AUDIO_BYTESIZE(sound.spec.format)
-                                     * sound.spec.channels;
-            const float durationSec  = static_cast<float>(sound.buffer.size())
-                                     / static_cast<float>(sound.spec.freq * bytesPerSample);
+                * sound.spec.channels;
+            const float durationSec = static_cast<float>(sound.buffer.size())
+                / static_cast<float>(sound.spec.freq * bytesPerSample);
             const int sleepMs = static_cast<int>(durationSec * 1000.f) + 50;
 
-            SDL_Delay(sleepMs);
-
-            SDL_UnbindAudioStream(stream);
-            SDL_DestroyAudioStream(stream);
+            auto endTime = std::chrono::steady_clock::now() + std::chrono::milliseconds(sleepMs);
+            m_ActiveStreams.push_back({ stream, endTime });
         }
 
         bool              m_Initialized{ false };
@@ -214,6 +257,7 @@ namespace dae
         std::unordered_map<SoundId, LoadedSound> m_Sounds{};
 
         std::queue<SoundRequest> m_Queue{};
+        std::vector<ActiveStream> m_ActiveStreams{};
         mutable std::mutex m_Mutex{};
         std::condition_variable m_CV{};
         std::thread m_Worker{};

@@ -149,6 +149,10 @@ namespace qbert
         {
             return;
         }
+
+        int remainingDisksBonus = static_cast<int>(m_Disks.size()) * 50;
+        AddScore(remainingDisksBonus);
+
         AddScore(m_Bonus);
         m_LevelCompleteTimer = m_Timer;
 
