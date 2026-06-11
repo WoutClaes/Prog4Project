@@ -16,7 +16,7 @@ namespace dae
 
     void NameInputComponent::Update()
     {
-        // Add a blinking effect for the active letter if you want extra polish!
+
     }
 
     void NameInputComponent::ChangeLetter(int direction)

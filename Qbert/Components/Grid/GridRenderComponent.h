@@ -33,9 +33,9 @@ namespace qbert
         CubeGrid* m_pGrid{ nullptr };
         std::shared_ptr<dae::Texture2D> m_Texture{};
 
-        static constexpr float TileW  = 32.f;
-        static constexpr float TileH  = 32.f;
-        static constexpr float Scale  = 2.f;
+        static constexpr float TileW = 32.f;
+        static constexpr float TileH = 32.f;
+        static constexpr float Scale = 2.f;
 
         int m_BaseCol{ 1 };
         int m_IntermediateCol{ 2 };

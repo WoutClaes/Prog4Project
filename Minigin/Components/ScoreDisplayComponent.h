@@ -12,11 +12,10 @@ namespace dae
         explicit ScoreDisplayComponent(GameObject* pOwner);
         ~ScoreDisplayComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override {}
 
-        // IObserver
         void OnNotify(GameObject* pGameObject, Event event) override;
 
         ScoreDisplayComponent(const ScoreDisplayComponent&) = delete;

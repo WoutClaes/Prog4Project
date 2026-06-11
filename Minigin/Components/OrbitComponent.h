@@ -16,7 +16,7 @@ namespace dae
 
 		~OrbitComponent() override = default;
 
-		void Update()      override;
+		void Update() override;
 		void FixedUpdate() override {}
 		void Render() const override {}
 

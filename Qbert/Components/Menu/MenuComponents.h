@@ -6,7 +6,6 @@
 
 namespace qbert
 {
-    // --- Timer Component for Auto-Advancing Screens ---
     class ScreenTimerComponent final : public dae::GameComponent
     {
     public:
@@ -19,7 +18,6 @@ namespace qbert
         std::function<void()> m_OnComplete;
     };
 
-    // --- Menu Selection Component ---
     class MenuSelectorComponent final : public dae::GameComponent
     {
     public:

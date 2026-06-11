@@ -17,14 +17,14 @@ namespace qbert
             : GameComponent(pOwner) {}
         ~CollisionSystem() override = default;
 
-        void Update()      override;
+        void Update() override;
         void FixedUpdate() override {}
         void Render() const override {}
 
-        void AddQbert(QbertComponent* qbert)           { m_Qberts.push_back(qbert); }
-        void AddCoily(CoilyComponent* coily)           { m_Coilys.push_back(coily); }
-        void AddSlickSam(SlickSamComponent* ss)        { m_SlickSams.push_back(ss); }
-        void AddUggWrongway(UggWrongwayComponent* uw)  { m_UggWrongways.push_back(uw); }
+        void AddQbert(QbertComponent* qbert) { m_Qberts.push_back(qbert); }
+        void AddCoily(CoilyComponent* coily) { m_Coilys.push_back(coily); }
+        void AddSlickSam(SlickSamComponent* ss) { m_SlickSams.push_back(ss); }
+        void AddUggWrongway(UggWrongwayComponent* uw) { m_UggWrongways.push_back(uw); }
 
         CollisionSystem(const CollisionSystem&) = delete;
         CollisionSystem& operator=(const CollisionSystem&) = delete;
@@ -37,9 +37,9 @@ namespace qbert
         void CheckQbertVsSlickSam();
         void CheckQbertVsUggWrongway();
 
-        std::vector<QbertComponent*>       m_Qberts{};
-        std::vector<CoilyComponent*>       m_Coilys{};
-        std::vector<SlickSamComponent*>    m_SlickSams{};
+        std::vector<QbertComponent*> m_Qberts{};
+        std::vector<CoilyComponent*> m_Coilys{};
+        std::vector<SlickSamComponent*> m_SlickSams{};
         std::vector<UggWrongwayComponent*> m_UggWrongways{};
     };
 }

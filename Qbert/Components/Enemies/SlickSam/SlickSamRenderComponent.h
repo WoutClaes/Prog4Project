@@ -13,7 +13,7 @@ namespace qbert
         explicit SlickSamRenderComponent(dae::GameObject* pOwner, SlickSamComponent* pSlickSam);
         ~SlickSamRenderComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override;
 
@@ -26,8 +26,8 @@ namespace qbert
         SlickSamComponent* m_pSlickSam{ nullptr };
         std::shared_ptr<dae::Texture2D> m_Texture{};
 
-        static constexpr float TileW  = 12.f;
-        static constexpr float TileH  = 16.f;
-        static constexpr float Scale  = 3.f;
+        static constexpr float TileW = 12.f;
+        static constexpr float TileH = 16.f;
+        static constexpr float Scale = 3.f;
     };
 }

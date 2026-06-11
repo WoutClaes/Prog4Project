@@ -15,7 +15,7 @@ namespace qbert
         explicit CoilyComponent(dae::GameObject* pOwner, dae::GameObject* pQbertObject);
         ~CoilyComponent() override = default;
 
-        void Update()      override;
+        void Update() override;
         void FixedUpdate() override {}
         void Render() const override {}
 
@@ -32,7 +32,7 @@ namespace qbert
         ICoilyState* GetState() const { return m_pState.get(); }
 
         CoilyFrame GetCurrentFrame() const;
-        dae::GameObject* GetQbertObject()  const { return m_pQbertObject; }
+        dae::GameObject* GetQbertObject() const { return m_pQbertObject; }
 
         std::function<void()> OnDeathCallback;
 
@@ -43,7 +43,7 @@ namespace qbert
 
     private:
         dae::GameObject* m_pQbertObject{ nullptr };
-        GridMover*       m_pMover{ nullptr };
+        GridMover* m_pMover{ nullptr };
 
         static constexpr int DeltaRow[4] = {  1,  1, -1, -1 };
         static constexpr int DeltaCol[4] = {  0,  1, -1,  0 };

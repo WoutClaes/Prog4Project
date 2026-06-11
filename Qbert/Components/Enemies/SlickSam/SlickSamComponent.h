@@ -23,7 +23,7 @@ namespace qbert
         explicit SlickSamComponent(dae::GameObject* pOwner, CubeGrid* pGrid, SlickSamType type);
         ~SlickSamComponent() override = default;
 
-        void Update()      override;
+        void Update() override;
         void FixedUpdate() override {}
         void Render() const override {}
 
@@ -31,7 +31,7 @@ namespace qbert
         int GetCol() const;
 
         SlickSamFrame GetCurrentFrame() const { return m_Frame; }
-        SlickSamType  GetType()         const { return m_Type; }
+        SlickSamType GetType() const { return m_Type; }
 
         bool IsDead() const { return m_Dead; }
         void Die();
@@ -47,9 +47,9 @@ namespace qbert
     private:
         void OnLanded();
 
-        CubeGrid*     m_pGrid{ nullptr };
-        GridMover*    m_pMover{ nullptr };
-        SlickSamType  m_Type;
+        CubeGrid* m_pGrid{ nullptr };
+        GridMover* m_pMover{ nullptr };
+        SlickSamType m_Type;
         SlickSamFrame m_Frame{ SlickSamFrame::SlickLeft };
 
         bool  m_Dead{ false };

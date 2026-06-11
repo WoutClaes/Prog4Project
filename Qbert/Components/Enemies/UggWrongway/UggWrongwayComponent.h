@@ -11,10 +11,10 @@ namespace qbert
 
     enum class UggWrongwayFrame : int
     {
-        UggFrame0     = 0,
-        UggFrame1     = 1,
-        UggFrame2     = 2,
-        UggFrame3     = 3,
+        UggFrame0 = 0,
+        UggFrame1 = 1,
+        UggFrame2 = 2,
+        UggFrame3 = 3,
         WrongwayFrame0 = 4,
         WrongwayFrame1 = 5,
         WrongwayFrame2 = 6,
@@ -48,9 +48,9 @@ namespace qbert
         UggWrongwayComponent& operator=(UggWrongwayComponent&&) = delete;
 
     private:
-        GridMover*        m_pMover{ nullptr };
-        UggWrongwayType   m_Type;
-        UggWrongwayFrame  m_Frame{ UggWrongwayFrame::UggFrame0 };
+        GridMover* m_pMover{ nullptr };
+        UggWrongwayType m_Type;
+        UggWrongwayFrame m_Frame{ UggWrongwayFrame::UggFrame0 };
 
         bool  m_Dead{ false };
         float m_JumpTimer{ 0.f };

@@ -35,7 +35,7 @@ namespace qbert
         CubeGrid* m_pGrid{ nullptr };
         CollisionSystem* m_pCollision{ nullptr };
         dae::GameObject* m_pQbertObj{ nullptr };
-        GameMode         m_Mode;
+        GameMode m_Mode;
 
         std::vector<std::string> m_EnemyQueue{};
         size_t m_CurrentQueueIndex{ 0 };

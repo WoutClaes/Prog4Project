@@ -26,10 +26,10 @@ namespace dae
     {
     public:
         SoundId RegisterSound(const std::string&) override { return INVALID_SOUND_ID; }
-        void    Play(SoundId, float)               override {}
-        void    SetMuted(bool)                     override {}
-        bool    IsMuted() const                    override { return false; }
-        void    SetVolume(float)                   override {}
-        float   GetVolume() const                  override { return 1.0f; }
+        void Play(SoundId, float) override {}
+        void SetMuted(bool) override {}
+        bool IsMuted() const override { return false; }
+        void SetVolume(float) override {}
+        float GetVolume() const override { return 1.0f; }
     };
 }

@@ -21,6 +21,6 @@ namespace qbert
 
     private:
         dae::GameObject* m_pGO{ nullptr };
-        JumpDirection    m_Dir;
+        JumpDirection m_Dir;
     };
 }

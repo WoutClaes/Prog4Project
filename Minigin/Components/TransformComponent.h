@@ -37,8 +37,8 @@ namespace dae
 
 		void SetDirty() { m_isDirty = true; }
 
-		void Update()       override {}
-		void FixedUpdate()  override {}
+		void Update() override {}
+		void FixedUpdate() override {}
 		void Render() const override {}
 
 		TransformComponent(const TransformComponent&) = delete;
@@ -51,6 +51,6 @@ namespace dae
 
 		Transform m_localTransform{};
 		Transform m_worldTransform{};
-		bool      m_isDirty{ true };
+		bool m_isDirty{ true };
 	};
 }

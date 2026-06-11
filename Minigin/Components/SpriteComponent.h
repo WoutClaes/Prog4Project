@@ -14,7 +14,7 @@ namespace dae
         explicit SpriteComponent(GameObject* pOwner);
         ~SpriteComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override;
 

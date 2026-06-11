@@ -40,7 +40,7 @@ namespace dae
 			: m_LastTime(std::chrono::high_resolution_clock::now())
 			, m_DeltaTime(0.f)
 			, m_Accumulator(0.f)
-			, m_FixedTimeStep(0.02f) // 50 fixed updates per second
+			, m_FixedTimeStep(0.02f)
 		{}
 
 		std::chrono::high_resolution_clock::time_point m_LastTime;

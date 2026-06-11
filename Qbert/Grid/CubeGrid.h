@@ -15,7 +15,7 @@ namespace qbert
     class CubeGrid final
     {
     public:
-        static constexpr int Rows       = 7;
+        static constexpr int Rows = 7;
         static constexpr int TotalCubes = 28;
 
         static constexpr float TileW = 32.f;

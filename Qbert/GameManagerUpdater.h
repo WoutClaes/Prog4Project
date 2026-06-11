@@ -11,7 +11,7 @@ namespace qbert
             : GameComponent(pOwner) {}
         ~GameManagerUpdater() override = default;
 
-        void Update()      override { GameManager::GetInstance().Update(); }
+        void Update() override { GameManager::GetInstance().Update(); }
         void FixedUpdate() override {}
         void Render() const override {}
 

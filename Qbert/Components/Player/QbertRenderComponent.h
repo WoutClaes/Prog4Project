@@ -29,8 +29,8 @@ namespace qbert
 
         JumpDirection m_LastDir{ JumpDirection::DownLeft };
 
-        static constexpr float SrcW  = 17.f;
-        static constexpr float SrcH  = 16.f;
+        static constexpr float SrcW = 17.f;
+        static constexpr float SrcH = 16.f;
         static constexpr float Scale = 3.f;
 
         int m_PlayerIdx{ -1 };

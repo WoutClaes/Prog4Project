@@ -18,7 +18,7 @@ namespace dae
         explicit ScoreComponent(GameObject* pOwner);
         ~ScoreComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override {}
 
@@ -34,7 +34,7 @@ namespace dae
         ScoreComponent& operator=(ScoreComponent&&) = delete;
 
     private:
-        int  m_Score{ 0 };
+        int m_Score{ 0 };
         bool m_WinAchievementGranted{ false };
 
         static constexpr int WinScore{ 500 };

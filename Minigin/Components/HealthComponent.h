@@ -10,15 +10,15 @@ namespace dae
         explicit HealthComponent(GameObject* pOwner, int maxLives = 3);
         ~HealthComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override {}
 
         void TakeDamage(int amount = 1);
 
-        int GetLives()   const { return m_Lives; }
+        int GetLives() const { return m_Lives; }
         int GetMaxLives() const { return m_MaxLives; }
-        bool IsDead()    const { return m_Lives <= 0; }
+        bool IsDead() const { return m_Lives <= 0; }
 
         HealthComponent(const HealthComponent&) = delete;
         HealthComponent& operator=(const HealthComponent&) = delete;

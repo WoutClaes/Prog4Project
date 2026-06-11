@@ -13,7 +13,7 @@ namespace dae
 
         void OnNotify(GameObject* pGameObject, Event event) override;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override {}
 

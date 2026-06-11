@@ -14,7 +14,7 @@ namespace qbert
                                       CoilyComponent* pCoily);
         ~CoilyRenderComponent() override = default;
 
-        void Update()      override {}
+        void Update() override {}
         void FixedUpdate() override {}
         void Render() const override;
 
@@ -27,8 +27,8 @@ namespace qbert
         CoilyComponent* m_pCoily{ nullptr };
         std::shared_ptr<dae::Texture2D> m_Texture{};
 
-        static constexpr float SrcW  = 16.f;
-        static constexpr float SrcH  = 32.f;
+        static constexpr float SrcW = 16.f;
+        static constexpr float SrcH = 32.f;
         static constexpr float Scale = 3.f;
     };
 }

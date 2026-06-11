@@ -26,8 +26,8 @@ namespace qbert
         UggWrongwayComponent* m_pUggWrongway{ nullptr };
         std::shared_ptr<dae::Texture2D> m_Texture{};
 
-        static constexpr float TileW  = 16.f;
-        static constexpr float TileH  = 16.f;
-        static constexpr float Scale  = 3.f;
+        static constexpr float TileW = 16.f;
+        static constexpr float TileH = 16.f;
+        static constexpr float Scale = 3.f;
     };
 }

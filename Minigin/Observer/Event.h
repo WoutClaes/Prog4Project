@@ -41,9 +41,9 @@ namespace dae
 
     namespace Events
     {
-        constexpr Event PlayerDied    = make_sdbm_hash("PlayerDied");
+        constexpr Event PlayerDied = make_sdbm_hash("PlayerDied");
         constexpr Event PlayerRespawn = make_sdbm_hash("PlayerRespawn");
         constexpr Event PointsChanged = make_sdbm_hash("PointsChanged");
-        constexpr Event GameWon       = make_sdbm_hash("GameWon");
+        constexpr Event GameWon = make_sdbm_hash("GameWon");
     }
 }

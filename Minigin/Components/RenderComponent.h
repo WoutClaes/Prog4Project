@@ -19,8 +19,8 @@ namespace dae
 		void SetTexture(const std::string& filename);
 		void SetTexture(std::shared_ptr<Texture2D> texture);
 
-		void Update()       override {}
-		void FixedUpdate()  override {}
+		void Update() override {}
+		void FixedUpdate() override {}
 		void Render() const override;
 
 		RenderComponent(const RenderComponent&) = delete;
