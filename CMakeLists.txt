@@ -197,7 +197,7 @@ if(EMSCRIPTEN)
   set(QBERT_PARAM)
 else()
   set(QBERT_TARGET qbert)
-  set(QBERT_PARAM "")
+  set(QBERT_PARAM WIN32)
 endif()
 
 add_executable(${QBERT_TARGET} ${QBERT_PARAM}
