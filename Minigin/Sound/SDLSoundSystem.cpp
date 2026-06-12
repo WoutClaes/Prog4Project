@@ -246,9 +246,9 @@ namespace dae
             m_ActiveStreams.push_back({ stream, endTime });
         }
 
-        bool              m_Initialized{ false };
-        bool              m_Muted{ false };
-        float             m_Volume{ 1.0f };
+        bool m_Initialized{ false };
+        bool m_Muted{ false };
+        float m_Volume{ 1.0f };
         SDL_AudioDeviceID m_DeviceId{ 0 };
 
         unsigned int m_NextId{ 1 };

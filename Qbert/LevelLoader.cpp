@@ -52,6 +52,7 @@ using json = nlohmann::json;
 
 namespace qbert
 {
+    // General bindings
     static void BindGlobalSystemInputs()
     {
         auto& input = dae::InputManager::GetInstance();
@@ -64,13 +65,15 @@ namespace qbert
         input.BindKeyboardCommand(SDLK_F4, dae::KeyState::Down, std::make_unique<VolumeUpCommand>());
     }
 
+    // Keyboard input bindings
+    // wasd & numpad 1379
     static void BindKeyboardGameplay(dae::GameObject* pPlayer)
     {
         auto& input = dae::InputManager::GetInstance();
 
-        input.BindKeyboardCommand(SDLK_Q, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpLeft));
-        input.BindKeyboardCommand(SDLK_E, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpRight));
-        input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownLeft));
+        input.BindKeyboardCommand(SDLK_A, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpLeft));
+        input.BindKeyboardCommand(SDLK_W, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpRight));
+        input.BindKeyboardCommand(SDLK_S, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownLeft));
         input.BindKeyboardCommand(SDLK_D, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownRight));
 
         input.BindKeyboardCommand(SDLK_KP_7, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::UpLeft));
@@ -78,6 +81,8 @@ namespace qbert
         input.BindKeyboardCommand(SDLK_KP_1, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownLeft));
         input.BindKeyboardCommand(SDLK_KP_3, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownRight));
     }
+
+    // Gamepad input bindings
     static void BindGamepadGameplay(dae::GameObject* pPlayer, unsigned int controllerIndex)
     {
         auto& input = dae::InputManager::GetInstance();
@@ -88,6 +93,7 @@ namespace qbert
         input.BindControllerCommand(controllerIndex, dae::ControllerButton::DPadRight, dae::KeyState::Down, std::make_unique<qbert::JumpCommand>(pPlayer, qbert::JumpDirection::DownRight));
     }
 
+    // Q*bert creating helper function
     static dae::GameObject* MakeQbert(dae::Scene& scene, CubeGrid* grid, int startRow, int startCol, int playerIndex)
     {
         auto obj = std::make_unique<dae::GameObject>();
@@ -102,6 +108,7 @@ namespace qbert
         return ptr;
     }
 
+    // Disk creator helper function
     static void LoadDisks(dae::Scene& scene, const nlohmann::json& stageData,
         std::vector<dae::GameObject*> qbertObj, float originX, float originY)
     {
@@ -136,10 +143,13 @@ namespace qbert
         }
     }
 
+    // Main level loader
     bool LevelLoader::Load(int levelIndex, int stageIndex, GameMode mode, dae::Scene& scene)
     {
+        // General bindings
         BindGlobalSystemInputs();
 
+        // All levels completed check
         constexpr int maxLevels = 3;
         if (levelIndex > maxLevels)
         {
@@ -147,6 +157,7 @@ namespace qbert
             return false;
         }
 
+        // Open correct level file
         std::ifstream file(LevelPath(levelIndex));
         if (!file.is_open())
         {
@@ -162,6 +173,7 @@ namespace qbert
             return false;
         }
 
+        // Base data
         float originX = data.value("originX", 400.0f);
         float originY = data.value("originY", 50.0f);
         float scale = data.value("scale", 2.0f);
@@ -182,6 +194,7 @@ namespace qbert
             stageData = data;
         }
 
+        // Stage data
         int baseColor = stageData.value("baseColorIndex", 0);
         int interColor = stageData.value("intermediateColorIndex", 2);
         int targetColor = stageData.value("targetColorIndex", 3);
@@ -190,6 +203,7 @@ namespace qbert
 
         qbert::GameManager::GetInstance().m_Bonus = stageData.value("Bonus", 0);
 
+        // Create grid
         auto gridObj = std::make_unique<dae::GameObject>();
         gridObj->AddGameComponent<dae::TransformComponent>()->SetPosition(0.f, 0.f);
         auto* gridComp = gridObj->AddGameComponent<CubeGridComponent>(originX, originY, scale);
@@ -202,20 +216,25 @@ namespace qbert
         CubeGrid* grid = gridComp->GetGrid();
         scene.Add(std::move(gridObj));
 
+        // Create collision
         auto collisionObj = std::make_unique<dae::GameObject>();
         collisionObj->AddGameComponent<dae::TransformComponent>();
         auto* collision = collisionObj->AddGameComponent<CollisionSystem>();
 
+        // Q*bert player creation
         dae::GameObject* qbert1Obj = nullptr;
         QbertComponent* qbert1 = nullptr;
 
+        // Player 2
         dae::GameObject* qbert2Obj = nullptr;
         QbertComponent* qbert2 = nullptr;
 
+        // Inputs
         auto& input = dae::InputManager::GetInstance();
         bool gamepad0Connected = input.IsControllerConnected(0);
         bool gamepad1Connected = input.IsControllerConnected(1);
 
+        // Single player
         if (mode == GameMode::SinglePlayer)
         {
             qbert1Obj = MakeQbert(scene, grid, 0, 0, 0);
@@ -226,6 +245,7 @@ namespace qbert
                 BindGamepadGameplay(qbert1Obj, 0);
             }
         }
+        // Coop
         else if (mode == GameMode::Coop)
         {
             int bottomRow = 6;
@@ -247,6 +267,7 @@ namespace qbert
                 BindGamepadGameplay(qbert1Obj, 0);
             }
         }
+        // Versus
         else if (mode == GameMode::Versus)
         {
             qbert1Obj = MakeQbert(scene, grid, 0, 0, 0);
@@ -260,6 +281,7 @@ namespace qbert
             return false;
         }
 
+        // Add the Q*bert(s)
         std::vector<dae::GameObject*> activePlayers;
         qbert1 = qbert1Obj->GetGameComponent<QbertComponent>();
         collision->AddQbert(qbert1);
@@ -271,8 +293,10 @@ namespace qbert
             activePlayers.push_back(qbert2Obj);
         }
 
+        // Load all the disks
         LoadDisks(scene, stageData, activePlayers, originX, originY);
 
+        // Enemy spawning
         auto spawnerObj = std::make_unique<dae::GameObject>();
         spawnerObj->AddGameComponent<dae::TransformComponent>();
 
@@ -296,10 +320,13 @@ namespace qbert
         }
         scene.Add(std::move(spawnerObj));
 
+        // Add collision to the scene (with everything assigned)
         scene.Add(std::move(collisionObj));
 
+        // HUD
         auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
 
+        // Player titles sprite
         auto player1Obj = std::make_unique<dae::GameObject>();
         player1Obj->AddGameComponent<dae::TransformComponent>()->SetPosition(40.f, 30.f);
         auto* playerSprite = player1Obj->AddGameComponent<dae::SpriteComponent>();
@@ -307,14 +334,17 @@ namespace qbert
         playerSprite->SetSourceRect(0.f, 0.f, 80.f, 11.f);
         playerSprite->SetDestSize(160.f, 32.f);
 
+        // Score
         auto scoreObj = std::make_unique<dae::GameObject>();
         scoreObj->AddGameComponent<dae::TransformComponent>()->SetPosition(40.f, 60.f);
         auto* scoreText = scoreObj->AddGameComponent<dae::TextComponent>("0", font, SDL_Color{ 255, 165, 0, 255 });
 
+        // Change to text
         auto changeToObj = std::make_unique<dae::GameObject>();
         changeToObj->AddGameComponent<dae::TransformComponent>()->SetPosition(40.f, 120.f);
         changeToObj->AddGameComponent<dae::TextComponent>("CHANGE TO:", font, SDL_Color{ 255, 0, 0, 255 });
 
+        // Change to block sprite
         auto targetBlockObj = std::make_unique<dae::GameObject>();
         targetBlockObj->AddGameComponent<dae::TransformComponent>()->SetPosition(70.f, 150.f);
         auto* targetBlockSprite = targetBlockObj->AddGameComponent<dae::SpriteComponent>();
@@ -335,30 +365,37 @@ namespace qbert
         );
         targetBlockSprite->SetDestSize(34.f, 34.f);
 
+        // Level text
         auto levelTextObj = std::make_unique<dae::GameObject>();
         levelTextObj->AddGameComponent<dae::TransformComponent>()->SetPosition(700.f, 30.f);
         auto* levelText = levelTextObj->AddGameComponent<dae::TextComponent>("LEVEL: 1", font, SDL_Color{ 0, 255, 0, 255 });
 
+        // Stage text
         auto livesObj = std::make_unique<dae::GameObject>();
         livesObj->AddGameComponent<dae::TransformComponent>()->SetPosition(700.f, 60.f);
         auto* livesText = livesObj->AddGameComponent<dae::TextComponent>("ROUND: 1", font, SDL_Color{ 255, 0, 255, 255 });
 
+        // Game over sprite already preloaded
         auto gameOverObj = std::make_unique<dae::GameObject>();
         gameOverObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, 200.f);
         auto* gameOverSprite = gameOverObj->AddGameComponent<dae::SpriteComponent>();
 
+        // Game win sprite already preloaded
         auto winObj = std::make_unique<dae::GameObject>();
         winObj->AddGameComponent<dae::TransformComponent>()->SetPosition(250.f, 200.f);
         auto* winSprite = winObj->AddGameComponent<dae::SpriteComponent>();
 
+        // Stage bonus text
         auto bonusObj = std::make_unique<dae::GameObject>();
         bonusObj->AddGameComponent<dae::TransformComponent>()->SetPosition(325.f, 425.f);
         auto* bonusText = bonusObj->AddGameComponent<dae::TextComponent>("", font, SDL_Color{ 255, 165, 0, 255 });
 
+        // Creating the actual HUD
         auto hudObj = std::make_unique<dae::GameObject>();
         hudObj->AddGameComponent<dae::TransformComponent>();
         hudObj->AddGameComponent<HUDComponent>(scoreText, livesText, levelText, gameOverSprite, winSprite, bonusText);
 
+        // Add all of it to the scene
         scene.Add(std::move(player1Obj));
         scene.Add(std::move(scoreObj));
         scene.Add(std::move(changeToObj));
@@ -370,6 +407,7 @@ namespace qbert
         scene.Add(std::move(bonusObj));
         scene.Add(std::move(hudObj));
 
+        // Game manager updater
         auto gmObj = std::make_unique<dae::GameObject>();
         gmObj->AddGameComponent<dae::TransformComponent>();
         gmObj->AddGameComponent<GameManagerUpdater>();
@@ -378,6 +416,7 @@ namespace qbert
         return true;
     }
 
+    // Helper to load the next level
     void LevelLoader::QueueLoadLevel(int levelIndex, int stageIndex, GameMode mode)
     {
         dae::SceneManager::GetInstance().QueueAction([=]() {
@@ -389,6 +428,7 @@ namespace qbert
             });
     }
 
+    // Load the name input
     void LevelLoader::QueueLoadHighScoreInput(int finalScore)
     {
         dae::SceneManager::GetInstance().QueueAction([finalScore]() {
@@ -421,6 +461,7 @@ namespace qbert
             });
     }
 
+    // Load game over / game win
     void LevelLoader::QueueLoadEndScreen(bool isWin)
     {
         dae::SceneManager::GetInstance().QueueAction([isWin]() {
@@ -443,6 +484,7 @@ namespace qbert
             });
     }
 
+    // Load the highscores
     void LevelLoader::QueueLoadHighScoreBoard()
     {
         dae::SceneManager::GetInstance().QueueAction([]() {
@@ -471,6 +513,7 @@ namespace qbert
             });
     }
 
+    // Main menu loader
     void LevelLoader::QueueLoadMainMenu()
     {
         dae::SceneManager::GetInstance().QueueAction([]() {
@@ -518,23 +561,34 @@ namespace qbert
             selector->AddOption({ 250.f, 400.f, 0.f }, []() { LevelLoader::QueueLoadControlsScreen(GameMode::Versus); });
 
             auto& input = dae::InputManager::GetInstance();
+            // Up
             input.BindKeyboardCommand(SDLK_W, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
             input.BindKeyboardCommand(SDLK_KP_8, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
 
+            // Down
             input.BindKeyboardCommand(SDLK_S, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
             input.BindKeyboardCommand(SDLK_KP_2, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
 
+            // Select
             input.BindKeyboardCommand(SDLK_RETURN, dae::KeyState::Down, std::make_unique<qbert::MenuSelectCommand>(selector));
 
+            // Up
             input.BindControllerCommand(0, dae::ControllerButton::DPadUp, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, -1));
+
+            // Down
             input.BindControllerCommand(0, dae::ControllerButton::DPadDown, dae::KeyState::Down, std::make_unique<qbert::MenuMoveCommand>(selector, 1));
 
+            // Select
             input.BindControllerCommand(0, dae::ControllerButton::ButtonA, dae::KeyState::Down, std::make_unique<qbert::MenuSelectCommand>(selector));
+
+            // Mute
+            input.BindKeyboardCommand(SDLK_F2, dae::KeyState::Down, std::make_unique<ToggleMuteCommand>());
 
             scene.Add(std::move(arrowObj));
             });
     }
 
+    // Control screen
     void LevelLoader::QueueLoadControlsScreen(GameMode mode)
     {
         dae::SceneManager::GetInstance().QueueAction([mode]() {
@@ -543,6 +597,7 @@ namespace qbert
 
             auto controlsObj = std::make_unique<dae::GameObject>();
 
+            // Only player 1
             if (mode == GameMode::SinglePlayer)
             {
                 controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(150.f, 100.f);
@@ -551,6 +606,7 @@ namespace qbert
                 sprite->SetSourceRect(0.f, 0.f, 300.f, 200.f);
                 sprite->SetDestSize(500.f, 300.f);
             }
+            // Player 1 and 2
             else if (mode == GameMode::Coop)
             {
                 controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(100.f, 150.f);
@@ -568,6 +624,7 @@ namespace qbert
 
                 scene.Add(std::move(controlsObj2));
             }
+            // Player 1 and Coily
             else if (mode == GameMode::Versus)
             {
                 controlsObj->AddGameComponent<dae::TransformComponent>()->SetPosition(100.f, 150.f);
@@ -588,6 +645,7 @@ namespace qbert
 
             scene.Add(std::move(controlsObj));
 
+            // Bottom text
             auto font = dae::ResourceManager::GetInstance().LoadFont("Minecraft.ttf", 24);
             auto textObj = std::make_unique<dae::GameObject>();
             textObj->AddGameComponent<dae::TransformComponent>()->SetPosition(200.f, 420.f);
@@ -600,6 +658,7 @@ namespace qbert
             });
     }
 
+    // Level transfer
     void LevelLoader::QueueLoadLevelTransition(int levelIndex, int stageIndex, GameMode mode)
     {
         dae::SceneManager::GetInstance().QueueAction([levelIndex, stageIndex, mode]() {
@@ -628,6 +687,7 @@ namespace qbert
             });
     }
 
+    // Helper to get the correct level file
     std::string LevelLoader::LevelPath(int levelIndex)
     {
         std::ostringstream ss;
