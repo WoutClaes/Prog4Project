@@ -11,8 +11,8 @@ namespace dae
 	{
 	public:
 		explicit RenderComponent(GameObject* owner)
-			: GameComponent(owner) {
-		}
+			: GameComponent(owner) 
+		{}
 
 		~RenderComponent() override = default;
 

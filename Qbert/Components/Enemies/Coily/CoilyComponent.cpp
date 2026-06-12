@@ -123,6 +123,12 @@ namespace qbert
         if (OnDeathCallback) OnDeathCallback();
     }
 
-    int CoilyComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }
-    int CoilyComponent::GetCol() const { return m_pMover ? m_pMover->GetCol() : 0; }
+    int CoilyComponent::GetRow() const 
+    { 
+        return m_pMover ? m_pMover->GetRow() : 0; 
+    }
+    int CoilyComponent::GetCol() const 
+    { 
+        return m_pMover ? m_pMover->GetCol() : 0; 
+    }
 }

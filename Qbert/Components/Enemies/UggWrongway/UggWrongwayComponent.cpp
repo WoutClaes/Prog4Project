@@ -61,8 +61,14 @@ namespace qbert
         m_pMover->RequestJump(newRow, newCol);
     }
 
-    int UggWrongwayComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }
-    int UggWrongwayComponent::GetCol() const { return m_pMover ? m_pMover->GetCol() : 0; }
+    int UggWrongwayComponent::GetRow() const 
+    { 
+        return m_pMover ? m_pMover->GetRow() : 0; 
+    }
+    int UggWrongwayComponent::GetCol() const 
+    { 
+        return m_pMover ? m_pMover->GetCol() : 0; 
+    }
 
     void UggWrongwayComponent::Die()
     {

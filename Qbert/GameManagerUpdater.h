@@ -8,7 +8,9 @@ namespace qbert
     {
     public:
         explicit GameManagerUpdater(dae::GameObject* pOwner)
-            : GameComponent(pOwner) {}
+            : GameComponent(pOwner) 
+        {}
+
         ~GameManagerUpdater() override = default;
 
         void Update() override { GameManager::GetInstance().Update(); }

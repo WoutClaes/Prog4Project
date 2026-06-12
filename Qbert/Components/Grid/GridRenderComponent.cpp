@@ -51,10 +51,16 @@ namespace qbert
     {
         switch (state)
         {
-        case CubeColorState::Intermediate: return m_IntermediateCol;
-        case CubeColorState::Target:       return m_TargetCol;
+        case CubeColorState::Intermediate: 
+            return m_IntermediateCol;
+
+        case CubeColorState::Target:
+            return m_TargetCol;
+
         case CubeColorState::Base:
-        default:                           return m_BaseCol;
+
+        default:                           
+            return m_BaseCol;
         }
     }
 }

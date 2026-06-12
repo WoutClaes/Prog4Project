@@ -11,8 +11,7 @@ namespace dae
 			, m_radius(radius)
 			, m_speed(speed)
 			, m_angle(0.f)
-		{
-		}
+		{}
 
 		~OrbitComponent() override = default;
 

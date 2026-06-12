@@ -30,12 +30,6 @@ namespace qbert
         const SDL_FRect src{ srcX, srcY, TileW, TileH };
         const auto& pos = transform->GetWorldPosition();
 
-        dae::Renderer::GetInstance().RenderTexture(
-            *m_Texture,
-            pos.x, pos.y,
-            src,
-            TileW * Scale,
-            TileH * Scale
-        );
+        dae::Renderer::GetInstance().RenderTexture(*m_Texture, pos.x, pos.y, src, TileW * Scale, TileH * Scale);
     }
 }

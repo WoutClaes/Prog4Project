@@ -49,9 +49,6 @@ static void load()
         };
 
     qbert::LevelLoader::QueueLoadMainMenu();
-
-    auto collisionObj = std::make_unique<dae::GameObject>();
-    collisionObj->AddGameComponent<dae::TransformComponent>();
 }
 
 int main(int, char* [])

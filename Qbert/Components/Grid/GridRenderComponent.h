@@ -28,7 +28,7 @@ namespace qbert
 
     private:
         void RenderCube(const Cube& cube) const;
-        int  ColorColForState(CubeColorState state) const;
+        int ColorColForState(CubeColorState state) const;
 
         CubeGrid* m_pGrid{ nullptr };
         std::shared_ptr<dae::Texture2D> m_Texture{};

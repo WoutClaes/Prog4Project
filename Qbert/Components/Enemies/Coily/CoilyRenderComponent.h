@@ -10,8 +10,7 @@ namespace qbert
     class CoilyRenderComponent final : public dae::GameComponent
     {
     public:
-        explicit CoilyRenderComponent(dae::GameObject* pOwner,
-                                      CoilyComponent* pCoily);
+        explicit CoilyRenderComponent(dae::GameObject* pOwner, CoilyComponent* pCoily);
         ~CoilyRenderComponent() override = default;
 
         void Update() override {}

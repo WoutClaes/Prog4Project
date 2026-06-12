@@ -13,8 +13,7 @@ dae::TextComponent::TextComponent(GameObject* pOwner, const std::string& text, s
     , m_Text(text)
     , m_Color(color)
     , m_Font(std::move(font))
-{
-}
+{}
 
 void dae::TextComponent::Update()
 {

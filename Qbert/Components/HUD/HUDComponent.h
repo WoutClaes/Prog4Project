@@ -13,13 +13,7 @@ namespace qbert
     class HUDComponent final : public dae::GameComponent
     {
     public:
-        HUDComponent(dae::GameObject* pOwner,
-            dae::TextComponent* pScoreText,
-            dae::TextComponent* m_pRoundText,
-            dae::TextComponent* pLevelText,
-            dae::SpriteComponent* pGameOverSprite,
-            dae::SpriteComponent* pWinSprite,
-            dae::TextComponent* pBonusText);
+        HUDComponent(dae::GameObject* pOwner, dae::TextComponent* pScoreText, dae::TextComponent* m_pRoundText, dae::TextComponent* pLevelText, dae::SpriteComponent* pGameOverSprite, dae::SpriteComponent* pWinSprite, dae::TextComponent* pBonusText);
         ~HUDComponent() override = default;
 
         void Update() override;

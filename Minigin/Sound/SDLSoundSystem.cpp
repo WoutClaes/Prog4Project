@@ -270,16 +270,24 @@ namespace dae
     SDLSoundSystem::~SDLSoundSystem() = default;
 
     SoundId SDLSoundSystem::RegisterSound(const std::string& filename)
-    { return m_pImpl->RegisterSound(filename); }
+    { 
+        return m_pImpl->RegisterSound(filename); 
+    }
 
     void SDLSoundSystem::Play(SoundId id, float volume)
-    { m_pImpl->Play(id, volume); }
+    { 
+        m_pImpl->Play(id, volume); 
+    }
 
     void SDLSoundSystem::SetMuted(bool muted)
-    { m_pImpl->SetMuted(muted); }
+    { 
+        m_pImpl->SetMuted(muted); 
+    }
 
     bool SDLSoundSystem::IsMuted() const
-    { return m_pImpl->IsMuted(); }
+    { 
+        return m_pImpl->IsMuted(); 
+    }
 
     void SDLSoundSystem::SetVolume(float volume)
     {

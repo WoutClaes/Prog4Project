@@ -8,7 +8,9 @@ namespace dae
     {
     public:
         explicit SteamAchievementObserver(GameObject* pOwner)
-            : GameComponent(pOwner) {}
+            : GameComponent(pOwner) 
+        {}
+
         ~SteamAchievementObserver() override = default;
 
         void OnNotify(GameObject* pGameObject, Event event) override;

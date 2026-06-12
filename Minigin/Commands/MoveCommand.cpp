@@ -9,9 +9,7 @@ namespace dae
 		: GameObjectCommand(pGameObject)
 		, m_Direction(direction)
 		, m_Speed(speed)
-	{
-
-	}
+	{}
 
 	void MoveCommand::Execute()
 	{

@@ -23,10 +23,10 @@ namespace qbert
 
         for (auto& cube : m_Cubes)
         {
-            const int   row = cube.GetRow();
-            const int   col = cube.GetCol();
-            const float x   = m_OriginX + col * TileW * scale - row * stepX;
-            const float y   = m_OriginY + row * stepY;
+            const int row = cube.GetRow();
+            const int col = cube.GetCol();
+            const float x = m_OriginX + col * TileW * scale - row * stepX;
+            const float y = m_OriginY + row * stepY;
             cube.SetScreenPos(x, y);
         }
     }

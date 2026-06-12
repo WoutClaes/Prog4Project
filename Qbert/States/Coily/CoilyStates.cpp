@@ -100,12 +100,15 @@ namespace qbert
         case JumpDirection::DownLeft:  
             m_Frame = CoilyFrame::SnakeDownLeftStretched;  
             break;
+
         case JumpDirection::DownRight: 
             m_Frame = CoilyFrame::SnakeDownRightStretched; 
             break;
+
         case JumpDirection::UpLeft:    
             m_Frame = CoilyFrame::SnakeUpLeftStretched;    
             break;
+
         case JumpDirection::UpRight:   
             m_Frame = CoilyFrame::SnakeUpRightStretched;   
             break;
@@ -119,12 +122,15 @@ namespace qbert
         case JumpDirection::DownLeft:  
             m_Frame = CoilyFrame::SnakeDownLeftSquished;  
             break;
+
         case JumpDirection::DownRight: 
             m_Frame = CoilyFrame::SnakeDownRightSquished; 
             break;
+
         case JumpDirection::UpLeft:    
             m_Frame = CoilyFrame::SnakeUpLeftSquished;    
             break;
+
         case JumpDirection::UpRight:   
             m_Frame = CoilyFrame::SnakeUpRightSquished;   
             break;

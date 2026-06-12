@@ -8,13 +8,7 @@
 
 namespace qbert
 {
-    HUDComponent::HUDComponent(dae::GameObject* pOwner,
-        dae::TextComponent* pScoreText,
-        dae::TextComponent* m_pRoundText,
-        dae::TextComponent* pLevelText,
-        dae::SpriteComponent* pGameOverSprite,
-        dae::SpriteComponent* pWinSprite,
-        dae::TextComponent* pBonusText)
+    HUDComponent::HUDComponent(dae::GameObject* pOwner, dae::TextComponent* pScoreText, dae::TextComponent* m_pRoundText, dae::TextComponent* pLevelText, dae::SpriteComponent* pGameOverSprite, dae::SpriteComponent* pWinSprite, dae::TextComponent* pBonusText)
         : GameComponent(pOwner)
         , m_pScoreText(pScoreText)
         , m_pRoundText(m_pRoundText)

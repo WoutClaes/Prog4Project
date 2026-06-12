@@ -14,8 +14,7 @@ namespace qbert
     class EnemySpawnerComponent final : public dae::GameComponent
     {
     public:
-        explicit EnemySpawnerComponent(dae::GameObject* pOwner, CubeGrid* pGrid,
-            CollisionSystem* pCollision, dae::GameObject* pQbertObj, GameMode mode);
+        explicit EnemySpawnerComponent(dae::GameObject* pOwner, CubeGrid* pGrid, CollisionSystem* pCollision, dae::GameObject* pQbertObj, GameMode mode);
         ~EnemySpawnerComponent() override = default;
 
         void Update() override;

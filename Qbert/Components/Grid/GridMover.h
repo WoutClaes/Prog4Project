@@ -23,8 +23,8 @@ namespace qbert
         void SetGridPosition(int row, int col, const glm::vec3& screenPos);
 
         bool IsJumping() const { return m_IsJumping; }
-        int  GetRow() const { return m_Row; }
-        int  GetCol() const { return m_Col; }
+        int GetRow() const { return m_Row; }
+        int GetCol() const { return m_Col; }
 
         void SetOffsetY(float offsetY) { m_OffsetY = offsetY; }
 

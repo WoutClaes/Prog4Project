@@ -125,9 +125,17 @@ namespace dae
 
 			switch (binding.state)
 			{
-			case KeyState::Down:    shouldExecute = controller->IsDown(binding.button);    break;
-			case KeyState::Up:      shouldExecute = controller->IsUp(binding.button);      break;
-			case KeyState::Pressed: shouldExecute = controller->IsPressed(binding.button); break;
+			case KeyState::Down:
+				shouldExecute = controller->IsDown(binding.button);    
+				break;
+
+			case KeyState::Up:      
+				shouldExecute = controller->IsUp(binding.button);      
+				break;
+
+			case KeyState::Pressed: 
+				shouldExecute = controller->IsPressed(binding.button); 
+				break;
 			}
 
 			if (shouldExecute)

@@ -14,7 +14,9 @@ namespace qbert
     {
     public:
         explicit CollisionSystem(dae::GameObject* pOwner)
-            : GameComponent(pOwner) {}
+            : GameComponent(pOwner) 
+        {}
+
         ~CollisionSystem() override = default;
 
         void Update() override;

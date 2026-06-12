@@ -89,6 +89,12 @@ namespace qbert
         Die();
     }
 
-    int SlickSamComponent::GetRow() const { return m_pMover ? m_pMover->GetRow() : 0; }
-    int SlickSamComponent::GetCol() const { return m_pMover ? m_pMover->GetCol() : 0; }
+    int SlickSamComponent::GetRow() const 
+    { 
+        return m_pMover ? m_pMover->GetRow() : 0; 
+    }
+    int SlickSamComponent::GetCol() const 
+    { 
+        return m_pMover ? m_pMover->GetCol() : 0; 
+    }
 }

@@ -9,8 +9,8 @@ namespace dae
 	public:
 		explicit TransformComponent(GameObject* pOwner)
 			: GameComponent(pOwner)
-		{
-		}
+		{}
+
 		~TransformComponent() override = default;
 
 		void SetLocalPosition(float x, float y, float z = 0.f)
