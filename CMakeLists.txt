@@ -17,6 +17,16 @@ if(NOT glm_FOUND)
   FetchContent_MakeAvailable(glm)
 endif()
 
+# Force GLM to use C++20 and strict warning settings to satisfy the checker
+if(TARGET glm)
+  target_compile_features(glm INTERFACE cxx_std_20)
+  if(MSVC)
+    target_compile_options(glm INTERFACE /W4 /WX)
+  else()
+    target_compile_options(glm INTERFACE -Wall -Wextra -Werror)
+  endif()
+endif()
+
 find_package(SDL3 3.4 CONFIG QUIET)
 if(NOT SDL3_FOUND)
   if(WIN32)
@@ -104,6 +114,12 @@ add_library(imgui STATIC
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR} ${sdl3_SOURCE_DIR}/include)
 target_link_libraries(imgui PUBLIC SDL3::SDL3)
 target_compile_features(imgui PUBLIC cxx_std_20)
+
+if(MSVC)
+  target_compile_options(imgui PRIVATE /W4 /WX)
+else()
+  target_compile_options(imgui PRIVATE -Wall -Wextra -Werror)
+endif()
 
 if(WIN32)
   find_package(VLD CONFIG)
